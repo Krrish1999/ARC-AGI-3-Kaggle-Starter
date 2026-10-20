@@ -1,0 +1,375 @@
+{
+  "ticket": "S1-P",
+  "date": "2026-10-20",
+  "timezone": "Asia/Calcutta",
+  "branch": "feat/s1-p-perception",
+  "mutation": "[EDIT] observation and action interception",
+  "parent_unchanged": true,
+  "checks": {
+    "pytest": {
+      "passed": 20,
+      "collected": 20
+    },
+    "ruff_agent": "passed",
+    "pyright_agent": {
+      "errors": 0,
+      "warnings": 0
+    },
+    "systems_fixtures": {
+      "passed": 8,
+      "collected": 8
+    },
+    "notebook_python_payload": "parsed",
+    "generated_notebook_containment": "passed"
+  },
+  "containment": {
+    "containment_passed": true,
+    "sandbox_isolated": true,
+    "checks": {
+      "deployed_sources_present": true,
+      "sandbox_present": true,
+      "engine_import_denied": true,
+      "absolute_read": true,
+      "traversal_read": true,
+      "symlink_read": true,
+      "write": true,
+      "symlink_write": true,
+      "directory_list": true,
+      "subprocess_escape": true,
+      "fork_escape": true,
+      "exec_escape": true,
+      "native_open": true,
+      "canary_unchanged": true,
+      "write_not_created": true,
+      "compute_works": true,
+      "memory_capped": true,
+      "planner_failure_visible": true,
+      "loop_terminated": true,
+      "missing_worker_fails": true
+    },
+    "violations": [],
+    "evidence": {
+      "engine_probe_returncode": 0,
+      "absolute_read": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "DENIED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.03212175900034708
+      },
+      "traversal_read": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "DENIED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.032600514000023395
+      },
+      "symlink_read": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "DENIED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.03218847399966762
+      },
+      "write": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "DENIED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.03248821599981966
+      },
+      "symlink_write": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "DENIED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.03223314600018057
+      },
+      "directory_list": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "DENIED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.03246968800021932
+      },
+      "subprocess_escape": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "DENIED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.032098627999857854
+      },
+      "fork_escape": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "DENIED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.03228253599991149
+      },
+      "exec_escape": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "DENIED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.06455778100007592
+      },
+      "native_open": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "DENIED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.032415355000011914
+      },
+      "memory": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "MEMORY_CAPPED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.06433610500016584
+      },
+      "loop": {
+        "ok": false,
+        "ready": true,
+        "timeout": true,
+        "returncode": -9,
+        "stdout": "",
+        "stderr": "",
+        "error": "timeout",
+        "elapsed_seconds": 15.001557114000207
+      }
+    },
+    "resource_limits_enabled": true
+  },
+  "paired_smoke": {
+    "passed": 30,
+    "attempted": 30,
+    "samples_per_flag": 6
+  },
+  "full_compatibility_smoke": [
+    {
+      "game": "vc33",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "wa30",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "ar25",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "sc25",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "sp80",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "sb26",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "ft09",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "re86",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "m0r0",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "sk48",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "ka59",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "lf52",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "cn04",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "cd82",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "bp35",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "dc22",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "tu93",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "lp85",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "g50t",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "r11l",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "ls20",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "su15",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "s5i5",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "tr87",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "tn36",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    }
+  ],
+  "repairs": [
+    {
+      "pass": 1,
+      "trigger": "initial pytest 11/12, pyright 3 errors",
+      "change": "use archived transient_pixels name; ndimage result and graph edge tuple annotations",
+      "pytest": "12/12; pyright 2 remaining annotations"
+    },
+    {
+      "pass": 2,
+      "trigger": "causal object diff heterogeneous type",
+      "change": "explicit typed object diff; regression coverage for boundary/failure/reference contracts",
+      "pytest": "19/19; pyright 0 errors"
+    },
+    {
+      "pass": 3,
+      "trigger": "first public matrix aborted after 12/13 successful attempts when every advertised object signature was exhausted under animation-off",
+      "change": "explicit logged first-RESET replan; preserve hard refusals and reference insistence",
+      "pytest": "20/20; rerun matrix 30/30"
+    }
+  ],
+  "source_sha256": {
+    "agent/arclog.py": "3043cf1829bf61621dc717226cc71d2a8cfc2a61039ae25c3fdad79e28a94589",
+    "agent/my_agent.py": "ab7af56daf0593721e73f9a414047cccefff62314f8de44f5c5c504e5979db27",
+    "tests/test_perception_s1p.py": "58751d82590971026e314377bf8570120c91335a39428eab6c982445aca15c1b"
+  },
+  "log_contract": "append-only JSONL log.txt: exact raw [DIFF], causal/transient/HUD fields; refused proposals and replans are separate non-live events",
+  "prediction_and_promotion": "N/A: S1-W backend/expect pipeline absent; no score improvement or statistical promotion claimed",
+  "publication_revalidation": {
+    "date": "2026-10-20",
+    "timezone": "Asia/Calcutta",
+    "pytest_passed": 20,
+    "pytest_collected": 20,
+    "ruff_agent": "passed",
+    "pyright_errors": 0,
+    "pyright_warnings": 0,
+    "containment_passed": true,
+    "containment_checks_passed": 20,
+    "containment_checks_total": 20,
+    "source_hashes_verified": true,
+    "base": "main",
+    "base_commit": "f48f9f1"
+  }
+}

@@ -212,3 +212,197 @@ separate native-open, fork and exec denial checks still run.
 **Critic decision:** Gate 1 PASS for this systems implementation. S1-P/S1-W
 integration, unavailable upstream base/LLM assets, Gates 2–3 and statistical
 promotion remain on hold. No champion promotion or Kaggle submission performed.
+
+## S1-P implementation — 2026-10-20 (Asia/Calcutta)
+
+**Mutation: [EDIT] observation and action interception.** Local implementation
+branch `feat/s1-p-perception`, based on S1-S commit `c283ccd`. The architectural
+parent remains the unmodified archived notebook; the missing base FrameView and
+segmentation file bodies are adapted from the preserved contracts and complete
+signature hunks. No verified score champion or promotion is inferred.
+
+**Prespecified validation protocol:** five required synthetic fixture categories
+plus boundary, immutability and reference-path regressions. Public smoke/ablation
+selection: `ls20`, `ft09`, `vc33`; agent RNG seeds `{7, 19}`; per-game framework cap
+40 (41 iterations under the existing `<=` loop). Reference is the candidate with
+exactly one requested flag set to `0`, versus all four flags `1`; other flags,
+package/data versions and cap are held fixed. This yields six paired samples for
+each independent flag (30 total runs with the six shared all-on controls).
+Environmental randomness will be seeded only if the public wrapper exposes a
+seed option; otherwise that limitation will be recorded. Report exact eligible
+live-action denominators, zero settled-and-transient causal-effect counts,
+blocked proposals and observed reset regressions. These small exploratory runs
+are not a promotion benchmark. Results follow below after execution.
+
+### Implemented observation and dispatch contracts
+
+- `agent/arclog.py` provides a FrameView adapter with immutable integer grids and
+  lazy connected components; object fields include frame-local ID, color, inclusive
+  `(xmin,ymin,xmax,ymax)`, area, centroid, translation-invariant color-free shape
+  hash, rotation-canonical hash/pose, and adjacency. Signature canonicalization is
+  ported from Cell 3's complete hunks. SciPy `ndimage.label` and NetworkX provide
+  the accelerated graph path; an equivalent stdlib path is tested for offline
+  environments without those wheels. NumPy is already an engine dependency.
+- Reuses `baseline.frame_diff.compute_frame_diff`, animation normalization,
+  collapse/summary helpers, `transition_evidence`, and `NoopRepeatGuard`. Missing
+  original FrameView/segmentation bodies are explicitly adapted, not described
+  as faithfully reconstructed upstream files. Both raw object diffs and a causal
+  object-diff view with the inferred HUD delta neutralized are retained.
+- Confirmed response transitions are recorded at `MyAgent.do_action_request`,
+  including the final action when the main loop stops. Each frozen record stores
+  pre/post grid, the exact ordered response intermediates, action/coordinates,
+  source object signature, level/episode, reset/full-reset/terminal flags,
+  settled and reverting transient evidence, HUD mask, and helper diagnostics.
+  No response means a visible dispatch-error event and re-raised failure, not an
+  invented successful transition. Empty rendered responses carry unavailable
+  causal-evidence status and cannot teach inert signatures.
+- Per-agent `scratch/perception-*/log.txt` is append-only JSONL. `[DIFF]` lists exact
+  raw `(x,y): old -> new` cells; `[CAUSAL_BOARD_DIFF]`,
+  `[TRANSIENT_ANIMATION_DIFF]` and `[HUD_STEP_BUDGET_STRIP]` remain distinct.
+  Refused proposals, explicit replans and dispatch failures are separate events;
+  they never consume a live-action denominator or fabricate transitions.
+- Wrapper ordering verified from public installed interfaces: generic
+  `arcengine/base_game.py:perform_action` appends render results in loop order;
+  `arc_agi/local_wrapper.py:step` returns that result; remote conversion and
+  framework `_convert_raw_frame_data` preserve array order. Only one response's
+  `FrameData.frame[:-1]` contains its intermediates. Outer accumulated `frames`
+  are never interpreted as animation. No private game source was inspected.
+- Handoff: `agent.arclog.get_board_objects(view_or_log)`,
+  `get_step_diffs(log, index=-1)`, `get_hud_mask(log)`, and
+  `is_dead_signature(log, action_type, target_shape_hash, target_color)`; equivalent
+  methods live on `agent.perception`. Tuples/frozen records carry the full
+  evidence; JSON-derived dictionaries returned to callers are independent copies.
+  Worker access remains host-mediated under S1-S containment.
+
+### Independent default-on ablations and reference paths
+
+- `ENABLE_HUD_MASK=1`: requires four same-scope settled observations (three
+  monotonic transitions), at least two action labels, an outer full row/column,
+  a contiguous two-color strip and nested shrinking occupied sets. Microframes
+  must also be monotonic; a reverting border flash invalidates classification.
+  Initial warmup remains unmasked and prior records are never rewritten. Scalar
+  `remaining_step_budget_estimate` is emitted only for a constant observed
+  per-action drain; this is provisional visual evidence, not a proven timer or
+  a game-specific resource decoder. With `0`, no HUD cells are removed.
+- `ENABLE_ANIMATION_DIFF=1`: captures ordered changes at coordinates that change
+  at least twice during the response, including flashes reverting to the original
+  color. The pre-action board is included when identifying these changes.
+  Transient event indices refer to the collapsed animation chain; the exact raw
+  intermediates are separately preserved. With `0`, the policy/reference diff
+  sees only settled changes; raw animation remains in the audit evidence.
+- `ENABLE_DEAD_SIGNATURE=1`: per-level/episode `(action,shape_hash,color)` counters
+  hard-block after two consecutive interactions with zero settled AND transient
+  non-HUD effect. One inert observation does not block; positive effects clear
+  that signature's count. Reset, terminal, full-reset and level boundaries clear
+  scope. Targets come from the pre-action component under the requested cell.
+  Untargeted directional actions do not invent an object identity. With `0`,
+  generalized dead-signature blocking is disabled and the archived state/position
+  no-op block-then-insist path is preserved from level 2. Its override is not
+  consumed twice by choose/dispatch interception. Stale-observation validation
+  remains exposed for future planned-action dispatch.
+- `ENABLE_DOUBLE_RESET_GUARD=1`: checks the last confirmed live action, not the
+  last proposal. Blocks a second RESET in both choose and final dispatch paths,
+  selecting an advertised non-reset action. With `0`, consecutive RESET proposals
+  dispatch unchanged. If hard signatures exhaust every advertised target, an
+  explicit logged replan may issue one first RESET; it cannot revive a hard-dead
+  target or bypass the consecutive-reset guard. If neither an admissible action
+  nor a first RESET is possible, execution fails visibly for replanning.
+- Generic sampling respects advertised actions and uses a private seeded RNG;
+  `ARC3_SEED` supports paired controls without shared-global RNG interference.
+  The public `Arcade.make(..., seed=...)` interface seeds fresh environments.
+  No game IDs or fixed level solutions were added to deployed Python.
+
+### Actual validation and denominators
+
+Evidence: `research_lab/traces/s1_p_validation.json`,
+`research_lab/traces/s1_p_smoke.json`, `containment.json`; raw per-action logs are
+under the recorded ignored `scratch/` paths with SHA256 values in the smoke
+report. The archived notebook and all 11 extracted parent modules are unchanged.
+
+| Required / regression check | Actual outcome |
+|---|---|
+| `pytest tests/test_perception_s1p.py` | PASS, 20/20 parametrized cases |
+| `ruff check agent/` | PASS |
+| `pyright agent/` | PASS, 0 errors / warnings |
+| `python scripts/audit_containment.py` | PASS, `containment_passed=true`, 20/20 behavioral/presence checks |
+| Existing `scripts/test_systems.py` | PASS, 8/8 fixtures |
+| Notebook payload parse, bundled containment preflight | PASS; both entry modules and all support sources packaged |
+| Parent hash/extraction verification; `pip check`; diff whitespace check | PASS |
+| Public independent ablation matrix | PASS, 30/30 runs, 41 observed responses each; six paired samples per flag |
+| Full public compatibility smoke, cap 2 | PASS, 25/25 games, three framework iterations each, zero completed levels; not a benchmark |
+
+Required synthetic fixture denominators: reverting flash has two positive
+transient-effect responses out of two despite 0/2 settled effects; animation-off
+sees 2/2 zero policy effects. Translation matches one moved object and exactly
+its two changed cells. Row and column timer fixtures each infer one 64-cell
+border after three transitions (two warmup transitions remain unmasked).
+Inert target remains allowed after 1/1 zero effects, becomes hard-blocked after
+2/2, and is cleared by positive effects and tested boundary kinds. Default-on
+consecutive-reset fixture dispatches one RESET and one non-reset alternative for
+two proposals; toggle-off dispatches both RESET proposals. Additional cases cover
+border flash, non-border/action-diversity negatives, immutable evidence,
+reference insistence, stale observations, final-response recording, dispatch
+failure, no-admissible-action failure, and signature-exhaustion replan.
+
+Public paired results below are exact numerators/denominators. “Policy zero” uses
+that ablation's visible causal representation. “Common zero” always includes raw
+transient evidence and the same HUD-assessment rule; HUD-off traces matched the
+paired all-on evidence exactly, allowing the same mask assessment. Thus animation
+visibility is not silently relabeled as an action-efficiency gain. Blocked counts
+include internal alternative-candidate proposals, not live actions. The large
+animation-off block count includes repeated candidate cells belonging to the same
+hard-dead signatures during exploratory fallback.
+
+| Flag | Policy zero ON | Policy zero OFF | Common zero ON | Common zero OFF | Blocked ON / OFF | RESETs ON / OFF | Paired common zero-rate reduction, 95% bootstrap |
+|---|---|---|---|---|---|---|---|
+| `HUD_MASK` | 1/246 | 1/246 | 1/246 | 1/246 | 0 / 0 | 0 / 0 | 0.000 pp [0.000, 0.000] |
+| `ANIMATION_DIFF` | 1/246 | 81/244 | 1/246 | 6/244 | 0 / 35735 | 0 / 2 | 2.093 pp [0.000, 4.593] |
+| `DEAD_SIGNATURE` | 1/246 | 1/246 | 1/246 | 1/246 | 0 / 0 | 0 / 0 | 0.000 pp [0.000, 0.000] |
+| `DOUBLE_RESET_GUARD` | 1/246 | 1/246 | 1/246 | 1/246 | 0 / 0 | 0 / 0 | 0.000 pp [0.000, 0.000] |
+
+Bootstrap uses 5,000 resamples of six matched game/seed pairs with seed 917;
+positive reduction means ON has fewer common zero-effect actions. The interval
+includes zero for the animation comparison. Other intervals are degenerate from
+identical short traces and do not establish equivalence or generalization.
+All 30 runs complete zero levels: no late-level evidence or score lift. No public
+run reached a reset with completed progress at risk, so reset-loss opportunity
+coverage is **0/0 (N/A)**. Observed losses were 0/2 RESETs in the animation-off
+runs and 0/0 RESETs for all-on controls. All observed consecutive-reset dispatch
+counts were zero. Synthetic fixtures, rather than these short public runs,
+establish the guard and HUD behaviors. S1-W prediction coverage/match/simulator
+metrics remain N/A because its inference/expect pipeline is not implemented.
+
+Repair/failure log: initial fixture run 11/12 passed (wrong archived summary key
+in the test) and Pyright reported three annotation issues. Repair 1 passed 12/12
+fixtures with two object-diff annotation errors remaining. Repair 2 passed 19/19
+fixtures and type checking; one test-style diagnostic was corrected. The first
+public matrix then completed 12/13 attempted runs and failed on `ft09`, seed 7,
+`ENABLE_ANIMATION_DIFF=0` when all legal targets were hard-dead. Repair 3 added
+visible first-RESET replanning while preserving hard blocks and reference
+insistence; its new regression brings the fixture total to 20/20 and the matrix
+rerun completes 30/30. No exhausted guard was bypassed or error hidden.
+
+Environment versions: arc-agi 0.9.9, arcengine 0.9.3, NumPy 2.5.4, SciPy 1.18.1,
+NetworkX 3.7, pytest 9.1.1, Ruff 0.17.1, Pyright 1.1.414. Public wrapper log versions:
+`ls20-9607627b`, `ft09-0d8bbf25`, `vc33-5430563c`. Both environment and policy seeds
+are `{7,19}`. Source/package/data settings were fixed across each pair. Optional
+scientific packages were installed only in the primary environment; the sandbox
+remains engine-free and offline deployment can use the tested stdlib fallback.
+
+**Critic decision:** S1-P functional acceptance and Gate 1 PASS. Handoff is ready
+for S1-W. Gates 2–3, causal performance promotion, champion selection and Kaggle
+submission remain on hold; no PR push or submission was performed for S1-P.
+
+
+### S1-P publication preparation — 2026-10-20 (Asia/Calcutta)
+
+Explicit user authorization now includes committing and pushing
+`feat/s1-p-perception` and opening a PR against `main`. The existing branch was
+fast-forwarded to main's S1-S merge (`f48f9f1`) before committing S1-P; the
+validated implementation and archived source hashes are unchanged. Publication
+revalidation: `pytest tests/test_perception_s1p.py` PASS 20/20;
+`ruff check agent/` PASS; `pyright agent/` PASS, 0 errors / warnings;
+`python scripts/audit_containment.py` PASS, `containment_passed=true`, 20/20 checks.
+The prior 30/30 paired smoke runs and 25/25 compatibility smokes remain recorded
+above; they were not rerun for publication. No score promotion or Kaggle
+submission is authorized or claimed.
