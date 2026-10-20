@@ -1,6 +1,6 @@
 {
-  "id": "aanchal009/arc-prize-2026-arc-agi-3-starter",
-  "title": "ARC Prize 2026 \u2014 ARC-AGI-3 Starter",
+  "id": "aanchal009/arc-agi-3-runtime-check",
+  "title": "ARC-AGI-3 Runtime Check",
   "code_file": "submission.ipynb",
   "language": "python",
   "kernel_type": "notebook",
@@ -14,10 +14,7 @@
   "competition_sources": [
     "arc-prize-2026-arc-agi-3"
   ],
-  "model_sources": [
-    "dfranzen/albucino-qwen3-8-flash-next-drafter/Transformers/default/1",
-    "dfranzen/intel-qwen3.8-flash-next-w4a16-autoround/Transformers/default/1"
-  ],
+  "model_sources": [],
   "docker_image": "gcr.io/kaggle-private-byod/python@sha256:57e612b484cf3df5026ee4dcc3cb176974b22b2bc0937fb1e16132a8be4cb13c",
   "machine_shape": "NvidiaRtxPro6000"
 }

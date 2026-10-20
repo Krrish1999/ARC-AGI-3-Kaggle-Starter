@@ -75,6 +75,7 @@ def build() -> dict:
                                'ROOT = Path(__file__).resolve().parents[1]',
                                "ROOT = Path('/tmp/agent_preflight')"))
     run_cell = code_cell("runner.run()\n")
+    preflight_cell = code_cell("if not runner.rerun:\n    runner.preflight_framework()\n")
 
     if ACCELERATOR not in _ACCELERATORS:
         raise SystemExit(
@@ -122,6 +123,7 @@ def build() -> dict:
             *write_cells,
             verification_cell,
             audit_cell,
+            preflight_cell,
             run_cell,
         ],
     }

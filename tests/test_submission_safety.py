@@ -424,9 +424,11 @@ def test_action_fallback_ablation_restores_exception(tmp_path, monkeypatch):
 
 
 
-@pytest.mark.parametrize('mode', ['ordinary', 'rerun', 'runner_failure', 'preflight_failure'])
+@pytest.mark.parametrize('mode', ['ordinary', 'rerun', 'runner_failure', 'preflight_failure',
+                                  'save_preflight_failure'])
 def test_exact_generated_notebook_executes_and_records_correct_outcome(tmp_path, monkeypatch, mode):
-    monkeypatch.setenv('KAGGLE_IS_COMPETITION_RERUN', '' if mode == 'ordinary' else 'True')
+    monkeypatch.setenv('KAGGLE_IS_COMPETITION_RERUN',
+                      '' if mode in ('ordinary', 'save_preflight_failure') else 'True')
     monkeypatch.setenv('ENABLE_NOTEBOOK_DIAGNOSTICS', '0')
     notebook = build()
     namespace = {'__name__': 'generated_notebook_fixture'}
@@ -443,6 +445,12 @@ def test_exact_generated_notebook_executes_and_records_correct_outcome(tmp_path,
         child = ('raise ValueError("fixture runner failure")' if mode == 'runner_failure' else
                  f'open({str(run.submission)!r}, "wb").write(bytes.fromhex({buf.getvalue().hex()!r}))')
         (run.framework / 'main.py').write_text(child)
+
+    def save_preflight():
+        with run.stage('framework_imports'):
+            if mode == 'save_preflight_failure':
+                raise ImportError('fixture missing framework dependency')
+            run.event('fixture_preflight', gateway_contacted=False)
 
     try:
         for cell in notebook['cells']:
@@ -461,12 +469,17 @@ def test_exact_generated_notebook_executes_and_records_correct_outcome(tmp_path,
                 with pytest.raises((RuntimeError, ConnectionError)):
                     exec(source, namespace)
                 break
+            if source.startswith('if not runner.rerun:') and mode == 'save_preflight_failure':
+                with pytest.raises(ImportError, match='missing framework dependency'):
+                    exec(source, namespace)
+                break
             exec(source, namespace)
             if run is None:
                 run = namespace['runner']
                 run.submission_wait_seconds = 0
                 monkeypatch.setattr(run, 'install_dependencies', lambda: run.event('fixture_install'))
                 monkeypatch.setattr(run, 'prepare_framework', prepare)
+                monkeypatch.setattr(run, 'preflight_framework', save_preflight)
         assert status(run)['status'] == ('NOT_EVALUATED' if mode == 'ordinary' else
                                          'FAILED' if mode.endswith('failure') else 'COMPLETE')
         assert run.submission.exists() is (mode in ('ordinary', 'rerun'))

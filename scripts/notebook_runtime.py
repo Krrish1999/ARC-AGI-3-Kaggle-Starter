@@ -19,6 +19,7 @@ import time
 import traceback
 from contextlib import contextmanager
 from pathlib import Path
+from textwrap import dedent
 
 
 class NotebookRunner:
@@ -175,6 +176,10 @@ class NotebookRunner:
                          '--connect-timeout', '5', '--max-time', '15', '--retry', '999',
                          '--retry-all-errors', '--retry-delay', '5', '--retry-max-time', '600',
                          'http://gateway:8001/api/games'], timeout=620)
+        self.prepare_offline_framework()
+
+    def prepare_offline_framework(self) -> None:
+        """Exercise the deployed setup without contacting or starting a gateway."""
         with self.stage('framework_setup'):
             source = self.competition / 'ARC-AGI-3-Agents'
             if not (source / 'main.py').is_file():
@@ -182,7 +187,10 @@ class NotebookRunner:
             shutil.copytree(source, self.framework, dirs_exist_ok=True)
             shutil.copytree(self.bundle, self.framework / 'agents/templates', dirs_exist_ok=True)
             sandbox = self.working / '.venv_agent_sandbox'
-            self.command('sandbox_setup', [sys.executable, '-m', 'venv', str(sandbox)], timeout=120)
+            # The worker needs only stdlib. Avoid ensurepip and bundled pip
+            # availability as an unnecessary dependency of isolated startup.
+            self.command('sandbox_setup', [sys.executable, '-m', 'venv', '--without-pip',
+                                          str(sandbox)], timeout=120)
             os.environ['ARC3_SANDBOX_PYTHON'] = str(sandbox / 'bin/python')
             self.preflight.mkdir(parents=True, exist_ok=True)
             for name, target in [('agent', self.bundle), ('.venv_agent_sandbox', sandbox)]:
@@ -218,6 +226,43 @@ class NotebookRunner:
             self.event('agent_registered', agent='myagent', action_log=os.environ['ARC3_LOG_DIR'],
                        operation_mode='competition',
                        backend='existing agent configuration; no model server launched by this notebook')
+
+    def preflight_framework(self) -> None:
+        """Validate Kaggle's actual interpreter, containment and framework imports."""
+        self.prepare_offline_framework()
+        with self.stage('framework_imports'):
+            self.command('framework_imports', [sys.executable, '-c',
+                         dedent('''\
+                         import os
+                         from pathlib import Path
+                         import numpy as np
+                         from agents import AVAILABLE_AGENTS
+                         from agents.agent import Agent
+                         from arcengine import FrameDataRaw, GameState
+                         agent_class = AVAILABLE_AGENTS['myagent']
+                         assert issubclass(agent_class, Agent)
+                         print('FRAMEWORK_IMPORTS_OK', flush=True)
+                         # Synthetic public API data only; never instantiate an
+                         # Arcade or read environment source during this check.
+                         class Fixture:
+                             def __init__(self):
+                                 self.observation_space = FrameDataRaw(
+                                     game_id='runtime-fixture', frame=[np.zeros((4, 4), dtype=np.int8)],
+                                     state=GameState.NOT_FINISHED, win_levels=1, available_actions=[1])
+                             def step(self, action, data=None, reasoning=None):
+                                 self.observation_space.state = GameState.WIN
+                                 self.observation_space.levels_completed = 1
+                                 return self.observation_space
+                         os.environ['ARC3_LOG_DIR'] = str(Path.cwd().parent / 'diagnostics/synthetic-agent')
+                         agent = agent_class(card_id='fixture', game_id='runtime-fixture',
+                                             agent_name='fixture', ROOT_URL='', record=False,
+                                             arc_env=Fixture())
+                         agent.main()
+                         assert agent.action_counter == 1 and not agent._recovery_mode
+                         print('FRAMEWORK_RUNTIME_OK synthetic_actions=1 gateway_actions=0', flush=True)
+                         ''')],
+                         timeout=120, cwd=self.framework)
+        self.event('save_preflight_passed', gateway_contacted=False, gameplay_actions=0)
 
     def monitor(self, process: subprocess.Popen, output) -> None:
         last_heartbeat = -60.0
