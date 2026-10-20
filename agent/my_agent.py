@@ -18,6 +18,7 @@ import os
 import random
 import tempfile
 import time
+import traceback
 from collections import deque
 from collections.abc import Callable
 from pathlib import Path
@@ -552,6 +553,7 @@ class MyAgent(Agent):
         log_root.mkdir(parents=True, exist_ok=True)
         self.perception = PerceptionLog(Path(tempfile.mkdtemp(prefix="perception-", dir=log_root)) / "log.txt")
         self._perception_started = False
+        self._recovery_mode = False
         self._observation: FrameData | None = None
         self._dispatch_approval: tuple[str, tuple[int, int] | None, int] | None = None
         self.prefix_lock = PrefixLock()
@@ -579,61 +581,103 @@ class MyAgent(Agent):
     def choose_action(
         self, frames: list[FrameData], latest_frame: FrameData
     ) -> GameAction:
-        # Public level metadata supplies weights; an unavailable count defers
-        # scheduling rather than inventing an environment structure.
-        if latest_frame.win_levels > 0:
-            if self.level_budget is None:
-                self.level_budget = LevelBudget(
-                    env_seconds=float(os.getenv("ARC3_ENV_SECONDS", str(TARGET_SECONDS))),
-                    levels=latest_frame.win_levels,
-                    run_started=float(os.getenv("ARC3_RUN_STARTED", str(time.time()))),
-                )
-            level = min(latest_frame.levels_completed + 1, latest_frame.win_levels)
-            if level > self.level_budget.level:
-                self.level_budget.begin_level(level)
+        try:
+            if self._recovery_mode:
+                return self._safe_fallback(latest_frame)
+            # Public level metadata supplies weights; an unavailable count defers
+            # scheduling rather than inventing an environment structure.
+            if latest_frame.win_levels > 0:
+                if self.level_budget is None:
+                    self.level_budget = LevelBudget(
+                        env_seconds=float(os.getenv("ARC3_ENV_SECONDS", str(TARGET_SECONDS))),
+                        levels=latest_frame.win_levels,
+                        run_started=float(os.getenv("ARC3_RUN_STARTED", str(time.time()))),
+                    )
+                level = min(latest_frame.levels_completed + 1, latest_frame.win_levels)
+                if level > self.level_budget.level:
+                    self.level_budget.begin_level(level)
 
-        self._ensure_perception(latest_frame)
-        for transition in self.perception.records:
-            if transition.step > self.world._seen:
-                self.world.observe(transition)
-        planned = None
-        if latest_frame.state in (GameState.NOT_PLAYED, GameState.GAME_OVER):
-            self.world.flush('reset_proposal')
-            proposal = GameAction.RESET
-        else:
-            legal = self._legal_actions(latest_frame)
-            if not legal:
-                raise RuntimeError("no advertised non-reset action; replan required")
-            planned = self.world.next_action(legal)
-            if planned is None:
-                try:
-                    self.world.reason(legal)
-                except Exception as error:
-                    self.world.flush('reasoning_failure')
-                    self.world.event('reasoning_failure', error=type(error).__name__, detail=str(error))
-                    raise
-                planned = self.world.next_action(legal)
-            if planned is not None:
-                proposal = GameAction[planned['action']]
-                if proposal.is_complex():
-                    proposal.set_data({'x': planned['x'], 'y': planned['y']})
+            self._ensure_perception(latest_frame)
+            for transition in self.perception.records:
+                if transition.step > self.world._seen:
+                    self.world.observe(transition)
+            planned = None
+            if latest_frame.state in (GameState.NOT_PLAYED, GameState.GAME_OVER):
+                self.world.flush('reset_proposal')
+                proposal = GameAction.RESET
             else:
-                if self.world.backend is not None:
-                    raise RuntimeError('backend produced no admissible evidence-gated plan')
-                self.world.event('fallback', reason='no_backend_or_validated_route',
-                                 wasted_moves=self.world.wasted_moves)
-                proposal = self._sample(self._rng.choice(legal))
-        action: Any = self._resolve_action(proposal, latest_frame)
-        if planned is not None and _action(action.name, self._coordinates(action)) != {
-                k: v for k, v in planned.items() if k in ('action', 'x', 'y')}:
-            self.world.flush('perception_blocked_plan')
-            raise RuntimeError('planned action blocked; replan before dispatch')
-        self._dispatch_approval = (action.name, self._coordinates(action), self.perception.current.step)
-        action.reasoning = {"why": "expect-checked plan" if planned else "visible exploration fallback",
-                            "evidence_step": self.perception.current.step,
-                            "context_id": self.world.memory.context}
-        if self.level_budget is not None and self.level_budget.generation_tokens(1) == 0:
-            action.reasoning["budget"] = "level reasoning budget exhausted; best-effort action"
+                legal = self._legal_actions(latest_frame)
+                if not legal:
+                    raise RuntimeError("no advertised non-reset action; replan required")
+                planned = self.world.next_action(legal)
+                if planned is None:
+                    try:
+                        self.world.reason(legal)
+                    except Exception as error:
+                        self.world.flush('reasoning_failure')
+                        self.world.event('reasoning_failure', error=type(error).__name__, detail=str(error))
+                        raise
+                    planned = self.world.next_action(legal)
+                if planned is not None:
+                    proposal = GameAction[planned['action']]
+                    if proposal.is_complex():
+                        proposal.set_data({'x': planned['x'], 'y': planned['y']})
+                else:
+                    if self.world.backend is not None:
+                        raise RuntimeError('backend produced no admissible evidence-gated plan')
+                    self.world.event('fallback', reason='no_backend_or_validated_route',
+                                     wasted_moves=self.world.wasted_moves)
+                    proposal = self._sample(self._rng.choice(legal))
+            action: Any = self._resolve_action(proposal, latest_frame)
+            if planned is not None and _action(action.name, self._coordinates(action)) != {
+                    k: v for k, v in planned.items() if k in ('action', 'x', 'y')}:
+                self.world.flush('perception_blocked_plan')
+                raise RuntimeError('planned action blocked; replan before dispatch')
+            self._dispatch_approval = (action.name, self._coordinates(action), self.perception.current.step)
+            action.reasoning = {"why": "expect-checked plan" if planned else "visible exploration fallback",
+                                "evidence_step": self.perception.current.step,
+                                "context_id": self.world.memory.context}
+            if self.level_budget is not None and self.level_budget.generation_tokens(1) == 0:
+                action.reasoning["budget"] = "level reasoning budget exhausted; best-effort action"
+            return action
+        except Exception as e:
+            if not enabled('ENABLE_ACTION_FALLBACK'):
+                raise
+            # Do not call world.flush/event or perception here: these may be
+            # exactly the subsystem that failed. No stale plan may dispatch.
+            self._recovery_mode = True
+            self._dispatch_approval = None
+            self.world.queue.clear()
+            self.world.pending = None
+            self.world.queue_scope = None
+            self._log_action_failure(e)
+            return self._safe_fallback(latest_frame)
+
+    @staticmethod
+    def _log_action_failure(error: Exception) -> None:
+        detail = ''.join(traceback.format_exception(error))
+        try:
+            directory = Path(os.getenv('ARC3_LOG_DIR', 'scratch'))
+            directory.mkdir(parents=True, exist_ok=True)
+            with (directory / 'choose_action_errors.log').open('a', encoding='utf-8') as stream:
+                stream.write(detail + '\n')
+        except OSError:
+            # A full or read-only disk must not turn recovery into another crash.
+            logging.getLogger(__name__).error('Unable to save action traceback: %s', detail)
+
+    @staticmethod
+    def _safe_fallback(observation: FrameData) -> GameAction:
+        # ACTION1 is the framework's UP action. Use public action metadata only;
+        # emergency mode never re-enters world-model or perception helpers.
+        if observation.state in (GameState.NOT_PLAYED, GameState.GAME_OVER):
+            return GameAction.RESET
+        legal = [a for a in GameAction if a is not GameAction.RESET
+                 and a.value in observation.available_actions]
+        action: Any = next((a for a in legal if not a.is_complex()),
+                      legal[0] if legal else GameAction.ACTION1)
+        if action.is_complex():
+            action.set_data({'x': 0, 'y': 0})
+        action.reasoning = {'why': 'choose_action exception recovery; unverified fallback'}
         return action
 
     def _ensure_perception(self, observation: FrameData) -> None:
@@ -705,6 +749,12 @@ class MyAgent(Agent):
         raise RuntimeError("all advertised actions blocked; replan required before dispatch")
 
     def do_action_request(self, action: GameAction) -> FrameData:
+        if self._recovery_mode:
+            # Remain in best-effort mode for this game. Failed perception must
+            # not crash dispatch or invent transitions used as replay evidence.
+            response = super().do_action_request(action)
+            self._observation = response
+            return response
         # Final interception also protects direct framework/tool calls that did
         # not originate in choose_action. Snapshot mutable enum data before step.
         if self._observation is None:
