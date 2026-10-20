@@ -150,6 +150,9 @@ The notebook prints an execution-mode banner before dependency installation.
 `SAVE_OR_INTERACTIVE` followed by `NOT_EVALUATED` explains a short save run;
 it does not indicate that hidden games completed. A competition rerun must log
 `COMPETITION_RERUN`, gateway readiness, containment, and framework execution.
+The launcher must also use the ARC SDK's `competition` operation mode: `online`
+omits `competition_mode: true` from the scorecard-open request. The generated
+framework configuration and its child process both enforce competition mode.
 
 Download these files from `/kaggle/working/diagnostics/`:
 

@@ -267,6 +267,21 @@ def test_real_runner_streams_traceback_and_fails(runner):
     assert status(runner)['status'] == 'FAILED'
 
 
+def test_framework_child_uses_competition_mode_without_changing_kaggle_flag(runner, monkeypatch):
+    monkeypatch.setenv('OPERATION_MODE', 'online')
+    flag = os.environ['KAGGLE_IS_COMPETITION_RERUN']
+    runner.framework.mkdir()
+    report = runner.working / 'child-environment.json'
+    (runner.framework / 'main.py').write_text(
+        'import json, os\nfrom pathlib import Path\n'
+        f'Path({str(report)!r}).write_text(json.dumps({{name: os.environ[name] for name in '
+        '("OPERATION_MODE", "KAGGLE_IS_COMPETITION_RERUN")}))\n')
+    runner.run_framework()
+    assert json.loads(report.read_text()) == {'OPERATION_MODE': 'competition',
+                                             'KAGGLE_IS_COMPETITION_RERUN': flag}
+    assert os.environ['OPERATION_MODE'] == 'online'
+
+
 def test_real_child_finalizes_on_sigint_and_produces_original_result(runner):
     runner.framework.mkdir()
     child = ('import signal, sys, time\n'
@@ -314,6 +329,22 @@ def test_prepare_framework_registers_agent_and_preserves_audit_report(runner, au
             registry = (runner.framework / 'agents/__init__.py').read_text()
             compile(registry, '<registry>', 'exec')
             assert 'HOST=gateway' in (runner.framework / '.env').read_text()
+            # Exercise the real SDK using the launcher's generated .env. The
+            # gateway distinguishes competition scorecards by this wire field.
+            from arc_agi import Arcade, OperationMode
+            from dotenv import dotenv_values
+            config = dotenv_values(runner.framework / '.env')
+            response = SimpleNamespace(raise_for_status=lambda: None,
+                                       json=lambda: {'card_id': 'fixture-card'})
+            games = SimpleNamespace(raise_for_status=lambda: None, json=lambda: [])
+            with patch.dict(os.environ, {k: v for k, v in config.items() if v is not None}), \
+                    patch('requests.get', return_value=games), \
+                    patch('requests.Session.post', return_value=response) as post:
+                arcade = Arcade(environments_dir=str(runner.working / 'empty-environments'),
+                                recordings_dir=str(runner.working / 'fixture-recordings'))
+                assert arcade.open_scorecard() == 'fixture-card'
+                assert post.call_args.kwargs['json'].get('competition_mode') is True
+                assert arcade.operation_mode is OperationMode.COMPETITION
     assert json.loads((runner.diagnostics / 'containment.json').read_text())['containment_passed'] is not audit_failure
 
 

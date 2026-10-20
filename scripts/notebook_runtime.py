@@ -213,9 +213,10 @@ class NotebookRunner:
             (self.framework / 'agents/__init__.py').write_text(registry)
             (self.framework / '.env').write_text(
                 'SCHEME=http\nHOST=gateway\nPORT=8001\nARC_API_KEY=test-key-123\n'
-                'ARC_BASE_URL=http://gateway:8001/\nOPERATION_MODE=online\nENVIRONMENTS_DIR=\n'
+                'ARC_BASE_URL=http://gateway:8001/\nOPERATION_MODE=competition\nENVIRONMENTS_DIR=\n'
                 f'RECORDINGS_DIR={self.working / "server_recording"}\n')
             self.event('agent_registered', agent='myagent', action_log=os.environ['ARC3_LOG_DIR'],
+                       operation_mode='competition',
                        backend='existing agent configuration; no model server launched by this notebook')
 
     def monitor(self, process: subprocess.Popen, output) -> None:
@@ -268,7 +269,8 @@ class NotebookRunner:
             with path.open('w', encoding='utf-8') as stream, path.open(errors='replace') as output:
                 process = subprocess.Popen(
                     [sys.executable, '-u', 'main.py', '--agent', 'myagent'], cwd=self.framework,
-                    env=dict(os.environ, MPLBACKEND='agg', PYTHONUNBUFFERED='1'),
+                    env=dict(os.environ, MPLBACKEND='agg', PYTHONUNBUFFERED='1',
+                             OPERATION_MODE='competition'),
                     stdout=stream, stderr=subprocess.STDOUT, start_new_session=True)
                 self.event('framework_started', pid=process.pid, log=str(path))
                 self.monitor(process, output)
