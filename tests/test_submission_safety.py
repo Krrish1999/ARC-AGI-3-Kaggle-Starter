@@ -1,13 +1,15 @@
-"""Submission survival fixtures using synthetic observations and child runners."""
+"""Gateway-only output and diagnostic fixtures; no hidden games or real gateway."""
 from __future__ import annotations
 
+import hashlib
+import io
+import json
 import os
 import signal
 import subprocess
 import sys
 import time
 from pathlib import Path
-from textwrap import dedent
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -17,34 +19,300 @@ from arcengine import FrameData, GameAction, GameState
 
 from agent.my_agent import MyAgent
 from scripts.build_notebook import build
+from scripts.notebook_runtime import NotebookRunner
 
 
-def setup_source(tmp_path):
-    cells = [c['source'] for c in build()['cells'] if c['cell_type'] == 'code']
-    return cells[0].replace('/kaggle/working', str(tmp_path)).replace(
+@pytest.fixture
+def runner(tmp_path, monkeypatch):
+    monkeypatch.setenv('KAGGLE_IS_COMPETITION_RERUN', 'True')
+    monkeypatch.setenv('ENABLE_NOTEBOOK_DIAGNOSTICS', '1')
+    # Do not let hardware discovery influence synthetic fixtures.
+    monkeypatch.setattr('scripts.notebook_runtime.shutil.which', lambda name: None)
+    run = NotebookRunner('fixture-build', working=tmp_path, bundle=tmp_path / 'bundle',
+                         competition=tmp_path / 'input', preflight=tmp_path / 'preflight',
+                         audit_script=tmp_path / 'audit.py')
+    run.submission_wait_seconds = 0
+    run.start()
+    yield run
+    for handler in list(run.logger.handlers):
+        handler.close()
+        run.logger.removeHandler(handler)
+
+
+def status(run):
+    return json.loads((run.diagnostics / 'status.json').read_text())
+
+
+def events(run):
+    return [json.loads(line) for line in (run.diagnostics / 'events.jsonl').read_text().splitlines()]
+
+
+def write_result(path):
+    pd.DataFrame([{'row_id': 'synthetic_0', 'game_id': 'synthetic',
+                   'end_of_game': True, 'score': 0.0}]).to_parquet(path, index=False)
+
+
+@pytest.mark.parametrize('flag', ['', '0', 'False', 'false', 'no'])
+def test_ordinary_run_records_not_evaluated_and_never_creates_submission(runner, monkeypatch, flag):
+    runner.rerun = False
+    monkeypatch.setenv('KAGGLE_IS_COMPETITION_RERUN', flag)
+    with patch.object(runner, 'prepare_framework') as prepare:
+        runner.run()
+    prepare.assert_not_called()
+    assert status(runner)['status'] == 'NOT_EVALUATED'
+    assert not runner.submission.exists()
+    assert events(runner)[-1]['event'] == 'not_evaluated'
+
+
+@pytest.mark.parametrize('flag,expected', [('', False), ('0', False), ('False', False),
+                                         ('True', True), ('1', True), ('yes', True)])
+def test_mode_parsing_is_explicit(tmp_path, monkeypatch, flag, expected):
+    monkeypatch.setenv('KAGGLE_IS_COMPETITION_RERUN', flag)
+    monkeypatch.setenv('ENABLE_NOTEBOOK_DIAGNOSTICS', '0')
+    run = NotebookRunner('mode', working=tmp_path, bundle=tmp_path / 'bundle')
+    try:
+        run.start()
+        assert run.rerun is expected
+        assert not run.submission.exists()
+        assert events(run)[1]['mode'] == ('COMPETITION_RERUN' if expected else 'SAVE_OR_INTERACTIVE')
+    finally:
+        for handler in list(run.logger.handlers):
+            handler.close()
+            run.logger.removeHandler(handler)
+
+
+def test_no_placeholder_in_any_generated_cell():
+    notebook = build()
+    assert notebook['metadata']['arc3']['submission_policy'] == 'gateway-only'
+    for cell in notebook['cells']:
+        source = cell['source']
+        assert 'to_parquet(' not in source
+        assert 'placeholder.to_' not in source
+        if cell['cell_type'] == 'code' and not source.startswith('%%writefile '):
+            compile(source, '<generated-cell>', 'exec')
+    first = next(c['source'] for c in notebook['cells'] if c['cell_type'] == 'code')
+    assert 'NotebookRunner' in first and 'runner.start()' in first
+
+
+def test_first_cell_diagnostics_survive_sigkill(tmp_path):
+    source = next(c['source'] for c in build()['cells'] if c['cell_type'] == 'code')
+    source = source.replace('/kaggle/working', str(tmp_path)).replace(
         '/tmp/agent_bundle', str(tmp_path / 'bundle'))
-
-
-@pytest.mark.parametrize('rerun', ['', 'True'])
-def test_first_cell_parquet_survives_sigkill(tmp_path, rerun):
-    source = setup_source(tmp_path)
-    result = subprocess.run(
-        [sys.executable, '-c', source + '\nimport signal\nos.kill(os.getpid(), signal.SIGKILL)'],
-        env=dict(os.environ, KAGGLE_IS_COMPETITION_RERUN=rerun), timeout=10,
-    )
+    result = subprocess.run([sys.executable, '-c', source + '\nos.kill(os.getpid(), signal.SIGKILL)'],
+                            env=dict(os.environ, ENABLE_NOTEBOOK_DIAGNOSTICS='0'), timeout=10)
     assert result.returncode == -signal.SIGKILL
-    submission = pd.read_parquet(tmp_path / 'submission.parquet')
-    assert list(submission.columns) == ['row_id', 'game_id', 'end_of_game', 'score']
-    assert submission.iloc[0].to_dict() == {
-        'row_id': '1_0', 'game_id': '1', 'end_of_game': True, 'score': 0}
+    assert (tmp_path / 'diagnostics/notebook.log').is_file()
+    assert (tmp_path / 'diagnostics/status.json').is_file()
+    assert not (tmp_path / 'submission.parquet').exists()
 
 
-def test_setup_preserves_existing_gateway_submission(tmp_path, monkeypatch):
-    monkeypatch.setenv('ARC3_RUN_STARTED', '0')
-    pd.DataFrame({'real_result': [42]}).to_parquet(tmp_path / 'submission.parquet')
-    exec(setup_source(tmp_path), {})
-    assert pd.read_parquet(tmp_path / 'submission.parquet').real_result.tolist() == [42]
-    assert float(os.environ['ARC3_RUN_STARTED']) > 0
+def test_existing_submission_is_preserved_but_cannot_count_as_fresh(runner):
+    write_result(runner.submission)
+    before = runner.submission.read_bytes()
+    runner.initial_submission = runner._signature()
+    with pytest.raises(RuntimeError, match='unchanged'):
+        runner.validate_submission()
+    assert runner.submission.read_bytes() == before
+    assert status(runner)['status'] == 'FAILED'
+
+
+@pytest.mark.parametrize('kind', ['missing', 'dummy', 'corrupt', 'empty', 'wrong_schema'])
+def test_missing_or_invalid_result_fails_loudly_with_traceback(runner, kind):
+    if kind == 'dummy':
+        pd.DataFrame([{'row_id': '1_0', 'game_id': '1', 'end_of_game': True,
+                       'score': 1}]).to_parquet(runner.submission)
+    elif kind == 'corrupt':
+        runner.submission.write_bytes(b'not parquet')
+    elif kind == 'empty':
+        pd.DataFrame(columns=['row_id', 'game_id', 'end_of_game', 'score']).to_parquet(runner.submission)
+    elif kind == 'wrong_schema':
+        pd.DataFrame({'other': [1]}).to_parquet(runner.submission)
+    with pytest.raises((ValueError, RuntimeError, FileNotFoundError)):
+        runner.validate_submission()
+    assert status(runner)['status'] == 'FAILED'
+    assert status(runner)['stage'] == 'submission_validation'
+    assert 'Traceback' in (runner.diagnostics / 'traceback.log').read_text()
+    assert any(e['event'] == 'stage_failed' for e in events(runner))
+
+
+def test_real_result_is_retained_and_summarized(runner):
+    write_result(runner.submission)
+    before = runner.submission.read_bytes()
+    runner.validate_submission()
+    assert status(runner)['status'] == 'COMPLETE'
+    assert runner.submission.read_bytes() == before
+    summary = next(e for e in events(runner) if e['event'] == 'submission_validated')
+    assert summary['rows'] == 1 and summary['bytes'] == len(before)
+    assert summary['sha256'] == hashlib.sha256(before).hexdigest()
+
+
+@pytest.mark.parametrize('failure', ['gateway_readiness', 'framework_setup', 'containment_audit',
+                                     'framework_execution'])
+def test_failed_stage_is_visible_and_exception_is_not_swallowed(runner, failure):
+    with pytest.raises(RuntimeError, match='fixture failure'):
+        with runner.stage(failure):
+            raise RuntimeError('fixture failure')
+    report = status(runner)
+    assert report['status'] == 'FAILED' and report['stage'] == failure
+    assert 'fixture failure' in (runner.diagnostics / 'notebook.log').read_text()
+    assert failure in (runner.diagnostics / 'traceback.log').read_text()
+    assert not runner.submission.exists()
+
+
+def test_real_command_failure_captures_stderr_and_return_code(runner):
+    with pytest.raises(subprocess.CalledProcessError):
+        with runner.stage('offline_dependencies'):
+            runner.command('fixture', [sys.executable, '-c',
+                           'import sys; print("actual child failure", file=sys.stderr); sys.exit(7)'], timeout=3)
+    assert 'actual child failure' in (runner.diagnostics / 'fixture.log').read_text()
+    assert status(runner)['status'] == 'FAILED'
+    assert 'returned non-zero exit status 7' in (runner.diagnostics / 'traceback.log').read_text()
+
+
+def test_real_command_timeout_leaves_diagnostics(runner):
+    with pytest.raises(subprocess.TimeoutExpired):
+        with runner.stage('gateway_readiness'):
+            runner.command('fixture', [sys.executable, '-u', '-c',
+                           'import time; print("waiting for gateway"); time.sleep(5)'], timeout=0.3)
+    assert status(runner)['status'] == 'FAILED'
+    assert 'waiting for gateway' in (runner.diagnostics / 'fixture.log').read_text()
+
+
+def test_hash_mismatch_is_logged_before_dispatch(runner):
+    (runner.bundle / 'example.py').write_text('print(1)')
+    with pytest.raises(ValueError, match='hash mismatch'):
+        runner.verify_sources({'example.py': 'wrong-hash'})
+    assert status(runner)['stage'] == 'bundle_verification'
+
+
+def test_diagnostic_toggle_keeps_failures_and_deadlines(runner):
+    runner.verbose = False
+    assert runner.target_seconds == 29_700 and runner.hard_limit_seconds == 30_600
+    with pytest.raises(RuntimeError):
+        with runner.stage('fixture'):
+            raise RuntimeError('always visible')
+    assert status(runner)['status'] == 'FAILED'
+    assert 'always visible' in (runner.diagnostics / 'traceback.log').read_text()
+
+
+@pytest.mark.parametrize('mode', ['normal', 'crash', 'timeout', 'hung_cleanup', 'hard_expiry'])
+def test_shared_deadline_and_cleanup_paths(runner, monkeypatch, mode):
+    clock = [29_699.0]
+    recorded = []
+    monkeypatch.setattr(time, 'time', lambda: clock[0])
+    runner.started = 0
+
+    class Process:
+        pid = 123456789
+        returncode = None
+
+        def poll(self):
+            return self.returncode
+
+        def send_signal(self, sig):
+            recorded.append(('signal', sig))
+            if mode != 'hung_cleanup':
+                self.returncode = 0
+                recorded.append(('finalized', clock[0]))
+
+        def wait(self, timeout=None):
+            recorded.append(('wait', timeout))
+            if self.returncode is not None:
+                return self.returncode
+            if mode in ('normal', 'crash'):
+                self.returncode = 0 if mode == 'normal' else 7
+                return self.returncode
+            clock[0] += timeout
+            if mode == 'hard_expiry':
+                clock[0] = 30_601.0
+            raise subprocess.TimeoutExpired('fixture', timeout)
+
+    process = Process()
+
+    def killpg(pid, sig):
+        recorded.append(('kill', sig))
+        if process.returncode is None:
+            process.returncode = -sig
+
+    with patch.object(os, 'killpg', side_effect=killpg):
+        if mode in ('crash', 'hung_cleanup'):
+            with pytest.raises((RuntimeError, subprocess.TimeoutExpired)):
+                with runner.stage('framework_execution'):
+                    runner.monitor(process, io.StringIO('fixture framework output'))
+            assert status(runner)['status'] == 'FAILED'
+        else:
+            runner.monitor(process, io.StringIO('fixture framework output'))
+    assert ('kill', signal.SIGKILL) in recorded
+    if mode in ('timeout', 'hung_cleanup', 'hard_expiry'):
+        assert recorded.index(('signal', signal.SIGINT)) < recorded.index(('kill', signal.SIGKILL))
+        assert ('wait', 0.0 if mode == 'hard_expiry' else 60.0) in recorded
+
+
+def test_expired_setup_does_not_launch_framework(runner, monkeypatch):
+    monkeypatch.setattr(runner, 'elapsed', lambda: 29_701)
+    with patch.object(subprocess, 'Popen') as launch, pytest.raises(TimeoutError):
+        runner.run_framework()
+    launch.assert_not_called()
+    assert status(runner)['status'] == 'FAILED'
+
+
+def test_real_runner_streams_traceback_and_fails(runner):
+    runner.framework.mkdir()
+    (runner.framework / 'main.py').write_text('raise ValueError("actual framework traceback")')
+    with pytest.raises(RuntimeError, match='Framework exited'):
+        runner.run_framework()
+    assert 'actual framework traceback' in (runner.diagnostics / 'framework.log').read_text()
+    assert status(runner)['status'] == 'FAILED'
+
+
+def test_real_child_finalizes_on_sigint_and_produces_original_result(runner):
+    runner.framework.mkdir()
+    child = ('import signal, sys, time\n'
+             'def finalize(sig, frame):\n'
+             f'    open({str(runner.submission)!r}, "wb").write(bytes.fromhex("PAYLOAD"))\n'
+             '    print("scorecard finalized", flush=True)\n'
+             '    sys.exit(0)\n'
+             'signal.signal(signal.SIGINT, finalize)\n'
+             'print("framework ready", flush=True)\n'
+             'time.sleep(10)\n')
+    # Serialize synthetic gateway output in the fixture, never in notebook code.
+    buf = io.BytesIO()
+    pd.DataFrame([{'row_id': 'synthetic_0', 'game_id': 'synthetic',
+                   'end_of_game': True, 'score': 0}]).to_parquet(buf)
+    (runner.framework / 'main.py').write_text(child.replace('PAYLOAD', buf.getvalue().hex()))
+    runner.started = time.time()
+    runner.target_seconds = 0.5
+    runner.hard_limit_seconds = 3
+    runner.run_framework()
+    runner.validate_submission()
+    assert status(runner)['status'] == 'COMPLETE'
+    assert 'scorecard finalized' in (runner.diagnostics / 'framework.log').read_text()
+
+
+@pytest.mark.parametrize('audit_failure', [False, True])
+def test_prepare_framework_registers_agent_and_preserves_audit_report(runner, audit_failure):
+    source = runner.competition / 'ARC-AGI-3-Agents'
+    (source / 'agents').mkdir(parents=True)
+    (source / 'main.py').write_text('# synthetic framework')
+
+    def command(name, args, **kwargs):
+        if name == 'containment':
+            (runner.preflight / 'containment.json').write_text(
+                json.dumps({'containment_passed': not audit_failure}))
+            if audit_failure:
+                raise subprocess.CalledProcessError(1, args)
+
+    with patch.object(runner, 'command', side_effect=command):
+        if audit_failure:
+            with pytest.raises(subprocess.CalledProcessError):
+                runner.prepare_framework()
+            assert status(runner)['status'] == 'FAILED'
+        else:
+            runner.prepare_framework()
+            registry = (runner.framework / 'agents/__init__.py').read_text()
+            compile(registry, '<registry>', 'exec')
+            assert 'HOST=gateway' in (runner.framework / '.env').read_text()
+    assert json.loads((runner.diagnostics / 'containment.json').read_text())['containment_passed'] is not audit_failure
 
 
 def make_agent(tmp_path, monkeypatch):
@@ -122,133 +390,81 @@ def test_action_fallback_ablation_restores_exception(tmp_path, monkeypatch):
     assert not agent._recovery_mode
 
 
-def monitor_source():
-    source = next(c['source'] for c in build()['cells'] if 'hard_limit_seconds = ' in c['source'])
-    start = source.index('        # Include all setup')
-    end = source.index('\nexcept Exception:', start)
-    return dedent(source[start:end])
+
+@pytest.mark.parametrize('mode', ['ordinary', 'rerun', 'runner_failure', 'preflight_failure'])
+def test_exact_generated_notebook_executes_and_records_correct_outcome(tmp_path, monkeypatch, mode):
+    monkeypatch.setenv('KAGGLE_IS_COMPETITION_RERUN', '' if mode == 'ordinary' else 'True')
+    monkeypatch.setenv('ENABLE_NOTEBOOK_DIAGNOSTICS', '0')
+    notebook = build()
+    namespace = {'__name__': 'generated_notebook_fixture'}
+    run = None
+    buf = io.BytesIO()
+    pd.DataFrame([{'row_id': 'synthetic_0', 'game_id': 'synthetic',
+                   'end_of_game': True, 'score': 0}]).to_parquet(buf)
+
+    def prepare():
+        with run.stage('gateway_readiness'):
+            if mode == 'preflight_failure':
+                raise ConnectionError('fixture gateway unreachable')
+        run.framework.mkdir()
+        child = ('raise ValueError("fixture runner failure")' if mode == 'runner_failure' else
+                 f'open({str(run.submission)!r}, "wb").write(bytes.fromhex({buf.getvalue().hex()!r}))')
+        (run.framework / 'main.py').write_text(child)
+
+    try:
+        for cell in notebook['cells']:
+            if cell['cell_type'] != 'code':
+                continue
+            source = cell['source'].replace('/kaggle/working', str(tmp_path)).replace(
+                '/tmp/agent_bundle', str(tmp_path / 'bundle')).replace(
+                '/tmp/submission_audit.py', str(tmp_path / 'audit.py'))
+            if source.startswith('%%writefile '):
+                header, body = source.split('\n', 1)
+                path = Path(header.removeprefix('%%writefile '))
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(body)
+                continue
+            if source == 'runner.run()\n' and mode.endswith('failure'):
+                with pytest.raises((RuntimeError, ConnectionError)):
+                    exec(source, namespace)
+                break
+            exec(source, namespace)
+            if run is None:
+                run = namespace['runner']
+                run.submission_wait_seconds = 0
+                monkeypatch.setattr(run, 'install_dependencies', lambda: run.event('fixture_install'))
+                monkeypatch.setattr(run, 'prepare_framework', prepare)
+        assert status(run)['status'] == ('NOT_EVALUATED' if mode == 'ordinary' else
+                                         'FAILED' if mode.endswith('failure') else 'COMPLETE')
+        assert run.submission.exists() is (mode == 'rerun')
+        assert any(e['event'] == 'bundle_verified' for e in events(run))
+        if mode.endswith('failure'):
+            assert 'Traceback' in (run.diagnostics / 'traceback.log').read_text()
+    finally:
+        if run is not None:
+            for handler in list(run.logger.handlers):
+                handler.close()
+                run.logger.removeHandler(handler)
 
 
-@pytest.mark.parametrize('mode', ['normal', 'crash', 'timeout', 'hung_cleanup', 'expired_setup', 'hard_expiry'])
-def test_shared_deadline_and_cleanup_paths(monkeypatch, mode):
-    clock = [30_601.0 if mode == 'expired_setup' else 29_699.0]
-    events = []
-    monkeypatch.setenv('ARC3_RUN_STARTED', '0')
-    monkeypatch.setattr(time, 'time', lambda: clock[0])
+def test_sidecar_partial_write_is_retried_within_deadline(runner, monkeypatch):
+    runner.submission.write_bytes(b'incomplete footer')
+    runner.submission_wait_seconds = 2
+    sleeps = []
 
-    class Process:
-        pid = 123456789
-        returncode = None
+    def finish_write(seconds):
+        sleeps.append(seconds)
+        write_result(runner.submission)
 
-        def poll(self):
-            return self.returncode
-
-        def send_signal(self, sig):
-            events.append(('signal', sig))
-            if mode != 'hung_cleanup':
-                self.returncode = 0  # Synthetic public scorecard close.
-                events.append(('finalized', clock[0]))
-
-        def wait(self, timeout=None):
-            events.append(('wait', timeout))
-            if self.returncode is not None:
-                return self.returncode
-            if mode in ('normal', 'crash'):
-                self.returncode = 0 if mode == 'normal' else 1
-                return self.returncode
-            clock[0] += timeout
-            if mode == 'hard_expiry':
-                clock[0] = 30_601.0
-            raise subprocess.TimeoutExpired('synthetic runner', timeout)
-
-    process = Process()
-
-    def killpg(pid, sig):
-        assert pid == process.pid and sig == signal.SIGKILL
-        events.append(('kill', sig))
-        process.returncode = -sig if process.returncode is None else process.returncode
-
-    with (patch.object(subprocess, 'Popen', return_value=process) as launch,
-          patch.object(os, 'killpg', side_effect=killpg)):
-        exec(monitor_source(), {'os': os, 'subprocess': subprocess, 'sys': sys})
-    if mode == 'expired_setup':
-        launch.assert_not_called()
-        assert not events
-        return
-    assert events[-1] == ('wait', None)
-    assert ('kill', signal.SIGKILL) in events
-    if mode in ('timeout', 'hung_cleanup', 'hard_expiry'):
-        assert ('signal', signal.SIGINT) in events
-        assert events.index(('signal', signal.SIGINT)) < events.index(('kill', signal.SIGKILL))
-        cleanup_wait = events[events.index(('signal', signal.SIGINT)) + (2 if mode != 'hung_cleanup' else 1)]
-        assert cleanup_wait == ('wait', 0.0 if mode == 'hard_expiry' else 60.0)
-    else:
-        assert not any(event[0] == 'signal' for event in events)
+    monkeypatch.setattr(time, 'sleep', finish_write)
+    runner.validate_submission()
+    assert status(runner)['status'] == 'COMPLETE'
+    assert len(sleeps) == 1
+    assert any(e['event'] == 'submission_write_pending' for e in events(runner))
 
 
-def test_real_child_finalizes_on_sigint(tmp_path, monkeypatch):
-    marker = tmp_path / 'finalized'
-    child_source = (
-        'import signal, sys, time\nfrom pathlib import Path\n'
-        'def finalize(sig, frame):\n'
-        f'    Path({str(marker)!r}).write_text("scorecard closed")\n'
-        '    sys.exit(0)\n'
-        'signal.signal(signal.SIGINT, finalize)\n'
-        'time.sleep(10)\n'
-    )
-    real_popen = subprocess.Popen
-
-    def launch(*args, **kwargs):
-        return real_popen([sys.executable, '-c', child_source], start_new_session=True)
-
-    monkeypatch.setenv('ARC3_RUN_STARTED', str(time.time()))
-    source = monitor_source().replace('29_700', '0.5').replace('30_600', '2.0')
-    with patch.object(subprocess, 'Popen', side_effect=launch):
-        exec(source, {'os': os, 'subprocess': subprocess, 'sys': sys})
-    assert marker.read_text() == 'scorecard closed'
-
-
-def python_runner_source(tmp_path):
-    source = next(c['source'] for c in build()['cells'] if 'hard_limit_seconds = ' in c['source'])
-    # Shell commands are exercised by Kaggle; replace only IPython shell syntax
-    # so the exact generated Python and file writes can run in a clean fixture.
-    lines = []
-    continuation = False
-    for line in source.splitlines():
-        if line.lstrip().startswith('!') or continuation:
-            continued = line.rstrip().endswith('\\')
-            if not continuation:
-                lines.append(line[:len(line)-len(line.lstrip())] + 'pass')
-            continuation = continued
-        else:
-            lines.append(line)
-    return '\n'.join(lines).replace('/kaggle/working', str(tmp_path)).replace(
-        '/tmp/agent_preflight', str(tmp_path / 'preflight')).replace(
-        '/tmp/agent_bundle', str(tmp_path / 'bundle'))
-
-
-@pytest.mark.parametrize('audit_failure', [False, True])
-def test_generated_rerun_python_and_registry_are_valid(tmp_path, monkeypatch, audit_failure):
-    monkeypatch.chdir(tmp_path)
-    monkeypatch.setenv('KAGGLE_IS_COMPETITION_RERUN', 'True')
-    monkeypatch.setenv('ARC3_RUN_STARTED', str(time.time()))
-    framework = tmp_path / 'ARC-AGI-3-Agents'
-    (framework / 'agents').mkdir(parents=True)
-    exec(setup_source(tmp_path), {})
-    before = (tmp_path / 'submission.parquet').read_bytes()
-    runner = python_runner_source(tmp_path)
-    compile(runner, '<generated-run-cell>', 'exec')
-    process = SimpleNamespace(pid=123456789, returncode=0, poll=lambda: 0, wait=lambda: 0)
-    failure = subprocess.CalledProcessError(1, 'audit') if audit_failure else None
-    with (patch.object(subprocess, 'run', side_effect=failure),
-          patch.object(subprocess, 'Popen', return_value=process),
-          patch.object(os, 'killpg', side_effect=ProcessLookupError)):
-        exec(runner, {})
-    assert (tmp_path / 'submission.parquet').read_bytes() == before
-    if audit_failure:
-        assert 'CalledProcessError' in (tmp_path / 'scratch/runner_errors.log').read_text()
-    else:
-        registry = (framework / 'agents/__init__.py').read_text()
-        compile(registry, '<generated-registry>', 'exec')
-        assert registry.startswith('from typing import Type\nfrom dotenv')
-        assert '\nHOST=gateway\n' in (framework / '.env').read_text()
+def test_checked_in_notebook_is_the_current_reviewed_build():
+    # A stale ignored notebook caused the real Kaggle upload mismatch. The
+    # reviewed artifact must stay synchronized when source or runner changes.
+    path = Path(__file__).resolve().parents[1] / 'notebooks/submission.ipynb'
+    assert json.loads(path.read_text()) == build()

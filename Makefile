@@ -81,5 +81,5 @@ status: _check-kaggle ## Show the status of your most recent Kaggle kernel run
 	$(KAGGLE) kernels status $$KERNEL_ID
 
 clean: ## Remove generated artefacts (venv, downloaded games, vendored repos)
-	rm -rf $(VENV) vendor environment_files recordings notebooks/submission.ipynb \
+	rm -rf $(VENV) vendor environment_files recordings \
 	       reference logs.log __pycache__ .pytest_cache
