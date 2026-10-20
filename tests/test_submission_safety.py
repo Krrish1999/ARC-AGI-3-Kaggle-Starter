@@ -53,14 +53,16 @@ def write_result(path):
 
 
 @pytest.mark.parametrize('flag', ['', '0', 'False', 'false', 'no'])
-def test_ordinary_run_records_not_evaluated_and_never_creates_submission(runner, monkeypatch, flag):
+def test_ordinary_run_records_not_evaluated_with_empty_selector(runner, monkeypatch, flag):
     runner.rerun = False
     monkeypatch.setenv('KAGGLE_IS_COMPETITION_RERUN', flag)
     with patch.object(runner, 'prepare_framework') as prepare:
         runner.run()
     prepare.assert_not_called()
     assert status(runner)['status'] == 'NOT_EVALUATED'
-    assert not runner.submission.exists()
+    assert pd.read_parquet(runner.submission).empty
+    bootstrap = next(e for e in events(runner) if e['event'] == 'submission_bootstrap')
+    assert bootstrap['rows'] == 0 and bootstrap['evaluated'] is False
     assert events(runner)[-1]['event'] == 'not_evaluated'
 
 
@@ -81,7 +83,7 @@ def test_mode_parsing_is_explicit(tmp_path, monkeypatch, flag, expected):
             run.logger.removeHandler(handler)
 
 
-def test_no_placeholder_in_any_generated_cell():
+def test_generated_cells_compile_without_fabricated_score_rows():
     notebook = build()
     assert notebook['metadata']['arc3']['submission_policy'] == 'gateway-only'
     for cell in notebook['cells']:
@@ -436,7 +438,9 @@ def test_exact_generated_notebook_executes_and_records_correct_outcome(tmp_path,
                 monkeypatch.setattr(run, 'prepare_framework', prepare)
         assert status(run)['status'] == ('NOT_EVALUATED' if mode == 'ordinary' else
                                          'FAILED' if mode.endswith('failure') else 'COMPLETE')
-        assert run.submission.exists() is (mode == 'rerun')
+        assert run.submission.exists() is (mode in ('ordinary', 'rerun'))
+        if mode == 'ordinary':
+            assert pd.read_parquet(run.submission).empty
         assert any(e['event'] == 'bundle_verified' for e in events(run))
         if mode.endswith('failure'):
             assert 'Traceback' in (run.diagnostics / 'traceback.log').read_text()

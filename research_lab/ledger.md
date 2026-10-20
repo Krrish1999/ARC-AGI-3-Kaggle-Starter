@@ -795,3 +795,25 @@ fallback was hidden. No third repair cycle was needed.
 checkout. Gates 2–3 and statistical promotion remain on hold pending real offline
 inference assets and paired late-level policy evidence. This task authorizes the
 feature PR only; no champion promotion, merge or Kaggle submission was performed.
+
+
+## [EDIT] 2026-10-20 — Kaggle submission workflow repair
+
+Preserves the deployed agent and diagnostic runner already on main. Replaces
+the missing saved output with a zero-row schema-only save artifact, controlled by
+ENABLE_SUBMISSION_BOOTSTRAP. Kaggle rejected version 6 because its saved outputs
+lacked submission.parquet, and rejected an omitted filename as invalid. Save runs
+stay NOT_EVALUATED; reruns still require a fresh nonempty gateway result. Added
+explicit evaluate/output targets and support for injected Kaggle credentials.
+
+Validation: 11 workflow/system fixtures passed; ruff passed; pyright reported
+0 errors and 0 warnings; post-restoration containment_passed=true. Saved notebook
+version 7 completed Phase A, emitting 0 gameplay rows. make evaluate VERSION=7
+was accepted as competition submission 57446766 (PENDING at verification). No
+leaderboard result or gateway gameplay success is claimed. Latest saved-run API
+log, file listing and submission request receipt are in kaggle-output/version-7;
+full output transfer remains blocked by the environment proxy (HTTP 403).
+
+PR preparation rebased this repair onto current main, retaining its existing
+notebook_runtime.py, agent files, dataset sources and checked-in notebook. The
+expanded suite passed 130 tests; lint, agent type checks and containment passed.
