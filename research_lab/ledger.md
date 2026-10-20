@@ -1,5 +1,34 @@
 # ARC-AGI-3 PhD Research Laboratory Ledger
 
+## [EDIT] Hidden-evaluation submission survival — 2026-10-20
+
+User-requested reliability mutation of the Sprint 1 archived harness at
+`6f4dc442f587ac5ba26fea2fdf1de889291dfc6f` (deployed agent hash matches the
+archive before this edit); no score-promoted parent exists. Preserve all archived
+sources. `ENABLE_ACTION_FALLBACK=1` catches the complete action-selection path,
+logs tracebacks under `scratch/` (or `ARC3_LOG_DIR`), clears pending plans and
+uses public legal actions in emergency mode for the remaining game. This mode
+bypasses the failed evidence pipeline during dispatch and makes no replay claims.
+Setting the toggle to `0` restores exception propagation for controlled fixtures.
+
+The notebook's first executable cell atomically writes a zero-score placeholder
+in both public and competition-rerun modes, preserving existing gateway output.
+All setup shares one start time. Keep the 29,700-second operating target; bound
+the global runner at the user-requested 30,600 seconds. Request framework SIGINT
+cleanup to close its public scorecard before killing/reaping remaining children;
+retain the early parquet if initialization, gameplay or cleanup fails. Deadlines
+and placeholder generation are unconditional safety guarantees, not ablations.
+Validation: `pytest -q` passes 95/95 cases (71 existing + 24 survival fixtures);
+`ruff check agent/ scripts/` and `pyright agent/` pass. The survival fixtures
+exercise first-cell SIGKILL in both modes, preservation of real output, injected
+budget/perception/world-model/Tier-1 failures, fallback dispatch, ablation,
+deadlines, failed/hung cleanup, real SIGINT finalization, and the generated
+rerun Python/registry including preflight failure. Notebook regeneration succeeds.
+Containment passes all 20 checks. Fixed-seed (`19`) public smoke runs on `ls20`,
+`ft09`, `vc33` finish normally at the existing 81-iteration cap; zero levels
+complete and no policy improvement is claimed. Private Kaggle acceptance and
+the hidden-test score remain unverified; no competition submission was made.
+
 ## Sprint 2 Task Packet — offline bundle and RTX 6000 validation
 
 Issued 2026-10-20 (Asia/Calcutta) after all three Sprint 1 implementation PRs

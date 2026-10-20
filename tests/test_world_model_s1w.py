@@ -330,8 +330,9 @@ def test_framework_backend_rejects_hypothesis_without_live_dispatch(tmp_path, mo
         {'source': WRONG, 'probe': plan(1), 'alternative_expect': [{'x': 1, 'y': 1, 'value': 2}]}],
         'actions': [plan(1)]}
     with patch('agents.agent.Agent.do_action_request') as dispatch:
-        with pytest.raises(RuntimeError, match='no admissible'):
-            agent.choose_action([], observation(1))
+        assert agent.choose_action([], observation(1)) is GameAction.ACTION1
+        assert agent._recovery_mode
+        assert 'no admissible' in (tmp_path / 'choose_action_errors.log').read_text()
         dispatch.assert_not_called()
     assert not agent.world.queue and len(agent.perception.records) == 1
 
