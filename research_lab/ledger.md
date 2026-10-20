@@ -817,3 +817,39 @@ full output transfer remains blocked by the environment proxy (HTTP 403).
 PR preparation rebased this repair onto current main, retaining its existing
 notebook_runtime.py, agent files, dataset sources and checked-in notebook. The
 expanded suite passed 130 tests; lint, agent type checks and containment passed.
+
+
+## [EDIT] 2026-10-20 — Competition scorecard registration repair
+
+Compared the latest merged main (1845c55) with the user-confirmed 28-point
+parent research_lab/top_programs/baseline_28_score.ipynb, preserved unchanged.
+Baseline cell 21 constructs Arcade with OperationMode.COMPETITION. Our launcher
+instead wrote OPERATION_MODE=online into the framework .env, which main.py loads
+with override=True before Swarm constructs Arcade(). This overrides Kaggle's
+competition mode and omits competition_mode=true from POST /api/scorecard/open.
+
+Reproduced the missing wire field with the generated launch configuration: the
+regression test failed before the fix and passed after changing the generated
+.env and child environment to competition. Independently checked the production
+arc-agi 0.9.8 wheel identified in version 7's dependency log: online sends only
+tags; competition also sends competition_mode=true. Local SDK 0.9.9 matches.
+No gameplay rules, parent agent policy, reset semantics or model configuration
+changed. Kaggle alone still supplies KAGGLE_IS_COMPETITION_RERUN.
+
+Validation: full suite 131 passed; ruff passed; pyright 0 errors/0 warnings;
+containment preflight passed. Checked-in notebook rebuilt from the repaired
+runtime. Submission 57446766 reports only a generic Kaggle system error, without
+recorded episodes or an accessible rerun traceback; this prevents conclusively
+attributing every earlier system error to this code defect. Unchanged version-7
+retry 57447578 remains PENDING and numAllowedNow=0 at verification.
+
+The 28-point parent also launches SGLang and connects a reasoning model; our
+deployed agent currently has no configured reasoning backend and an 80-action
+cap. Correcting the competition handshake does not establish score parity.
+
+Corrected notebook version 8 saved successfully and its Phase A status is
+COMPLETE. Kaggle warned that both dataset-creator/... dataset sources on main
+are invalid and skipped them; removed those placeholder references locally to
+match the accepted configuration. This launcher does not read either dataset.
+The real model_sources remain attached. This warning alone does not explain
+the generic competition system error.
