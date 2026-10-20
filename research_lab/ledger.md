@@ -1,5 +1,47 @@
 # ARC-AGI-3 PhD Research Laboratory Ledger
 
+## [EDIT] Gateway-only submissions and notebook diagnostics — 2026-10-20
+
+The user's latest instruction explicitly supersedes the early placeholder
+requirement in the historical entry below. Remove all synthetic parquet writing;
+only the competition gateway may create `submission.parquet`. Preserve the
+verified Sprint 1 archive and the subsequent action-fallback fix; no scored
+champion exists. This is a deployment edit based on the reviewed reliability
+revision `dd6949b`, with deployed `agent/` policy unchanged.
+
+The generated notebook now embeds `scripts/notebook_runtime.py` in its first
+cell. It logs the build ID, explicit rerun-flag parsing, runtime versions and an
+optional GPU probe before installing dependencies. Ordinary save/interactive
+runs report NOT_EVALUATED and create no submission. Reruns log checked offline
+installation, source integrity, gateway readiness, framework/sandbox setup,
+containment, agent registration, unbuffered gameplay and final output validation.
+Stage status, JSON events, full subprocess streams, the containment report and
+tracebacks persist under `/kaggle/working/diagnostics/`. Agent logs are rooted at
+`/kaggle/working/scratch/`. Nonzero exits, setup/cleanup timeouts and missing,
+stale, corrupt or dummy results remain visible exceptions. Valid gateway output
+is preserved. Keep the 29,700-second target, SIGINT scorecard cleanup and
+30,600-second ceiling. `ENABLE_NOTEBOOK_DIAGNOSTICS=1` controls optional GPU,
+heartbeat and console mirroring only; core logs and safety gates are mandatory.
+
+Check in the regenerated notebook to make the reviewed file directly available
+and prevent a source-only pull from silently leaving the old ignored notebook.
+Document the explicit code-submission CLI path for a saved version when no
+parquet exists during the ordinary save. Do not submit to Kaggle or spend quota
+as part of this edit. Hidden execution and service acceptance remain unverified.
+
+Validation: `pytest -q` passes 127/127 cases; `ruff check agent/ scripts/`,
+`pyright agent/`, notebook regeneration, artifact/source synchronization and
+`git diff --check` pass. All 20 behavioral containment checks pass. Fixtures
+execute the exact generated notebook in ordinary, successful gateway, failed
+preflight and crashed-runner modes. Real child processes prove streamed
+traceback capture, command timeout diagnostics and SIGINT finalization with a
+retained original parquet; accelerated clocks cover hung cleanup and hard
+expiry. Partial gateway writes retry inside the deadline. Forced SIGKILL retains
+first-cell diagnostics without fabricating a result. Fixed-seed public `ls20`,
+`ft09`, `vc33` smokes finish normally at the existing 81-iteration cap, with zero
+levels complete and no policy-lift claim. The follow-up incorporates main
+`6cc0290` and preserves its attachment metadata. No Kaggle submission was made.
+
 ## [EDIT] Hidden-evaluation submission survival — 2026-10-20
 
 User-requested reliability mutation of the Sprint 1 archived harness at

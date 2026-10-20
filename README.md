@@ -54,10 +54,10 @@ make submit
 # 7.  Watch the run
 make status
 
-# 8.  When status shows "complete", open the notebook on kaggle.com,
-#     find your kernel, click "Submit to Competition" in the top
-#     right, and pick `submission.parquet` from the Output File
-#     dropdown. That's one of your 5 daily submissions.
+# 8.  "complete" finishes the save run; diagnostics/status.json will say
+#     NOT_EVALUATED. Start a competition rerun of that saved notebook version.
+#     Only the gateway creates submission.parquet during that rerun.
+#     See the code-submission command below if the UI requires a saved parquet.
 ```
 
 That's the entire loop. Steps 4–7 are what you'll repeat as you iterate;
@@ -118,8 +118,62 @@ twice.
 ```
 
 `make submit` builds and uploads the notebook (Phase A). After
-`make status` reports `complete`, open the kernel on kaggle.com and click
-**"Submit to Competition"** to enter Phase B and get a leaderboard score.
+`make status` reports `complete`, the save run has finished. In this diagnostic
+build it produces logs, with status `NOT_EVALUATED`, and **no dummy parquet**.
+Start a competition rerun of that exact saved version to play games through the
+gateway. Do not set `KAGGLE_IS_COMPETITION_RERUN` yourself: a normal notebook
+session does not have the competition gateway.
+
+If the web submission selector requires an existing parquet, the Kaggle CLI's
+code-submission path accepts the saved notebook version and its expected output
+filename directly. Replace `VERSION` with the new saved version number:
+
+```bash
+kaggle competitions submit -c arc-prize-2026-arc-agi-3 \
+  --kernel aanchal009/arc-prize-2026-arc-agi-3-starter \
+  --version VERSION --file submission.parquet \
+  --message "Gateway-only evaluation with diagnostics"
+```
+
+This is a competition submission and uses submission quota; it is separate from
+`make submit`, which only uploads a notebook version. The CLI syntax and the
+absence of a local-file existence check were verified against the installed
+Kaggle SDK; this workflow still requires acceptance by Kaggle's service.
+
+### Debugging a short run or failed evaluation
+
+The notebook prints an execution-mode banner before dependency installation.
+`SAVE_OR_INTERACTIVE` followed by `NOT_EVALUATED` explains a short save run;
+it does not indicate that hidden games completed. A competition rerun must log
+`COMPETITION_RERUN`, gateway readiness, containment, and framework execution.
+
+Download these files from `/kaggle/working/diagnostics/`:
+
+| File | What it records |
+|---|---|
+| `status.json` | `NOT_EVALUATED`, `RUNNING`, `FAILED`, or `COMPLETE`, with the last stage and error |
+| `notebook.log`, `events.jsonl` | Build ID, mode, stage timing, GPU probe, command exits and heartbeat |
+| `pip.log`, `gateway.log`, `sandbox_setup.log` | Installation, gateway connection and isolated interpreter output |
+| `containment.log`, `containment.json` | Audit output and the current behavioral report |
+| `framework.log` | Complete, unbuffered framework stdout/stderr, including child tracebacks |
+| `traceback.log` | Notebook failure traceback and failing stage |
+
+Agent recovery tracebacks are in `/kaggle/working/scratch/choose_action_errors.log`.
+Failures are re-raised after logs are saved. `COMPLETE` requires a fresh,
+readable, nonempty gateway parquet with the expected columns; missing, unchanged,
+corrupt and legacy dummy results fail visibly. Existing result files are never
+overwritten by this notebook. A crash before the gateway emits its result can
+leave no parquet; the earlier placeholder guarantee has been removed at the
+user's request.
+
+`ENABLE_NOTEBOOK_DIAGNOSTICS=0` disables the optional GPU probe, heartbeat and
+console mirroring for controlled comparisons; disk logs, error propagation,
+containment, output validation and deadlines remain enforced.
+
+The regenerated `notebooks/submission.ipynb` is now checked in alongside its
+builder. Rebuild with `make notebook` after source edits, upload this file, and
+save a new Kaggle version. Its build ID appears in metadata and the first log
+banner so a stale uploaded notebook can be identified.
 
 > **You only get 5 official submissions per day**, so it pays to be
 > confident before you submit: get `make play-local` passing, then submit.
@@ -170,7 +224,7 @@ already the default in this kit.
 | `make notebook` | Build the Kaggle notebook from your agent (no push) |
 | `make submit` | Build the notebook **and** push it to Kaggle |
 | `make status` | Check the status of your most recent Kaggle run |
-| `make clean` | Remove the venv, downloads, and generated notebook |
+| `make clean` | Remove the venv and downloads; keep the checked-in notebook |
 
 ---
 
