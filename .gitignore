@@ -23,3 +23,5 @@ reference/
 
 .venv_agent_sandbox/
 work/
+
+scratch/

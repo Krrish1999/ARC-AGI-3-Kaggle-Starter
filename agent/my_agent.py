@@ -22,6 +22,7 @@ from __future__ import annotations
 import logging
 import os
 import random
+import tempfile
 import time
 from pathlib import Path
 from typing import Any
@@ -32,9 +33,11 @@ from agents.agent import Agent
 from arcengine import FrameData, GameAction, GameState
 
 try:
+    from .arclog import PerceptionLog
     from .runtime import TARGET_SECONDS, LevelBudget, PrefixLock, run_expired
     from .sandbox import run_sandbox
 except ImportError:
+    from agent.arclog import PerceptionLog
     from agent.runtime import TARGET_SECONDS, LevelBudget, PrefixLock, run_expired
     from agent.sandbox import run_sandbox
 
@@ -47,10 +50,15 @@ class MyAgent(Agent):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        # Seed per game_id so replays from the same game are reproducible but
-        # different games explore independently.
+        # A fixed control seed supports paired ablations without shared RNG state.
         seed = int(time.time() * 1_000_000) + hash(self.game_id) % 1_000_000
-        random.seed(seed)
+        self._rng = random.Random(int(os.getenv("ARC3_SEED", str(seed))))
+        log_root = Path(os.getenv("ARC3_LOG_DIR", "scratch"))
+        log_root.mkdir(parents=True, exist_ok=True)
+        self.perception = PerceptionLog(Path(tempfile.mkdtemp(prefix="perception-", dir=log_root)) / "log.txt")
+        self._perception_started = False
+        self._observation: FrameData | None = None
+        self._dispatch_approval: tuple[str, tuple[int, int] | None, int] | None = None
         self.prefix_lock = PrefixLock()
         self.level_budget: LevelBudget | None = None
 
@@ -86,21 +94,108 @@ class MyAgent(Agent):
             if level > self.level_budget.level:
                 self.level_budget.begin_level(level)
 
-        # First call or after a death → reset the level.
+        self._ensure_perception(latest_frame)
         if latest_frame.state in (GameState.NOT_PLAYED, GameState.GAME_OVER):
-            return GameAction.RESET
-
-        candidate_actions = [a for a in GameAction if a is not GameAction.RESET]
-        action: Any = random.choice(candidate_actions)  # SDK permits dynamic reasoning metadata
-
-        if action.is_complex():
-            # ACTION6 takes (x, y) coordinates on a 64×64 grid.
-            action.set_data(
-                {"x": random.randint(0, 63), "y": random.randint(0, 63)}
-            )
-            action.reasoning = {"why": "random complex action"}
+            proposal = GameAction.RESET
         else:
-            action.reasoning = f"random simple action: {action.value}"
+            legal = self._legal_actions(latest_frame)
+            if not legal:
+                raise RuntimeError("no advertised non-reset action; replan required")
+            proposal = self._sample(self._rng.choice(legal))
+        action: Any = self._resolve_action(proposal, latest_frame)
+        self._dispatch_approval = (action.name, self._coordinates(action), self.perception.current.step)
+        action.reasoning = {"why": "generic available-action exploration", "evidence_step": self.perception.current.step}
         if self.level_budget is not None and self.level_budget.generation_tokens(1) == 0:
-            action.reasoning = {"why": "level reasoning budget exhausted; best-effort action"}
+            action.reasoning["budget"] = "level reasoning budget exhausted; best-effort action"
         return action
+
+    def _ensure_perception(self, observation: FrameData) -> None:
+        self._observation = observation
+        if not self._perception_started:
+            self.perception.start(observation.frame, level=observation.levels_completed+1,
+                                  state=observation.state.name)
+            self._perception_started = True
+
+    @staticmethod
+    def _legal_actions(observation: FrameData) -> list[GameAction]:
+        return [a for a in GameAction if a is not GameAction.RESET
+                and a.value in observation.available_actions]
+
+    def _sample(self, action: GameAction) -> GameAction:
+        if action.is_complex():
+            grid = self.perception.current.grid
+            height = len(grid) or 64
+            width = len(grid[0]) if grid else 64
+            action.set_data({"x": self._rng.randrange(width), "y": self._rng.randrange(height)})
+        return action
+
+    @staticmethod
+    def _coordinates(action: GameAction) -> tuple[int, int] | None:
+        if not action.is_complex():
+            return None
+        data = action.action_data.model_dump()
+        return int(data['x']), int(data['y'])
+
+    def _resolve_action(self, proposal: GameAction, observation: FrameData,
+                        *, reference: bool = True) -> GameAction:
+        coordinates = self._coordinates(proposal)
+        legal = self._legal_actions(observation)
+        reason = (self.perception.blocked_reason(proposal.name, coordinates, reference=reference)
+                  if proposal is GameAction.RESET or proposal in legal else 'unavailable_action')
+        if reason is None:
+            return proposal
+        self.perception.note_blocked(proposal.name, coordinates, reason)
+        self._rng.shuffle(legal)
+        for candidate in legal:
+            grid = self.perception.current.grid
+            h, w = len(grid), len(grid[0]) if grid else 0
+            attempts = w*h if candidate.is_complex() else 1
+            offset = self._rng.randrange(attempts) if attempts else 0
+            for i in range(attempts):
+                if candidate.is_complex():
+                    cell = (offset+i) % attempts
+                    candidate.set_data({'x': cell % w, 'y': cell // w})
+                coordinates = self._coordinates(candidate)
+                reason = self.perception.blocked_reason(candidate.name, coordinates)
+                if reason is None:
+                    return candidate
+                self.perception.note_blocked(candidate.name, coordinates, reason)
+        # The archived reference guard explicitly permits immediate insistence.
+        # Reconsider only the final refused reference action, never a hard dead
+        # signature or consecutive RESET. The event remains visible in the log.
+        if legal and reason == 'reference_noop':
+            candidate = legal[-1]
+            coordinates = self._coordinates(candidate)
+            if self.perception.blocked_reason(candidate.name, coordinates) is None:
+                self.perception.note_replan('reference_noop_override', candidate.name)
+                return candidate
+        # If all object signatures are exhausted, a single first RESET starts a
+        # fresh attempt. Keep hard refusals intact; log the replan rather than
+        # silently reviving a dead target. A repeated RESET is still forbidden.
+        if legal and self.perception.last_action != 'RESET':
+            self.perception.note_replan('admissible_targets_exhausted', 'RESET')
+            return GameAction.RESET
+        raise RuntimeError("all advertised actions blocked; replan required before dispatch")
+
+    def do_action_request(self, action: GameAction) -> FrameData:
+        # Final interception also protects direct framework/tool calls that did
+        # not originate in choose_action. Snapshot mutable enum data before step.
+        if self._observation is None:
+            self._ensure_perception(self._convert_raw_frame_data(self.arc_env.observation_space))
+        assert self._observation is not None
+        approval = (action.name, self._coordinates(action), self.perception.current.step)
+        selected = self._resolve_action(action, self._observation,
+                                        reference=approval != self._dispatch_approval)
+        self._dispatch_approval = None
+        coordinates = self._coordinates(selected)
+        try:
+            response = super().do_action_request(selected)
+        except Exception as error:
+            self.perception.note_dispatch_error(selected.name, coordinates, type(error).__name__)
+            logging.getLogger(__name__).exception("live dispatch failed; no observed transition recorded")
+            raise
+        self.perception.record(selected.name, coordinates, response.frame,
+                               level=response.levels_completed+1, state=response.state.name,
+                               full_reset=response.full_reset)
+        self._observation = response
+        return response
