@@ -20,3 +20,6 @@ reference/
 .DS_Store
 .idea/
 .vscode/
+
+.venv_agent_sandbox/
+work/

@@ -19,15 +19,24 @@ Contract (enforced by the ARC-AGI-3-Agents framework):
 """
 from __future__ import annotations
 
+import logging
+import os
 import random
 import time
+from pathlib import Path
 from typing import Any
-
-from arcengine import FrameData, GameAction, GameState
 
 # When run inside the ARC-AGI-3-Agents framework (locally or on Kaggle)
 # the `agents` package is on sys.path, so this import resolves.
 from agents.agent import Agent
+from arcengine import FrameData, GameAction, GameState
+
+try:
+    from .runtime import TARGET_SECONDS, LevelBudget, PrefixLock, run_expired
+    from .sandbox import run_sandbox
+except ImportError:
+    from agent.runtime import TARGET_SECONDS, LevelBudget, PrefixLock, run_expired
+    from agent.sandbox import run_sandbox
 
 
 class MyAgent(Agent):
@@ -42,6 +51,16 @@ class MyAgent(Agent):
         # different games explore independently.
         seed = int(time.time() * 1_000_000) + hash(self.game_id) % 1_000_000
         random.seed(seed)
+        self.prefix_lock = PrefixLock()
+        self.level_budget: LevelBudget | None = None
+
+    def execute_planner(self, source: str) -> dict[str, Any]:
+        root = Path(__file__).resolve().parents[1]
+        python = Path(os.getenv("ARC3_SANDBOX_PYTHON", str(root / ".venv_agent_sandbox/bin/python")))
+        result = run_sandbox(source, python=python, cwd=root)
+        if not result["ok"]:
+            logging.getLogger(__name__).warning("planner failure: %s", result)
+        return result
 
     @property
     def name(self) -> str:
@@ -49,32 +68,30 @@ class MyAgent(Agent):
 
     def is_done(self, frames: list[FrameData], latest_frame: FrameData) -> bool:
         # Stop once we win. Don't stop on GAME_OVER — we want to RESET and retry.
-        return latest_frame.state is GameState.WIN
+        return run_expired() or latest_frame.state is GameState.WIN
 
     def choose_action(
         self, frames: list[FrameData], latest_frame: FrameData
     ) -> GameAction:
+        # Public level metadata supplies weights; an unavailable count defers
+        # scheduling rather than inventing an environment structure.
+        if latest_frame.win_levels > 0:
+            if self.level_budget is None:
+                self.level_budget = LevelBudget(
+                    env_seconds=float(os.getenv("ARC3_ENV_SECONDS", str(TARGET_SECONDS))),
+                    levels=latest_frame.win_levels,
+                    run_started=float(os.getenv("ARC3_RUN_STARTED", str(time.time()))),
+                )
+            level = min(latest_frame.levels_completed + 1, latest_frame.win_levels)
+            if level > self.level_budget.level:
+                self.level_budget.begin_level(level)
+
         # First call or after a death → reset the level.
         if latest_frame.state in (GameState.NOT_PLAYED, GameState.GAME_OVER):
             return GameAction.RESET
 
-        # ── Per-game strategy fork ───────────────────────────────────────────
-        # By default every game uses the same uniformly-random strategy in the
-        # `else` branch below. This `if` shows ONE example of giving a single
-        # game its own heuristic: on LS20 we bias the random pick so ACTION4
-        # is twice as likely as any other action. Add more `elif` branches to
-        # specialize other games.
-        #
-        # `self.game_id` is set by the framework. It may be the short id
-        # ("ls20") or include a version suffix ("ls20-9607627b"), so we
-        # compare on the prefix to be safe.
         candidate_actions = [a for a in GameAction if a is not GameAction.RESET]
-        if self.game_id.split("-")[0] == "ls20":
-            weights = [2 if a is GameAction.ACTION4 else 1 for a in candidate_actions]
-            action = random.choices(candidate_actions, weights=weights, k=1)[0]
-        else:
-            action = random.choice(candidate_actions)
-        # ────────────────────────────────────────────────────────────────────
+        action: Any = random.choice(candidate_actions)  # SDK permits dynamic reasoning metadata
 
         if action.is_complex():
             # ACTION6 takes (x, y) coordinates on a 64×64 grid.
@@ -84,4 +101,6 @@ class MyAgent(Agent):
             action.reasoning = {"why": "random complex action"}
         else:
             action.reasoning = f"random simple action: {action.value}"
+        if self.level_budget is not None and self.level_budget.generation_tokens(1) == 0:
+            action.reasoning = {"why": "level reasoning budget exhausted; best-effort action"}
         return action

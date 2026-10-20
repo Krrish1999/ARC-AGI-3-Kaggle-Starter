@@ -1,0 +1,44 @@
+{
+  "status": "missing_offline_llm_prerequisites",
+  "assets": {
+    "ORIG_BUNDLE_DIR": {
+      "candidates": [
+        "/kaggle/input/taaf-kaggle-source-bundle-copy",
+        "/kaggle/input/datasets/dfranzen/taaf-kaggle-source-bundle-copy",
+        "/kaggle/input/dfranzen/taaf-kaggle-source-bundle-copy"
+      ],
+      "present_candidates": []
+    },
+    "WHEELHOUSE_DIR": {
+      "candidates": [
+        "/kaggle/input/pennyroyal-v253",
+        "/kaggle/input/datasets/dfranzen/pennyroyal-v253",
+        "/kaggle/input/dfranzen/pennyroyal-v253"
+      ],
+      "present_candidates": []
+    },
+    "MODEL_DIR": {
+      "candidates": [
+        "/kaggle/input/intel-qwen3.8-flash-next-w4a16-autoround/transformers/default/1",
+        "/kaggle/input/models/dfranzen/intel-qwen3.8-flash-next-w4a16-autoround/transformers/default/1",
+        "/kaggle/input/intel-qwen3.8-flash-next-w4a16-autoround",
+        "/kaggle/input/models/dfranzen/intel-qwen3.8-flash-next-w4a16-autoround"
+      ],
+      "present_candidates": []
+    },
+    "DRAFT_MODEL_DIR": {
+      "candidates": [
+        "/kaggle/input/albucino-qwen3-8-flash-next-drafter/transformers/default/1",
+        "/kaggle/input/models/dfranzen/albucino-qwen3-8-flash-next-drafter/transformers/default/1",
+        "/kaggle/input/albucino-qwen3-8-flash-next-drafter",
+        "/kaggle/input/models/dfranzen/albucino-qwen3-8-flash-next-drafter"
+      ],
+      "present_candidates": []
+    }
+  },
+  "inference_api": "archived Pennyroyal/SGLang OpenAI-compatible flashnext localhost:8001; not installed or benchmarked here",
+  "package_hash_verification": "wheelhouse absent; no package hashes verified",
+  "source_verification": "49 archived final-source SHA256 values preserved in agent/baseline/manifest.json; base bundle absent, not verified",
+  "model_flags": "No server launched or new flags selected without installed supported backend",
+  "deployment": "random-agent path plus containment/runtime handoff built; full LLM port remains S1-P/S1-W integration"
+}

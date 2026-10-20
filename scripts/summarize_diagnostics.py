@@ -3,6 +3,7 @@ import argparse
 import json
 import pathlib
 
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--log-dir", default="logs")
