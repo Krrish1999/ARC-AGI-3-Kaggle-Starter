@@ -1,0 +1,158 @@
+{
+  "cap_argument": 2,
+  "kind": "compatibility only; no paired performance inference",
+  "runs": [
+    {
+      "game": "ft09",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "re86",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "ls20",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "vc33",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "m0r0",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "sb26",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "tn36",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "r11l",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "tr87",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "lp85",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "tu93",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "wa30",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "sp80",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "bp35",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "cd82",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "g50t",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "s5i5",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "ka59",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "cn04",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "sc25",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "dc22",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "su15",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "ar25",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "sk48",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "lf52",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    }
+  ],
+  "aggregate_score": 0.0,
+  "log_sha256": "7a74b6182a2db2e98a742f201df601234adf547901093f11671ca9f9ac39831e"
+}

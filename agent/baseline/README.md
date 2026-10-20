@@ -34,6 +34,41 @@ blocked. To use these helper modules in a worker, embed their source and any
 required stdlib dependencies before execution or extend the trusted bootstrap
 with an explicitly reviewed dependency. A venv alone is never the boundary.
 
+S1-W now integrates these mechanisms in `my_agent.WorldModel`. Archived modules
+and their provenance hashes stay unchanged: full-history `replay_transitions`
+replaces the reference's tail/case clamps, `execute_plan` adapts checked execution
+to one framework response per dispatch, and `search_plan` embeds the extracted
+bounded BFS in the secured worker (only its host typing annotation is stripped).
+Replay reports include source/history hashes, scope, exclusions, chunks and exact
+coverage. Empty, limited and failed runs cannot authorize probes or simulator
+search. Every probe requires differing concrete predictions and permits one move.
+
+Synthesized source must define `step(state, action)` and return a JSON-compatible
+dictionary containing `grid` (integer colors), `level` and public status `state`.
+Actions use actual enum names, e.g. `ACTION1` or `ACTION6` plus `x`/`y`.
+Plans contain `expect: [{"x": 1, "y": 2, "value": 4}]` and an explicit boolean
+`expect_level_up`. These are settled non-HUD predictions, not animation cells.
+The entire queue is flushed on mismatch, reset, terminal or level boundary.
+
+An optional `agent.world.backend(messages)` callback returns a dictionary with
+`hypotheses` (source, probe, alternative_expect, optional level/game scope),
+`actions`, or `simulator_source`. Requests pass PrefixLock immediately before
+the callback; copied requests cannot mutate retained prefixes. No remote API or
+unavailable model installation is implied. Without a backend, the agent records
+exploration fallback. After 40 wasted moves on level >= 3 it synthesizes a partial
+exact-transition lookup from observed evidence, compiles/replays it, and searches
+only known edges. An exhausted/failed search is recorded before fallback.
+
+Runtime artifacts live beside each perception `log.txt`: `world_model.jsonl`,
+source-hashed mechanic files, versioned `playbook.vNNNN.md`, and `playbook.md`.
+Playbooks distinguish scoped historical consistency, counterexamples and open
+hypotheses. Immutable snapshots begin fresh contexts at boundaries/token ceilings;
+all transition evidence remains outside context. The ceiling uses a conservative
+serialized-byte bound because model tokenizer assets are unavailable. Each of the
+four S1-W toggles defaults to `"1"`; `0` restores FIFO drain with persistent section
+memory, optional replay, unchecked expectations, or no Tier-1 trigger respectively.
+Even in ablations containment and reset/boundary queue invalidation remain active.
+
 `MyAgent.prefix_lock.validate(context_id, complete_messages)` is the mandatory
 call immediately before S1-W backend requests. Fresh contexts require fresh IDs.
 `MyAgent.level_budget` uses public level counts and proportional budgets with

@@ -1,0 +1,1809 @@
+{
+  "synthetic": {
+    "kind": "synthetic toy; not game performance",
+    "replay_reports": [
+      {
+        "status": "pass",
+        "complete": true,
+        "scope": "level",
+        "level": 3,
+        "source_hash": "c7d2fa40a293d36e9229171c6b1bad482bcd2942dce5947677d29e723c5a876a",
+        "history_hash": "9413d18c6b7d1601ba5ead696497d4e853aa223c81f89279353439191c26342a",
+        "history_count": 2,
+        "eligible": 2,
+        "excluded": 0,
+        "checked": 2,
+        "matched": 2,
+        "errors": 0,
+        "chunks": [
+          {
+            "offset": 0,
+            "checked": 2
+          }
+        ],
+        "counterexamples": [],
+        "live_actions": 0
+      },
+      {
+        "status": "counterexample",
+        "complete": true,
+        "scope": "level",
+        "level": 3,
+        "source_hash": "8d976f946e82440ff5bb56a1bed01ae55d258b615c8f9107e850f39cec136417",
+        "history_hash": "9413d18c6b7d1601ba5ead696497d4e853aa223c81f89279353439191c26342a",
+        "history_count": 2,
+        "eligible": 2,
+        "excluded": 0,
+        "checked": 2,
+        "matched": 0,
+        "errors": 0,
+        "chunks": [
+          {
+            "offset": 0,
+            "checked": 2
+          }
+        ],
+        "counterexamples": [
+          {
+            "step": 1,
+            "expected_cells": [
+              {
+                "path": [
+                  "grid",
+                  1,
+                  1
+                ],
+                "kind": "value",
+                "predicted": {
+                  "type": "int",
+                  "value_preview": "0",
+                  "truncated": false
+                },
+                "observed": {
+                  "type": "int",
+                  "value_preview": "1",
+                  "truncated": false
+                }
+              }
+            ],
+            "actual_state": {
+              "grid": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  1,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ],
+              "level": 3,
+              "state": "NOT_FINISHED"
+            },
+            "difference_count": 1
+          },
+          {
+            "step": 2,
+            "expected_cells": [
+              {
+                "path": [
+                  "grid",
+                  1,
+                  1
+                ],
+                "kind": "value",
+                "predicted": {
+                  "type": "int",
+                  "value_preview": "1",
+                  "truncated": false
+                },
+                "observed": {
+                  "type": "int",
+                  "value_preview": "2",
+                  "truncated": false
+                }
+              }
+            ],
+            "actual_state": {
+              "grid": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  2,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ],
+              "level": 3,
+              "state": "NOT_FINISHED"
+            },
+            "difference_count": 1
+          }
+        ],
+        "live_actions": 0
+      },
+      {
+        "status": "counterexample",
+        "complete": true,
+        "scope": "level",
+        "level": 3,
+        "source_hash": "171d6666c9ca87639134ee658e0a27f3dc675098733a57338de3c2a57abf059e",
+        "history_hash": "9413d18c6b7d1601ba5ead696497d4e853aa223c81f89279353439191c26342a",
+        "history_count": 2,
+        "eligible": 2,
+        "excluded": 0,
+        "checked": 2,
+        "matched": 0,
+        "errors": 0,
+        "chunks": [
+          {
+            "offset": 0,
+            "checked": 2
+          }
+        ],
+        "counterexamples": [
+          {
+            "step": 1,
+            "expected_cells": [
+              {
+                "path": [
+                  "grid",
+                  2,
+                  2
+                ],
+                "kind": "value",
+                "predicted": {
+                  "type": "int",
+                  "value_preview": "9",
+                  "truncated": false
+                },
+                "observed": {
+                  "type": "int",
+                  "value_preview": "0",
+                  "truncated": false
+                }
+              }
+            ],
+            "actual_state": {
+              "grid": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  1,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ],
+              "level": 3,
+              "state": "NOT_FINISHED"
+            },
+            "difference_count": 1
+          },
+          {
+            "step": 2,
+            "expected_cells": [
+              {
+                "path": [
+                  "grid",
+                  2,
+                  2
+                ],
+                "kind": "value",
+                "predicted": {
+                  "type": "int",
+                  "value_preview": "9",
+                  "truncated": false
+                },
+                "observed": {
+                  "type": "int",
+                  "value_preview": "0",
+                  "truncated": false
+                }
+              }
+            ],
+            "actual_state": {
+              "grid": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  2,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ],
+              "level": 3,
+              "state": "NOT_FINISHED"
+            },
+            "difference_count": 1
+          }
+        ],
+        "live_actions": 0
+      },
+      {
+        "status": "counterexample",
+        "complete": true,
+        "scope": "level",
+        "level": 3,
+        "source_hash": "a15f28b42e02c093fc7fcaef692520276a4f5d3c9d23cf50845c57f682f332bb",
+        "history_hash": "9413d18c6b7d1601ba5ead696497d4e853aa223c81f89279353439191c26342a",
+        "history_count": 2,
+        "eligible": 2,
+        "excluded": 0,
+        "checked": 2,
+        "matched": 0,
+        "errors": 0,
+        "chunks": [
+          {
+            "offset": 0,
+            "checked": 2
+          }
+        ],
+        "counterexamples": [
+          {
+            "step": 1,
+            "expected_cells": [
+              {
+                "path": [
+                  "level"
+                ],
+                "kind": "value",
+                "predicted": {
+                  "type": "int",
+                  "value_preview": "4",
+                  "truncated": false
+                },
+                "observed": {
+                  "type": "int",
+                  "value_preview": "3",
+                  "truncated": false
+                }
+              }
+            ],
+            "actual_state": {
+              "grid": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  1,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ],
+              "level": 3,
+              "state": "NOT_FINISHED"
+            },
+            "difference_count": 1
+          },
+          {
+            "step": 2,
+            "expected_cells": [
+              {
+                "path": [
+                  "level"
+                ],
+                "kind": "value",
+                "predicted": {
+                  "type": "int",
+                  "value_preview": "4",
+                  "truncated": false
+                },
+                "observed": {
+                  "type": "int",
+                  "value_preview": "3",
+                  "truncated": false
+                }
+              }
+            ],
+            "actual_state": {
+              "grid": [
+                [
+                  0,
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  2,
+                  0
+                ],
+                [
+                  0,
+                  0,
+                  0
+                ]
+              ],
+              "level": 3,
+              "state": "NOT_FINISHED"
+            },
+            "difference_count": 1
+          }
+        ],
+        "live_actions": 0
+      }
+    ],
+    "rejected_by_zero_action_replay": 3,
+    "rejected_hypotheses": 3,
+    "replay_live_actions": 0,
+    "prediction_covered": 2,
+    "nonprobing_transitions": 2,
+    "prediction_matched": 2,
+    "prediction_checked": 2,
+    "simulator_compile_success": 2,
+    "simulator_compile_attempts": 3,
+    "simulator_replay_success": 1,
+    "simulator_replay_attempts": 2,
+    "search_reports": [
+      {
+        "status": "found",
+        "reason": null,
+        "actions": [
+          {
+            "action": "ACTION1"
+          }
+        ],
+        "depth": 1,
+        "expanded": 1,
+        "discovered": 2,
+        "edges": 1,
+        "elapsed_s": 6.799200002660655e-05,
+        "effective_limits": {
+          "max_nodes": 2000,
+          "max_depth": 32,
+          "max_edges": 10000,
+          "timeout_s": 2.0
+        },
+        "clamped_limits": [],
+        "plan": [
+          {
+            "action": "ACTION1",
+            "expect": [
+              {
+                "x": 0,
+                "y": 0,
+                "value": 0
+              },
+              {
+                "x": 1,
+                "y": 0,
+                "value": 0
+              },
+              {
+                "x": 2,
+                "y": 0,
+                "value": 0
+              },
+              {
+                "x": 0,
+                "y": 1,
+                "value": 0
+              },
+              {
+                "x": 1,
+                "y": 1,
+                "value": 5
+              },
+              {
+                "x": 2,
+                "y": 1,
+                "value": 0
+              },
+              {
+                "x": 0,
+                "y": 2,
+                "value": 0
+              },
+              {
+                "x": 1,
+                "y": 2,
+                "value": 0
+              },
+              {
+                "x": 2,
+                "y": 2,
+                "value": 0
+              }
+            ],
+            "expect_level_up": true
+          }
+        ]
+      },
+      {
+        "status": "compile_failed"
+      },
+      {
+        "status": "replay_failed",
+        "replay": {
+          "status": "counterexample",
+          "complete": true,
+          "scope": "level",
+          "level": 3,
+          "source_hash": "654c645ff21e513c22d492da14a935d9f1defc54d0261bbe34e06f5a5e8167f2",
+          "history_hash": "60a587df9719cca6635d80e6b6bce7deeba1dd4ec460bc2f834533c65e5b2e72",
+          "history_count": 4,
+          "eligible": 4,
+          "excluded": 0,
+          "checked": 4,
+          "matched": 0,
+          "errors": 0,
+          "chunks": [
+            {
+              "offset": 0,
+              "checked": 4
+            }
+          ],
+          "counterexamples": [
+            {
+              "step": 1,
+              "expected_cells": [
+                {
+                  "path": [
+                    "grid",
+                    1,
+                    1
+                  ],
+                  "kind": "value",
+                  "predicted": {
+                    "type": "int",
+                    "value_preview": "0",
+                    "truncated": false
+                  },
+                  "observed": {
+                    "type": "int",
+                    "value_preview": "1",
+                    "truncated": false
+                  }
+                }
+              ],
+              "actual_state": {
+                "grid": [
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0,
+                    1,
+                    0
+                  ],
+                  [
+                    0,
+                    0,
+                    0
+                  ]
+                ],
+                "level": 3,
+                "state": "NOT_FINISHED"
+              },
+              "difference_count": 1
+            },
+            {
+              "step": 2,
+              "expected_cells": [
+                {
+                  "path": [
+                    "grid",
+                    1,
+                    1
+                  ],
+                  "kind": "value",
+                  "predicted": {
+                    "type": "int",
+                    "value_preview": "1",
+                    "truncated": false
+                  },
+                  "observed": {
+                    "type": "int",
+                    "value_preview": "2",
+                    "truncated": false
+                  }
+                }
+              ],
+              "actual_state": {
+                "grid": [
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0,
+                    2,
+                    0
+                  ],
+                  [
+                    0,
+                    0,
+                    0
+                  ]
+                ],
+                "level": 3,
+                "state": "NOT_FINISHED"
+              },
+              "difference_count": 1
+            },
+            {
+              "step": 3,
+              "expected_cells": [
+                {
+                  "path": [
+                    "grid",
+                    1,
+                    1
+                  ],
+                  "kind": "value",
+                  "predicted": {
+                    "type": "int",
+                    "value_preview": "2",
+                    "truncated": false
+                  },
+                  "observed": {
+                    "type": "int",
+                    "value_preview": "3",
+                    "truncated": false
+                  }
+                }
+              ],
+              "actual_state": {
+                "grid": [
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0,
+                    3,
+                    0
+                  ],
+                  [
+                    0,
+                    0,
+                    0
+                  ]
+                ],
+                "level": 3,
+                "state": "NOT_FINISHED"
+              },
+              "difference_count": 1
+            },
+            {
+              "step": 4,
+              "expected_cells": [
+                {
+                  "path": [
+                    "grid",
+                    1,
+                    1
+                  ],
+                  "kind": "value",
+                  "predicted": {
+                    "type": "int",
+                    "value_preview": "3",
+                    "truncated": false
+                  },
+                  "observed": {
+                    "type": "int",
+                    "value_preview": "4",
+                    "truncated": false
+                  }
+                }
+              ],
+              "actual_state": {
+                "grid": [
+                  [
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0,
+                    4,
+                    0
+                  ],
+                  [
+                    0,
+                    0,
+                    0
+                  ]
+                ],
+                "level": 3,
+                "state": "NOT_FINISHED"
+              },
+              "difference_count": 1
+            }
+          ],
+          "live_actions": 0
+        }
+      }
+    ]
+  },
+  "source_sha256": {
+    "agent/my_agent.py": "1e34d0cbbedbb4b72c26dc7b0902950e17be0768eeb90f054c89c8f1dcaf6777",
+    "agent/arclog.py": "3043cf1829bf61621dc717226cc71d2a8cfc2a61039ae25c3fdad79e28a94589"
+  },
+  "versions": {
+    "arc-agi": "0.9.9",
+    "arcengine": "0.9.3",
+    "pytest": "9.1.1",
+    "ruff": "0.17.1",
+    "pyright": "1.1.414"
+  },
+  "public": {
+    "prespecified_seeds": [
+      7,
+      19
+    ],
+    "cap_argument": 40,
+    "backend": null,
+    "runs": [
+      {
+        "game": "ls20",
+        "version": "ls20-9607627b",
+        "seed": 7,
+        "disabled": null,
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 1,
+        "log_path": "work/s1w-public/perception-og8j1tzg/log.txt",
+        "log_sha256": "0b52e0ee4d29198763bc71d6110c398770b7d6a3f42fae8009387e203c8f6cfb"
+      },
+      {
+        "game": "ls20",
+        "version": "ls20-9607627b",
+        "seed": 19,
+        "disabled": null,
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 1,
+        "log_path": "work/s1w-public/perception-nx2419ml/log.txt",
+        "log_sha256": "96fb0aa9581bec904c4c4e60f1ca76c136815e8e99ed461f6ee05fc4530d57d6"
+      },
+      {
+        "game": "ft09",
+        "version": "ft09-0d8bbf25",
+        "seed": 7,
+        "disabled": null,
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 1,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-taclla7z/log.txt",
+        "log_sha256": "f4d2443f1310eee736aac424914c534b270888894ce7eaf5358c39a960be8dc0"
+      },
+      {
+        "game": "ft09",
+        "version": "ft09-0d8bbf25",
+        "seed": 19,
+        "disabled": null,
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-ke3dh4ok/log.txt",
+        "log_sha256": "3d71b68defc4b399ef64fd8a2c0ea0d89a6fa556c8b1524355fc313b278895f4"
+      },
+      {
+        "game": "vc33",
+        "version": "vc33-5430563c",
+        "seed": 7,
+        "disabled": null,
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-el2clx4m/log.txt",
+        "log_sha256": "f6257fde0e1348e771c610a4d8c01dc81007fee9d752353efe74a01337e90353"
+      },
+      {
+        "game": "vc33",
+        "version": "vc33-5430563c",
+        "seed": 19,
+        "disabled": null,
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-c4mj1tzd/log.txt",
+        "log_sha256": "55bf46f84a6881a64964927c3fdfeb15d625bb9205c07a87eeddfc5069d625cf"
+      },
+      {
+        "game": "re86",
+        "version": "re86-8af5384d",
+        "seed": 7,
+        "disabled": null,
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 1,
+        "log_path": "work/s1w-public/perception-il7qcy8t/log.txt",
+        "log_sha256": "cf8fb2ef2fee9b1b1a483b4146307c7b4de2fda422d140abc27a024a7cccbc80"
+      },
+      {
+        "game": "re86",
+        "version": "re86-8af5384d",
+        "seed": 19,
+        "disabled": null,
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 1,
+        "log_path": "work/s1w-public/perception-fa8v0c5s/log.txt",
+        "log_sha256": "a6648092995bd580a0496668563259ae83a9876326f6490dbd44c1e0f71aacb0"
+      },
+      {
+        "game": "ls20",
+        "version": "ls20-9607627b",
+        "seed": 7,
+        "disabled": "ENABLE_PLAYBOOK_RESET",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "0",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-yo_wm9pb/log.txt",
+        "log_sha256": "0b52e0ee4d29198763bc71d6110c398770b7d6a3f42fae8009387e203c8f6cfb"
+      },
+      {
+        "game": "ls20",
+        "version": "ls20-9607627b",
+        "seed": 19,
+        "disabled": "ENABLE_PLAYBOOK_RESET",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "0",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-jk1vrnw3/log.txt",
+        "log_sha256": "96fb0aa9581bec904c4c4e60f1ca76c136815e8e99ed461f6ee05fc4530d57d6"
+      },
+      {
+        "game": "ft09",
+        "version": "ft09-0d8bbf25",
+        "seed": 7,
+        "disabled": "ENABLE_PLAYBOOK_RESET",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "0",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 1,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-r19v3lf7/log.txt",
+        "log_sha256": "f4d2443f1310eee736aac424914c534b270888894ce7eaf5358c39a960be8dc0"
+      },
+      {
+        "game": "ft09",
+        "version": "ft09-0d8bbf25",
+        "seed": 19,
+        "disabled": "ENABLE_PLAYBOOK_RESET",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "0",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-xro4tl55/log.txt",
+        "log_sha256": "3d71b68defc4b399ef64fd8a2c0ea0d89a6fa556c8b1524355fc313b278895f4"
+      },
+      {
+        "game": "vc33",
+        "version": "vc33-5430563c",
+        "seed": 7,
+        "disabled": "ENABLE_PLAYBOOK_RESET",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "0",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-kgfy0a38/log.txt",
+        "log_sha256": "f6257fde0e1348e771c610a4d8c01dc81007fee9d752353efe74a01337e90353"
+      },
+      {
+        "game": "vc33",
+        "version": "vc33-5430563c",
+        "seed": 19,
+        "disabled": "ENABLE_PLAYBOOK_RESET",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "0",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-mu0h4c52/log.txt",
+        "log_sha256": "55bf46f84a6881a64964927c3fdfeb15d625bb9205c07a87eeddfc5069d625cf"
+      },
+      {
+        "game": "re86",
+        "version": "re86-8af5384d",
+        "seed": 7,
+        "disabled": "ENABLE_PLAYBOOK_RESET",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "0",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-l9wsjo12/log.txt",
+        "log_sha256": "cf8fb2ef2fee9b1b1a483b4146307c7b4de2fda422d140abc27a024a7cccbc80"
+      },
+      {
+        "game": "re86",
+        "version": "re86-8af5384d",
+        "seed": 19,
+        "disabled": "ENABLE_PLAYBOOK_RESET",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "0",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-7uer9n9o/log.txt",
+        "log_sha256": "a6648092995bd580a0496668563259ae83a9876326f6490dbd44c1e0f71aacb0"
+      },
+      {
+        "game": "ls20",
+        "version": "ls20-9607627b",
+        "seed": 7,
+        "disabled": "ENABLE_RETRODICTION",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "0",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 1,
+        "log_path": "work/s1w-public/perception-txw3zkbg/log.txt",
+        "log_sha256": "0b52e0ee4d29198763bc71d6110c398770b7d6a3f42fae8009387e203c8f6cfb"
+      },
+      {
+        "game": "ls20",
+        "version": "ls20-9607627b",
+        "seed": 19,
+        "disabled": "ENABLE_RETRODICTION",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "0",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 1,
+        "log_path": "work/s1w-public/perception-z46fgf2s/log.txt",
+        "log_sha256": "96fb0aa9581bec904c4c4e60f1ca76c136815e8e99ed461f6ee05fc4530d57d6"
+      },
+      {
+        "game": "ft09",
+        "version": "ft09-0d8bbf25",
+        "seed": 7,
+        "disabled": "ENABLE_RETRODICTION",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "0",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 1,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-oaoeo1py/log.txt",
+        "log_sha256": "f4d2443f1310eee736aac424914c534b270888894ce7eaf5358c39a960be8dc0"
+      },
+      {
+        "game": "ft09",
+        "version": "ft09-0d8bbf25",
+        "seed": 19,
+        "disabled": "ENABLE_RETRODICTION",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "0",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-y6ja8rek/log.txt",
+        "log_sha256": "3d71b68defc4b399ef64fd8a2c0ea0d89a6fa556c8b1524355fc313b278895f4"
+      },
+      {
+        "game": "vc33",
+        "version": "vc33-5430563c",
+        "seed": 7,
+        "disabled": "ENABLE_RETRODICTION",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "0",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-w6axuewh/log.txt",
+        "log_sha256": "f6257fde0e1348e771c610a4d8c01dc81007fee9d752353efe74a01337e90353"
+      },
+      {
+        "game": "vc33",
+        "version": "vc33-5430563c",
+        "seed": 19,
+        "disabled": "ENABLE_RETRODICTION",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "0",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-5apqcsso/log.txt",
+        "log_sha256": "55bf46f84a6881a64964927c3fdfeb15d625bb9205c07a87eeddfc5069d625cf"
+      },
+      {
+        "game": "re86",
+        "version": "re86-8af5384d",
+        "seed": 7,
+        "disabled": "ENABLE_RETRODICTION",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "0",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 1,
+        "log_path": "work/s1w-public/perception-v7cyrlkq/log.txt",
+        "log_sha256": "cf8fb2ef2fee9b1b1a483b4146307c7b4de2fda422d140abc27a024a7cccbc80"
+      },
+      {
+        "game": "re86",
+        "version": "re86-8af5384d",
+        "seed": 19,
+        "disabled": "ENABLE_RETRODICTION",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "0",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 1,
+        "log_path": "work/s1w-public/perception-mcqzap4y/log.txt",
+        "log_sha256": "a6648092995bd580a0496668563259ae83a9876326f6490dbd44c1e0f71aacb0"
+      },
+      {
+        "game": "ls20",
+        "version": "ls20-9607627b",
+        "seed": 7,
+        "disabled": "ENABLE_EXPECT_QUEUE",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "0",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 1,
+        "log_path": "work/s1w-public/perception-zmtvq1q1/log.txt",
+        "log_sha256": "0b52e0ee4d29198763bc71d6110c398770b7d6a3f42fae8009387e203c8f6cfb"
+      },
+      {
+        "game": "ls20",
+        "version": "ls20-9607627b",
+        "seed": 19,
+        "disabled": "ENABLE_EXPECT_QUEUE",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "0",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 1,
+        "log_path": "work/s1w-public/perception-4aw4_1g5/log.txt",
+        "log_sha256": "96fb0aa9581bec904c4c4e60f1ca76c136815e8e99ed461f6ee05fc4530d57d6"
+      },
+      {
+        "game": "ft09",
+        "version": "ft09-0d8bbf25",
+        "seed": 7,
+        "disabled": "ENABLE_EXPECT_QUEUE",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "0",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 1,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-53qt50oc/log.txt",
+        "log_sha256": "f4d2443f1310eee736aac424914c534b270888894ce7eaf5358c39a960be8dc0"
+      },
+      {
+        "game": "ft09",
+        "version": "ft09-0d8bbf25",
+        "seed": 19,
+        "disabled": "ENABLE_EXPECT_QUEUE",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "0",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-_lr_sh2l/log.txt",
+        "log_sha256": "3d71b68defc4b399ef64fd8a2c0ea0d89a6fa556c8b1524355fc313b278895f4"
+      },
+      {
+        "game": "vc33",
+        "version": "vc33-5430563c",
+        "seed": 7,
+        "disabled": "ENABLE_EXPECT_QUEUE",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "0",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-7ifvfn0x/log.txt",
+        "log_sha256": "f6257fde0e1348e771c610a4d8c01dc81007fee9d752353efe74a01337e90353"
+      },
+      {
+        "game": "vc33",
+        "version": "vc33-5430563c",
+        "seed": 19,
+        "disabled": "ENABLE_EXPECT_QUEUE",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "0",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-394ktphq/log.txt",
+        "log_sha256": "55bf46f84a6881a64964927c3fdfeb15d625bb9205c07a87eeddfc5069d625cf"
+      },
+      {
+        "game": "re86",
+        "version": "re86-8af5384d",
+        "seed": 7,
+        "disabled": "ENABLE_EXPECT_QUEUE",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "0",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 1,
+        "log_path": "work/s1w-public/perception-buhkw3fh/log.txt",
+        "log_sha256": "cf8fb2ef2fee9b1b1a483b4146307c7b4de2fda422d140abc27a024a7cccbc80"
+      },
+      {
+        "game": "re86",
+        "version": "re86-8af5384d",
+        "seed": 19,
+        "disabled": "ENABLE_EXPECT_QUEUE",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "0",
+          "ENABLE_TIER1_SIMULATOR": "1"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 1,
+        "log_path": "work/s1w-public/perception-alcrplf0/log.txt",
+        "log_sha256": "a6648092995bd580a0496668563259ae83a9876326f6490dbd44c1e0f71aacb0"
+      },
+      {
+        "game": "ls20",
+        "version": "ls20-9607627b",
+        "seed": 7,
+        "disabled": "ENABLE_TIER1_SIMULATOR",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "0"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 1,
+        "log_path": "work/s1w-public/perception-_lx7rzou/log.txt",
+        "log_sha256": "0b52e0ee4d29198763bc71d6110c398770b7d6a3f42fae8009387e203c8f6cfb"
+      },
+      {
+        "game": "ls20",
+        "version": "ls20-9607627b",
+        "seed": 19,
+        "disabled": "ENABLE_TIER1_SIMULATOR",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "0"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 1,
+        "log_path": "work/s1w-public/perception-3iwe1v1t/log.txt",
+        "log_sha256": "96fb0aa9581bec904c4c4e60f1ca76c136815e8e99ed461f6ee05fc4530d57d6"
+      },
+      {
+        "game": "ft09",
+        "version": "ft09-0d8bbf25",
+        "seed": 7,
+        "disabled": "ENABLE_TIER1_SIMULATOR",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "0"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 1,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-v5dhsnl_/log.txt",
+        "log_sha256": "f4d2443f1310eee736aac424914c534b270888894ce7eaf5358c39a960be8dc0"
+      },
+      {
+        "game": "ft09",
+        "version": "ft09-0d8bbf25",
+        "seed": 19,
+        "disabled": "ENABLE_TIER1_SIMULATOR",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "0"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-ujy_1gao/log.txt",
+        "log_sha256": "3d71b68defc4b399ef64fd8a2c0ea0d89a6fa556c8b1524355fc313b278895f4"
+      },
+      {
+        "game": "vc33",
+        "version": "vc33-5430563c",
+        "seed": 7,
+        "disabled": "ENABLE_TIER1_SIMULATOR",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "0"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-e15diy4b/log.txt",
+        "log_sha256": "f6257fde0e1348e771c610a4d8c01dc81007fee9d752353efe74a01337e90353"
+      },
+      {
+        "game": "vc33",
+        "version": "vc33-5430563c",
+        "seed": 19,
+        "disabled": "ENABLE_TIER1_SIMULATOR",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "0"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 0,
+        "log_path": "work/s1w-public/perception-4uiiaiu_/log.txt",
+        "log_sha256": "55bf46f84a6881a64964927c3fdfeb15d625bb9205c07a87eeddfc5069d625cf"
+      },
+      {
+        "game": "re86",
+        "version": "re86-8af5384d",
+        "seed": 7,
+        "disabled": "ENABLE_TIER1_SIMULATOR",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "0"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 1,
+        "log_path": "work/s1w-public/perception-g41cj5i8/log.txt",
+        "log_sha256": "cf8fb2ef2fee9b1b1a483b4146307c7b4de2fda422d140abc27a024a7cccbc80"
+      },
+      {
+        "game": "re86",
+        "version": "re86-8af5384d",
+        "seed": 19,
+        "disabled": "ENABLE_TIER1_SIMULATOR",
+        "status": "pass",
+        "flags": {
+          "ENABLE_PLAYBOOK_RESET": "1",
+          "ENABLE_RETRODICTION": "1",
+          "ENABLE_EXPECT_QUEUE": "1",
+          "ENABLE_TIER1_SIMULATOR": "0"
+        },
+        "live_responses": 41,
+        "framework_iterations": 41,
+        "levels_completed": 0,
+        "zero_causal": 0,
+        "nonboundary_responses": 41,
+        "resets": 0,
+        "level3plus_responses": 0,
+        "predictions": 0,
+        "prediction_matches": 0,
+        "hypotheses_rejected": 0,
+        "simulator_compiles": 0,
+        "playbook_versions": 1,
+        "log_path": "work/s1w-public/perception-f5d4rkha/log.txt",
+        "log_sha256": "a6648092995bd580a0496668563259ae83a9876326f6490dbd44c1e0f71aacb0"
+      }
+    ],
+    "limits": "No inference backend; prediction/rejection/simulator rates N/A when denominator is zero. Dormant ablations and short runs cannot establish score lift or promotion.",
+    "paired_comparisons": {
+      "ENABLE_PLAYBOOK_RESET": {
+        "pairs": 8,
+        "mean_zero_rate_reduction": 0.0,
+        "paired_bootstrap_95_ci": [
+          0.0,
+          0.0
+        ],
+        "bootstrap_resamples": 5000,
+        "bootstrap_seed": 917,
+        "interpretation": "Dormant policy gates; degenerate intervals do not establish equivalence or causal lift."
+      },
+      "ENABLE_RETRODICTION": {
+        "pairs": 8,
+        "mean_zero_rate_reduction": 0.0,
+        "paired_bootstrap_95_ci": [
+          0.0,
+          0.0
+        ],
+        "bootstrap_resamples": 5000,
+        "bootstrap_seed": 917,
+        "interpretation": "Dormant policy gates; degenerate intervals do not establish equivalence or causal lift."
+      },
+      "ENABLE_EXPECT_QUEUE": {
+        "pairs": 8,
+        "mean_zero_rate_reduction": 0.0,
+        "paired_bootstrap_95_ci": [
+          0.0,
+          0.0
+        ],
+        "bootstrap_resamples": 5000,
+        "bootstrap_seed": 917,
+        "interpretation": "Dormant policy gates; degenerate intervals do not establish equivalence or causal lift."
+      },
+      "ENABLE_TIER1_SIMULATOR": {
+        "pairs": 8,
+        "mean_zero_rate_reduction": 0.0,
+        "paired_bootstrap_95_ci": [
+          0.0,
+          0.0
+        ],
+        "bootstrap_resamples": 5000,
+        "bootstrap_seed": 917,
+        "interpretation": "Dormant policy gates; degenerate intervals do not establish equivalence or causal lift."
+      }
+    }
+  },
+  "validated_at": "2026-10-20T13:17:19.901253+05:30"
+}
