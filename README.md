@@ -118,27 +118,31 @@ twice.
 ```
 
 `make submit` builds and uploads the notebook (Phase A). After
-`make status` reports `complete`, the save run has finished. In this diagnostic
-build it produces logs, with status `NOT_EVALUATED`, and **no dummy parquet**.
-Start a competition rerun of that exact saved version to play games through the
-gateway. Do not set `KAGGLE_IS_COMPETITION_RERUN` yourself: a normal notebook
-session does not have the competition gateway.
+`make status` reports `complete`, run `make evaluate VERSION=<saved-version>`
+to request evaluation of that exact saved notebook through the competition gateway.
+This uses a competition submission slot; it does not upload a local parquet.
 
-If the web submission selector requires an existing parquet, the Kaggle CLI's
-code-submission path accepts the saved notebook version and its expected output
-filename directly. Replace `VERSION` with the new saved version number:
+Kaggle's service requires the output filename to exist in the saved run. Save runs
+therefore emit a **zero-row, schema-only** `submission.parquet`, with diagnostics
+explicitly marked `NOT_EVALUATED`. This contains no gameplay records or scores.
+The earlier fabricated dummy row is not restored. Only the gateway writes evaluated
+rows; validation rejects an empty or unchanged file during evaluation.
+`ENABLE_SUBMISSION_BOOTSTRAP=0` disables this artifact for local diagnostics, but
+then Kaggle cannot select the file for competition submission.
 
 ```bash
-kaggle competitions submit -c arc-prize-2026-arc-agi-3 \
-  --kernel aanchal009/arc-prize-2026-arc-agi-3-starter \
-  --version VERSION --file submission.parquet \
-  --message "Gateway-only evaluation with diagnostics"
+make submit                         # Upload a new saved notebook version
+make status                         # Wait for its save run to complete
+make evaluate VERSION=7             # Use the version returned by the upload
+make output OUTPUT_DIR=kaggle-output/latest
 ```
 
-This is a competition submission and uses submission quota; it is separate from
-`make submit`, which only uploads a notebook version. The CLI syntax and the
-absence of a local-file existence check were verified against the installed
-Kaggle SDK; this workflow still requires acceptance by Kaggle's service.
+Do not set `KAGGLE_IS_COMPETITION_RERUN` yourself: Kaggle must supply it and start
+the gateway. The CLI helper uses `KAGGLE_API_TOKEN`, the environment's token stored
+in `KAGGLE_KEY`, or `.kaggle/access_token`, with project-local configuration.
+`make output` saves API logs and a file listing before downloading output files;
+a proxy restriction on Kaggle's file host can block downloads while retaining
+those API diagnostics.
 
 ### Debugging a short run or failed evaluation
 
@@ -162,9 +166,8 @@ Agent recovery tracebacks are in `/kaggle/working/scratch/choose_action_errors.l
 Failures are re-raised after logs are saved. `COMPLETE` requires a fresh,
 readable, nonempty gateway parquet with the expected columns; missing, unchanged,
 corrupt and legacy dummy results fail visibly. Existing result files are never
-overwritten by this notebook. A crash before the gateway emits its result can
-leave no parquet; the earlier placeholder guarantee has been removed at the
-user's request.
+overwritten by the save-run bootstrap. A failed rerun cannot pass validation
+using the empty save artifact.
 
 `ENABLE_NOTEBOOK_DIAGNOSTICS=0` disables the optional GPU probe, heartbeat and
 console mirroring for controlled comparisons; disk logs, error propagation,
@@ -224,6 +227,8 @@ already the default in this kit.
 | `make notebook` | Build the Kaggle notebook from your agent (no push) |
 | `make submit` | Build the notebook **and** push it to Kaggle |
 | `make status` | Check the status of your most recent Kaggle run |
+| `make evaluate VERSION=N` | Submit saved notebook version N for gateway evaluation |
+| `make output OUTPUT_DIR=path` | Retrieve latest notebook logs and output files |
 | `make clean` | Remove the venv and downloads; keep the checked-in notebook |
 
 ---

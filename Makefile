@@ -11,19 +11,20 @@ PYTHON          ?= python3.12
 VENV            := .venv
 VENV_PY         := $(VENV)/bin/python
 VENV_PIP        := $(VENV)/bin/pip
-# Read the project-local token at recipe time and expose it as KAGGLE_API_TOKEN
-# (the only env var the modern Kaggle CLI honours for token auth).
-KAGGLE          := KAGGLE_API_TOKEN=$$(cat .kaggle/access_token) $(VENV)/bin/kaggle
+# Use injected credentials or the project-local token without printing values.
+KAGGLE          := $(VENV_PY) scripts/kaggle_cli.py
 FRAMEWORK_REPO  := https://github.com/arcprize/ARC-AGI-3-Agents.git
 FRAMEWORK_DIR   := vendor/ARC-AGI-3-Agents
 COMP_SLUG       := arc-prize-2026-arc-agi-3
 GAME            ?=
 STEPS           ?= 200
+VERSION         ?=
+OUTPUT_DIR      ?= kaggle-output/latest
 
-.PHONY: help setup play-local pull-sample notebook submit status verify-local clean _check-kaggle
+.PHONY: help setup play-local pull-sample notebook submit status evaluate output verify-local clean _check-kaggle
 
 _check-kaggle:
-	@if [ ! -s .kaggle/access_token ]; then \
+	@if [ -z "$$KAGGLE_API_TOKEN" ] && [ -z "$$KAGGLE_KEY" ] && [ ! -s .kaggle/access_token ]; then \
 	    echo "ERROR: .kaggle/access_token is missing or empty."; \
 	    echo "       Generate a token at https://www.kaggle.com/settings (API → Create New Token)"; \
 	    echo "       and save it as a one-line file at: $(PWD)/.kaggle/access_token"; \
@@ -69,9 +70,9 @@ notebook: ## Splice agent/my_agent.py into notebooks/submission.ipynb
 	$(VENV_PY) scripts/build_notebook.py
 
 submit: notebook _check-kaggle ## Build notebook and push to Kaggle (one-line submission)
-	@grep -q REPLACE_WITH_YOUR_USERNAME notebooks/kernel-metadata.json && { \
+	@if grep -q REPLACE_WITH_YOUR_USERNAME notebooks/kernel-metadata.json; then \
 	    echo "ERROR: edit notebooks/kernel-metadata.json and replace REPLACE_WITH_YOUR_USERNAME"; \
-	    exit 1; } || true
+	    exit 1; fi
 	$(KAGGLE) kernels push -p notebooks/
 	@echo ""
 	@echo "Pushed. Track it with:  make status"
@@ -79,6 +80,19 @@ submit: notebook _check-kaggle ## Build notebook and push to Kaggle (one-line su
 status: _check-kaggle ## Show the status of your most recent Kaggle kernel run
 	@KERNEL_ID=$$(python3 -c "import json; print(json.load(open('notebooks/kernel-metadata.json'))['id'])"); \
 	$(KAGGLE) kernels status $$KERNEL_ID
+
+evaluate: _check-kaggle ## Request competition rerun of a saved notebook: VERSION=7
+	@test -n "$(VERSION)" || { echo "ERROR: provide VERSION=<saved version number>"; exit 1; }
+	@KERNEL_ID=$$($(VENV_PY) -c "import json; print(json.load(open('notebooks/kernel-metadata.json'))['id'])"); \
+	$(KAGGLE) competitions submit $(COMP_SLUG) --kernel $$KERNEL_ID \
+	    --version "$(VERSION)" --file submission.parquet --message "Gateway evaluation with diagnostics"
+
+output: _check-kaggle ## Save logs, output listing and downloaded files to OUTPUT_DIR
+	@mkdir -p "$(OUTPUT_DIR)"
+	@KERNEL_ID=$$($(VENV_PY) -c "import json; print(json.load(open('notebooks/kernel-metadata.json'))['id'])"); \
+	$(KAGGLE) kernels logs $$KERNEL_ID > "$(OUTPUT_DIR)/kernel.log" && \
+	$(KAGGLE) kernels files $$KERNEL_ID --csv > "$(OUTPUT_DIR)/output-files.csv" && \
+	$(KAGGLE) kernels output $$KERNEL_ID -p "$(OUTPUT_DIR)" --force
 
 clean: ## Remove generated artefacts (venv, downloaded games, vendored repos)
 	rm -rf $(VENV) vendor environment_files recordings \

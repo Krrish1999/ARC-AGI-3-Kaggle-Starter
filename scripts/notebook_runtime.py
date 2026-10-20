@@ -1,6 +1,7 @@
 """Notebook diagnostics and gateway-only evaluation; embedded by the builder.
 
-This module never writes a submission. Only the competition gateway does that.
+Only the competition gateway writes evaluated submission rows. Save runs emit
+an empty schema-only output so Kaggle can select the file for a code rerun.
 All runtime imports outside submission validation use the Python standard library.
 """
 from __future__ import annotations
@@ -309,10 +310,23 @@ class NotebookRunner:
 
     def run(self) -> None:
         if not self.rerun:
+            if os.getenv('ENABLE_SUBMISSION_BOOTSTRAP', '1') == '1':
+                # Create no scores or gameplay records. Kaggle requires a saved
+                # output with this name before accepting a code submission.
+                # Evaluation must replace it with a fresh, nonempty gateway file.
+                import pyarrow as pa
+                import pyarrow.parquet as pq
+                schema = pa.schema([('row_id', pa.string()), ('game_id', pa.string()),
+                                    ('end_of_game', pa.bool_()), ('score', pa.float64())])
+                if self.submission.exists():
+                    raise FileExistsError('Refusing to overwrite an existing submission during a save run')
+                pq.write_table(pa.Table.from_batches([], schema=schema), self.submission)
+                self.event('submission_bootstrap', rows=0, evaluated=False,
+                           path=str(self.submission), purpose='Kaggle code submission output selector')
             self.status('NOT_EVALUATED', stage='competition_dispatch',
                         reason='Competition rerun flag is not enabled; gameplay gateway is unavailable')
             self.event('not_evaluated', message='Save & Run All does not play hidden games. '
-                       'No submission file was generated. The competition gateway runs during Submit to Competition.')
+                       'No gameplay rows were generated. The competition gateway runs during Submit to Competition.')
             return
         self.prepare_framework()
         self.run_framework()

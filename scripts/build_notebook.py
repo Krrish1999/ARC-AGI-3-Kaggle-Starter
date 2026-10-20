@@ -3,7 +3,7 @@
 The payload contains both agent entry modules and reusable support modules,
 verifies their SHA256 hashes, runs behavioral containment before evaluation,
 and bounds the framework lifetime against a shared 29,700-second run target
-and 30,600-second hard ceiling. Only the gateway may generate a submission;
+and 30,600-second hard ceiling. Only the gateway may generate evaluated submission rows;
 persistent diagnostics distinguish ordinary saves from actual evaluation.
 """
 from __future__ import annotations
@@ -113,8 +113,8 @@ def build() -> dict:
                 "Built from `agent/my_agent.py`, `agent/arclog.py` and support modules via `scripts/build_notebook.py`. "
                 "Do not edit cells directly — edit the source file and re-run "
                 "`make submit`.\n\n"
-                "Only the competition gateway writes `submission.parquet`. Ordinary saves are "
-                "logged as NOT_EVALUATED and create no dummy file. Diagnostics are saved under "
+                "Only the competition gateway writes evaluated rows. Ordinary saves are "
+                "logged as NOT_EVALUATED and emit a zero-row parquet for code submission. Diagnostics are saved under "
                 "`/kaggle/working/diagnostics/`."
             ),
             setup_cell,
