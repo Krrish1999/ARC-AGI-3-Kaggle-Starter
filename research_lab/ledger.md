@@ -853,3 +853,38 @@ are invalid and skipped them; removed those placeholder references locally to
 match the accepted configuration. This launcher does not read either dataset.
 The real model_sources remain attached. This warning alone does not explain
 the generic competition system error.
+
+
+## [EDIT] 2026-10-20 — Expose Kaggle runtime startup before evaluation
+
+Version 8 submission 57448657 also failed with the same generic system error
+and no episodes. The prior scorecard-mode repair was necessary but did not
+resolve the observed failure; no claim of a confirmed overall root cause.
+
+Save & Run All previously skipped isolated-interpreter creation, containment,
+framework registration and runtime imports. Refactored preparation so save runs
+exercise those operations without a gateway, then perform a synthetic one-action
+agent/framework lifecycle check. The synthetic fixture reads no environment
+source, makes no network requests, and writes no scored rows. Failed checks
+stop the save before output bootstrapping. Use venv --without-pip because the
+worker needs only the standard library, not ensurepip or package installation.
+
+Validation so far: 132 local tests passed; lint and agent typing passed. Real
+local vendor-framework startup passed. Canonical notebook version 9 passed
+Kaggle sandbox creation, containment and import checks in its actual image.
+An ordinary ONLINE public-API rehearsal completed three actions, never entered
+recovery mode, and closed its scorecard; no Kaggle submission was used.
+
+Prepared a fresh private runtime-check notebook using the same agent, pinned
+image, competition data and GPU shape, without the two unused model inputs.
+This is a configuration/provisioning isolation experiment, not evidence that
+the original notebook or models are the confirmed cause.
+
+The fresh runtime-check notebook was created by Kaggle at
+aanchal009/arc-agi-3-runtime-check.
+Its version 1 passed imports and FRAMEWORK_RUNTIME_OK on Kaggle, proving one
+synthetic action through the deployed framework with the production SDK.
+Build 7cf1b632a694c2af. Competition-isolation submission 57449526 was accepted
+and is PENDING; no competition success is claimed. Evidence and a ready-to-send
+maintainer report are saved under kaggle-output/runtime-check. No support
+message was sent.

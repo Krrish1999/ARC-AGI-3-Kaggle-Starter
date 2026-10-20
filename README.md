@@ -150,6 +150,11 @@ The notebook prints an execution-mode banner before dependency installation.
 `SAVE_OR_INTERACTIVE` followed by `NOT_EVALUATED` explains a short save run;
 it does not indicate that hidden games completed. A competition rerun must log
 `COMPETITION_RERUN`, gateway readiness, containment, and framework execution.
+Save runs now also copy the framework, create the isolated interpreter, run
+containment, import the deployed agent, and exercise one synthetic action through
+its real framework loop. These checks contact no gateway and produce no scored
+gameplay. `FRAMEWORK_RUNTIME_OK` confirms that the mounted Kaggle runtime passed;
+a failure stops the save with its traceback before an evaluation is requested.
 The launcher must also use the ARC SDK's `competition` operation mode: `online`
 omits `competition_mode: true` from the scorecard-open request. The generated
 framework configuration and its child process both enforce competition mode.
@@ -161,6 +166,7 @@ Download these files from `/kaggle/working/diagnostics/`:
 | `status.json` | `NOT_EVALUATED`, `RUNNING`, `FAILED`, or `COMPLETE`, with the last stage and error |
 | `notebook.log`, `events.jsonl` | Build ID, mode, stage timing, GPU probe, command exits and heartbeat |
 | `pip.log`, `gateway.log`, `sandbox_setup.log` | Installation, gateway connection and isolated interpreter output |
+| `framework_imports.log` | Imports and a synthetic lifecycle check in Kaggle's actual Python/SDK environment |
 | `containment.log`, `containment.json` | Audit output and the current behavioral report |
 | `framework.log` | Complete, unbuffered framework stdout/stderr, including child tracebacks |
 | `traceback.log` | Notebook failure traceback and failing stage |
