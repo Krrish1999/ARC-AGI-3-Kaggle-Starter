@@ -1,0 +1,93 @@
+[{"stream_name":"stderr","time":4.878929274,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":4.878956854,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":4.878958904,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":4.878960074,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":5.214145235,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":5.214164535,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":5.214166385,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":5.214167605,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":5.974157377,"data":"2026-10-20 12:54:07,930 INFO {\"build_id\": \"0e0d88772889f6ec\", \"elapsed_seconds\": 0.0, \"event\": \"stage_started\", \"stage\": \"startup\"}\n"}
+,{"stream_name":"stdout","time":5.974423777,"data":"2026-10-20 12:54:07,931 INFO {\"build_id\": \"0e0d88772889f6ec\", \"diagnostics\": \"/kaggle/working/diagnostics\", \"elapsed_seconds\": 0.001, \"event\": \"execution_mode\", \"existing_submission\": false, \"kernel_run_type\": \"Batch\", \"mode\": \"SAVE_OR_INTERACTIVE\", \"python\": \"3.12.13\", \"rerun_flag\": \"\", \"submission_policy\": \"gateway-only\"}\n"}
+,{"stream_name":"stdout","time":5.987691237,"data":"2026-10-20 12:54:07,944 INFO {\"build_id\": \"0e0d88772889f6ec\", \"elapsed_seconds\": 0.014, \"event\": \"gpu_probe\", \"output\": \"NVIDIA RTX PRO 6000 Blackwell Server Edition, 97887 MiB\\n\", \"returncode\": 0}\n"}
+,{"stream_name":"stdout","time":5.988192027,"data":"2026-10-20 12:54:07,944 INFO {\"build_id\": \"0e0d88772889f6ec\", \"duration_seconds\": 0.014, \"elapsed_seconds\": 0.014, \"event\": \"stage_completed\", \"stage\": \"startup\"}\n"}
+,{"stream_name":"stdout","time":5.997103277,"data":"2026-10-20 12:54:07,954 INFO {\"build_id\": \"0e0d88772889f6ec\", \"elapsed_seconds\": 0.024, \"event\": \"stage_started\", \"stage\": \"offline_dependencies\"}\n"}
+,{"stream_name":"stdout","time":5.997391767,"data":"2026-10-20 12:54:07,954 INFO {\"args\": [\"/usr/bin/python3\", \"-m\", \"pip\", \"install\", \"--no-index\", \"--find-links\", \"/kaggle/input/competitions/arc-prize-2026-arc-agi-3/arc_agi_3_wheels\", \"arc-agi\", \"python-dotenv\"], \"build_id\": \"0e0d88772889f6ec\", \"command\": \"pip\", \"elapsed_seconds\": 0.024, \"event\": \"command_started\", \"log\": \"/kaggle/working/diagnostics/pip.log\"}\n"}
+,{"stream_name":"stdout","time":9.066620976,"data":"2026-10-20 12:54:11,022 INFO {\"build_id\": \"0e0d88772889f6ec\", \"command\": \"pip\", \"elapsed_seconds\": 3.092, \"event\": \"command_completed\", \"returncode\": 0}\n"}
+,{"stream_name":"stdout","time":9.066945446,"data":"2026-10-20 12:54:11,023 INFO pip output (tail):\n"}
+,{"stream_name":"stdout","time":9.066948236,"data":"Looking in links: /kaggle/input/competitions/arc-prize-2026-arc-agi-3/arc_agi_3_wheels\n"}
+,{"stream_name":"stdout","time":9.066949606,"data":"Processing /kaggle/input/competitions/arc-prize-2026-arc-agi-3/arc_agi_3_wheels/arc_agi-0.9.8-py3-none-any.whl\n"}
+,{"stream_name":"stdout","time":9.066950676,"data":"Requirement already satisfied: python-dotenv in /usr/local/lib/python3.12/dist-packages (1.2.2)\n"}
+,{"stream_name":"stdout","time":9.066951486,"data":"Processing /kaggle/input/competitions/arc-prize-2026-arc-agi-3/arc_agi_3_wheels/arcengine-0.9.3-py3-none-any.whl (from arc-agi)\n"}
+,{"stream_name":"stdout","time":9.066961046,"data":"Requirement already satisfied: flask\u003e=3.1.0 in /usr/local/lib/python3.12/dist-packages (from arc-agi) (3.1.3)\n"}
+,{"stream_name":"stdout","time":9.066962486,"data":"Requirement already satisfied: matplotlib\u003e=3.7.0 in /usr/local/lib/python3.12/dist-packages (from arc-agi) (3.10.0)\n"}
+,{"stream_name":"stdout","time":9.066963496,"data":"Requirement already satisfied: pydantic\u003e=2.0.0 in /usr/local/lib/python3.12/dist-packages (from arc-agi) (2.12.3)\n"}
+,{"stream_name":"stdout","time":9.066964426,"data":"Processing /kaggle/input/competitions/arc-prize-2026-arc-agi-3/arc_agi_3_wheels/pillow-12.2.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (from arc-agi)\n"}
+,{"stream_name":"stdout","time":9.066965486,"data":"Requirement already satisfied: requests\u003e=2.31.0 in /usr/local/lib/python3.12/dist-packages (from arc-agi) (2.32.4)\n"}
+,{"stream_name":"stdout","time":9.066966366,"data":"Requirement already satisfied: numpy\u003e=1.24.0 in /usr/local/lib/python3.12/dist-packages (from arcengine\u003e=0.9.3-\u003earc-agi) (2.4.6)\n"}
+,{"stream_name":"stdout","time":9.066967436,"data":"Requirement already satisfied: blinker\u003e=1.9.0 in /usr/local/lib/python3.12/dist-packages (from flask\u003e=3.1.0-\u003earc-agi) (1.9.0)\n"}
+,{"stream_name":"stdout","time":9.066968336,"data":"Requirement already satisfied: click\u003e=8.1.3 in /usr/local/lib/python3.12/dist-packages (from flask\u003e=3.1.0-\u003earc-agi) (8.3.2)\n"}
+,{"stream_name":"stdout","time":9.066969266,"data":"Requirement already satisfied: itsdangerous\u003e=2.2.0 in /usr/local/lib/python3.12/dist-packages (from flask\u003e=3.1.0-\u003earc-agi) (2.2.0)\n"}
+,{"stream_name":"stdout","time":9.066970076,"data":"Requirement already satisfied: jinja2\u003e=3.1.2 in /usr/local/lib/python3.12/dist-packages (from flask\u003e=3.1.0-\u003earc-agi) (3.1.6)\n"}
+,{"stream_name":"stdout","time":9.066970906,"data":"Requirement already satisfied: markupsafe\u003e=2.1.1 in /usr/local/lib/python3.12/dist-packages (from flask\u003e=3.1.0-\u003earc-agi) (3.0.3)\n"}
+,{"stream_name":"stdout","time":9.066971706,"data":"Requirement already satisfied: werkzeug\u003e=3.1.0 in /usr/local/lib/python3.12/dist-packages (from flask\u003e=3.1.0-\u003earc-agi) (3.1.8)\n"}
+,{"stream_name":"stdout","time":9.066972736,"data":"Requirement already satisfied: contourpy\u003e=1.0.1 in /usr/local/lib/python3.12/dist-packages (from matplotlib\u003e=3.7.0-\u003earc-agi) (1.3.3)\n"}
+,{"stream_name":"stdout","time":9.066973626,"data":"Requirement already satisfied: cycler\u003e=0.10 in /usr/local/lib/python3.12/dist-packages (from matplotlib\u003e=3.7.0-\u003earc-agi) (0.12.1)\n"}
+,{"stream_name":"stdout","time":9.066974526,"data":"Requirement already satisfied: fonttools\u003e=4.22.0 in /usr/local/lib/python3.12/dist-packages (from matplotlib\u003e=3.7.0-\u003earc-agi) (4.62.1)\n"}
+,{"stream_name":"stdout","time":9.066975396,"data":"Requirement already satisfied: kiwisolver\u003e=1.3.1 in /usr/local/lib/python3.12/dist-packages (from matplotlib\u003e=3.7.0-\u003earc-agi) (1.5.0)\n"}
+,{"stream_name":"stdout","time":9.066976256,"data":"Requirement already satisfied: packaging\u003e=20.0 in /usr/local/lib/python3.12/dist-packages (from matplotlib\u003e=3.7.0-\u003earc-agi) (26.2)\n"}
+,{"stream_name":"stdout","time":9.066977086,"data":"Requirement already satisfied: pyparsing\u003e=2.3.1 in /usr/local/lib/python3.12/dist-packages (from matplotlib\u003e=3.7.0-\u003earc-agi) (3.3.2)\n"}
+,{"stream_name":"stdout","time":9.066977906,"data":"Requirement already satisfied: python-dateutil\u003e=2.7 in /usr/local/lib/python3.12/dist-packages (from matplotlib\u003e=3.7.0-\u003earc-agi) (2.9.0.post0)\n"}
+,{"stream_name":"stdout","time":9.066978796,"data":"Requirement already satisfied: annotated-types\u003e=0.6.0 in /usr/local/lib/python3.12/dist-packages (from pydantic\u003e=2.0.0-\u003earc-agi) (0.7.0)\n"}
+,{"stream_name":"stdout","time":9.066981166,"data":"Requirement already satisfied: pydantic-core==2.41.4 in /usr/local/lib/python3.12/dist-packages (from pydantic\u003e=2.0.0-\u003earc-agi) (2.41.4)\n"}
+,{"stream_name":"stdout","time":9.066982076,"data":"Requirement already satisfied: typing-extensions\u003e=4.14.1 in /usr/local/lib/python3.12/dist-packages (from pydantic\u003e=2.0.0-\u003earc-agi) (4.15.0)\n"}
+,{"stream_name":"stdout","time":9.066982956,"data":"Requirement already satisfied: typing-inspection\u003e=0.4.2 in /usr/local/lib/python3.12/dist-packages (from pydantic\u003e=2.0.0-\u003earc-agi) (0.4.2)\n"}
+,{"stream_name":"stdout","time":9.066983776,"data":"Requirement already satisfied: charset_normalizer\u003c4,\u003e=2 in /usr/local/lib/python3.12/dist-packages (from requests\u003e=2.31.0-\u003earc-agi) (3.4.7)\n"}
+,{"stream_name":"stdout","time":9.066984706,"data":"Requirement already satisfied: idna\u003c4,\u003e=2.5 in /usr/local/lib/python3.12/dist-packages (from requests\u003e=2.31.0-\u003earc-agi) (3.11)\n"}
+,{"stream_name":"stdout","time":9.066985656,"data":"Requirement already satisfied: urllib3\u003c3,\u003e=1.21.1 in /usr/local/lib/python3.12/dist-packages (from requests\u003e=2.31.0-\u003earc-agi) (2.5.0)\n"}
+,{"stream_name":"stdout","time":9.066986576,"data":"Requirement already satisfied: certifi\u003e=2017.4.17 in /usr/local/lib/python3.12/dist-packages (from requests\u003e=2.31.0-\u003earc-agi) (2026.2.25)\n"}
+,{"stream_name":"stdout","time":9.066987636,"data":"Requirement already satisfied: six\u003e=1.5 in /usr/local/lib/python3.12/dist-packages (from python-dateutil\u003e=2.7-\u003ematplotlib\u003e=3.7.0-\u003earc-agi) (1.17.0)\n"}
+,{"stream_name":"stdout","time":9.066988596,"data":"Installing collected packages: pillow, arcengine, arc-agi\n"}
+,{"stream_name":"stdout","time":9.066989376,"data":"  Attempting uninstall: pillow\n"}
+,{"stream_name":"stdout","time":9.066990116,"data":"    Found existing installation: pillow 11.3.0\n"}
+,{"stream_name":"stdout","time":9.066990876,"data":"    Uninstalling pillow-11.3.0:\n"}
+,{"stream_name":"stdout","time":9.066991616,"data":"      Successfully uninstalled pillow-11.3.0\n"}
+,{"stream_name":"stdout","time":9.066992396,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
+,{"stream_name":"stdout","time":9.066993316,"data":"ydata-profiling 4.18.4 requires numba\u003c0.63,\u003e=0.60, but you have numba 0.65.1 which is incompatible.\n"}
+,{"stream_name":"stdout","time":9.066994486,"data":"ydata-profiling 4.18.4 requires numpy\u003c2.4,\u003e=1.22, but you have numpy 2.4.6 which is incompatible.\n"}
+,{"stream_name":"stdout","time":9.066995336,"data":"dopamine-rl 4.1.2 requires gym\u003c=0.25.2, but you have gym 0.26.2 which is incompatible.\n"}
+,{"stream_name":"stdout","time":9.066996136,"data":"gradio 5.50.0 requires pillow\u003c12.0,\u003e=8.0, but you have pillow 12.2.0 which is incompatible.\n"}
+,{"stream_name":"stdout","time":9.066996966,"data":"Successfully installed arc-agi-0.9.8 arcengine-0.9.3 pillow-12.2.0\n"}
+,{"stream_name":"stdout","time":9.066997786,"data":"\n"}
+,{"stream_name":"stdout","time":9.071306857,"data":"2026-10-20 12:54:11,028 INFO {\"build_id\": \"0e0d88772889f6ec\", \"elapsed_seconds\": 3.098, \"event\": \"dependency_versions\", \"versions\": {\"arc-agi\": \"0.9.8\", \"arcengine\": \"0.9.3\", \"python-dotenv\": \"1.2.2\"}}\n"}
+,{"stream_name":"stdout","time":9.071555607,"data":"2026-10-20 12:54:11,028 INFO {\"build_id\": \"0e0d88772889f6ec\", \"duration_seconds\": 3.075, \"elapsed_seconds\": 3.098, \"event\": \"stage_completed\", \"stage\": \"offline_dependencies\"}\n"}
+,{"stream_name":"stdout","time":9.085238377,"data":"Writing /tmp/agent_bundle/arclog.py\n"}
+,{"stream_name":"stdout","time":9.094214836999999,"data":"Writing /tmp/agent_bundle/baseline/__init__.py\n"}
+,{"stream_name":"stdout","time":9.105023537,"data":"Writing /tmp/agent_bundle/baseline/animation.py\n"}
+,{"stream_name":"stdout","time":9.115108677,"data":"Writing /tmp/agent_bundle/baseline/bounded_search.py\n"}
+,{"stream_name":"stdout","time":9.125161507,"data":"Writing /tmp/agent_bundle/baseline/checked_execution.py\n"}
+,{"stream_name":"stdout","time":9.136107197,"data":"Writing /tmp/agent_bundle/baseline/frame_diff.py\n"}
+,{"stream_name":"stdout","time":9.147452277,"data":"Writing /tmp/agent_bundle/baseline/grid_coverage.py\n"}
+,{"stream_name":"stdout","time":9.157343297,"data":"Writing /tmp/agent_bundle/baseline/grid_display.py\n"}
+,{"stream_name":"stdout","time":9.167820087,"data":"Writing /tmp/agent_bundle/baseline/noop_repeat_guard.py\n"}
+,{"stream_name":"stdout","time":9.178018487,"data":"Writing /tmp/agent_bundle/baseline/priority_scheduler.py\n"}
+,{"stream_name":"stdout","time":9.188979697,"data":"Writing /tmp/agent_bundle/baseline/replay_compare.py\n"}
+,{"stream_name":"stdout","time":9.200732417,"data":"Writing /tmp/agent_bundle/baseline/retained_functions.py\n"}
+,{"stream_name":"stdout","time":9.211235267,"data":"Writing /tmp/agent_bundle/baseline/state_contracts.py\n"}
+,{"stream_name":"stdout","time":9.222272637,"data":"Writing /tmp/agent_bundle/baseline/transition_evidence.py\n"}
+,{"stream_name":"stdout","time":9.238856087,"data":"Writing /tmp/agent_bundle/my_agent.py\n"}
+,{"stream_name":"stdout","time":9.249397017,"data":"Writing /tmp/agent_bundle/runtime.py\n"}
+,{"stream_name":"stdout","time":9.259819737,"data":"Writing /tmp/agent_bundle/sandbox.py\n"}
+,{"stream_name":"stdout","time":9.270230807,"data":"2026-10-20 12:54:11,227 INFO {\"build_id\": \"0e0d88772889f6ec\", \"elapsed_seconds\": 3.297, \"event\": \"stage_started\", \"stage\": \"bundle_verification\"}\n"}
+,{"stream_name":"stdout","time":9.291860327,"data":"2026-10-20 12:54:11,248 INFO {\"build_id\": \"0e0d88772889f6ec\", \"elapsed_seconds\": 3.318, \"event\": \"bundle_verified\", \"modules\": 17}\n"}
+,{"stream_name":"stdout","time":9.292069787,"data":"2026-10-20 12:54:11,249 INFO {\"build_id\": \"0e0d88772889f6ec\", \"duration_seconds\": 0.022, \"elapsed_seconds\": 3.319, \"event\": \"stage_completed\", \"stage\": \"bundle_verification\"}\n"}
+,{"stream_name":"stdout","time":9.303396147,"data":"Writing /tmp/submission_audit.py\n"}
+,{"stream_name":"stdout","time":9.313470257,"data":"2026-10-20 12:54:11,270 INFO {\"build_id\": \"0e0d88772889f6ec\", \"elapsed_seconds\": 3.34, \"event\": \"not_evaluated\", \"message\": \"Save \u0026 Run All does not play hidden games. No submission file was generated. The competition gateway runs during Submit to Competition.\"}\n"}
+,{"stream_name":"stderr","time":10.656491361,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":10.656508311,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":10.739203121,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":10.739213751,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":11.198566233,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":11.342105173,"data":"[NbConvertApp] Writing 280561 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":12.613534837,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":13.241840829,"data":"[NbConvertApp] Writing 1310573 bytes to __results__.html\n"}
+]

@@ -1,0 +1,13 @@
+{"build_id": "0e0d88772889f6ec", "elapsed_seconds": 0.0, "event": "stage_started", "stage": "startup"}
+{"build_id": "0e0d88772889f6ec", "diagnostics": "/kaggle/working/diagnostics", "elapsed_seconds": 0.001, "event": "execution_mode", "existing_submission": false, "kernel_run_type": "Batch", "mode": "SAVE_OR_INTERACTIVE", "python": "3.12.13", "rerun_flag": "", "submission_policy": "gateway-only"}
+{"build_id": "0e0d88772889f6ec", "elapsed_seconds": 0.014, "event": "gpu_probe", "output": "NVIDIA RTX PRO 6000 Blackwell Server Edition, 97887 MiB\n", "returncode": 0}
+{"build_id": "0e0d88772889f6ec", "duration_seconds": 0.014, "elapsed_seconds": 0.014, "event": "stage_completed", "stage": "startup"}
+{"build_id": "0e0d88772889f6ec", "elapsed_seconds": 0.024, "event": "stage_started", "stage": "offline_dependencies"}
+{"args": ["/usr/bin/python3", "-m", "pip", "install", "--no-index", "--find-links", "/kaggle/input/competitions/arc-prize-2026-arc-agi-3/arc_agi_3_wheels", "arc-agi", "python-dotenv"], "build_id": "0e0d88772889f6ec", "command": "pip", "elapsed_seconds": 0.024, "event": "command_started", "log": "/kaggle/working/diagnostics/pip.log"}
+{"build_id": "0e0d88772889f6ec", "command": "pip", "elapsed_seconds": 3.092, "event": "command_completed", "returncode": 0}
+{"build_id": "0e0d88772889f6ec", "elapsed_seconds": 3.098, "event": "dependency_versions", "versions": {"arc-agi": "0.9.8", "arcengine": "0.9.3", "python-dotenv": "1.2.2"}}
+{"build_id": "0e0d88772889f6ec", "duration_seconds": 3.075, "elapsed_seconds": 3.098, "event": "stage_completed", "stage": "offline_dependencies"}
+{"build_id": "0e0d88772889f6ec", "elapsed_seconds": 3.297, "event": "stage_started", "stage": "bundle_verification"}
+{"build_id": "0e0d88772889f6ec", "elapsed_seconds": 3.318, "event": "bundle_verified", "modules": 17}
+{"build_id": "0e0d88772889f6ec", "duration_seconds": 0.022, "elapsed_seconds": 3.319, "event": "stage_completed", "stage": "bundle_verification"}
+{"build_id": "0e0d88772889f6ec", "elapsed_seconds": 3.34, "event": "not_evaluated", "message": "Save & Run All does not play hidden games. No submission file was generated. The competition gateway runs during Submit to Competition."}

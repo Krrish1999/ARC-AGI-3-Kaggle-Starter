@@ -1,0 +1,58 @@
+2026-10-20 12:54:07,930 INFO {"build_id": "0e0d88772889f6ec", "elapsed_seconds": 0.0, "event": "stage_started", "stage": "startup"}
+2026-10-20 12:54:07,931 INFO {"build_id": "0e0d88772889f6ec", "diagnostics": "/kaggle/working/diagnostics", "elapsed_seconds": 0.001, "event": "execution_mode", "existing_submission": false, "kernel_run_type": "Batch", "mode": "SAVE_OR_INTERACTIVE", "python": "3.12.13", "rerun_flag": "", "submission_policy": "gateway-only"}
+2026-10-20 12:54:07,944 INFO {"build_id": "0e0d88772889f6ec", "elapsed_seconds": 0.014, "event": "gpu_probe", "output": "NVIDIA RTX PRO 6000 Blackwell Server Edition, 97887 MiB\n", "returncode": 0}
+2026-10-20 12:54:07,944 INFO {"build_id": "0e0d88772889f6ec", "duration_seconds": 0.014, "elapsed_seconds": 0.014, "event": "stage_completed", "stage": "startup"}
+2026-10-20 12:54:07,954 INFO {"build_id": "0e0d88772889f6ec", "elapsed_seconds": 0.024, "event": "stage_started", "stage": "offline_dependencies"}
+2026-10-20 12:54:07,954 INFO {"args": ["/usr/bin/python3", "-m", "pip", "install", "--no-index", "--find-links", "/kaggle/input/competitions/arc-prize-2026-arc-agi-3/arc_agi_3_wheels", "arc-agi", "python-dotenv"], "build_id": "0e0d88772889f6ec", "command": "pip", "elapsed_seconds": 0.024, "event": "command_started", "log": "/kaggle/working/diagnostics/pip.log"}
+2026-10-20 12:54:11,022 INFO {"build_id": "0e0d88772889f6ec", "command": "pip", "elapsed_seconds": 3.092, "event": "command_completed", "returncode": 0}
+2026-10-20 12:54:11,023 INFO pip output (tail):
+Looking in links: /kaggle/input/competitions/arc-prize-2026-arc-agi-3/arc_agi_3_wheels
+Processing /kaggle/input/competitions/arc-prize-2026-arc-agi-3/arc_agi_3_wheels/arc_agi-0.9.8-py3-none-any.whl
+Requirement already satisfied: python-dotenv in /usr/local/lib/python3.12/dist-packages (1.2.2)
+Processing /kaggle/input/competitions/arc-prize-2026-arc-agi-3/arc_agi_3_wheels/arcengine-0.9.3-py3-none-any.whl (from arc-agi)
+Requirement already satisfied: flask>=3.1.0 in /usr/local/lib/python3.12/dist-packages (from arc-agi) (3.1.3)
+Requirement already satisfied: matplotlib>=3.7.0 in /usr/local/lib/python3.12/dist-packages (from arc-agi) (3.10.0)
+Requirement already satisfied: pydantic>=2.0.0 in /usr/local/lib/python3.12/dist-packages (from arc-agi) (2.12.3)
+Processing /kaggle/input/competitions/arc-prize-2026-arc-agi-3/arc_agi_3_wheels/pillow-12.2.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (from arc-agi)
+Requirement already satisfied: requests>=2.31.0 in /usr/local/lib/python3.12/dist-packages (from arc-agi) (2.32.4)
+Requirement already satisfied: numpy>=1.24.0 in /usr/local/lib/python3.12/dist-packages (from arcengine>=0.9.3->arc-agi) (2.4.6)
+Requirement already satisfied: blinker>=1.9.0 in /usr/local/lib/python3.12/dist-packages (from flask>=3.1.0->arc-agi) (1.9.0)
+Requirement already satisfied: click>=8.1.3 in /usr/local/lib/python3.12/dist-packages (from flask>=3.1.0->arc-agi) (8.3.2)
+Requirement already satisfied: itsdangerous>=2.2.0 in /usr/local/lib/python3.12/dist-packages (from flask>=3.1.0->arc-agi) (2.2.0)
+Requirement already satisfied: jinja2>=3.1.2 in /usr/local/lib/python3.12/dist-packages (from flask>=3.1.0->arc-agi) (3.1.6)
+Requirement already satisfied: markupsafe>=2.1.1 in /usr/local/lib/python3.12/dist-packages (from flask>=3.1.0->arc-agi) (3.0.3)
+Requirement already satisfied: werkzeug>=3.1.0 in /usr/local/lib/python3.12/dist-packages (from flask>=3.1.0->arc-agi) (3.1.8)
+Requirement already satisfied: contourpy>=1.0.1 in /usr/local/lib/python3.12/dist-packages (from matplotlib>=3.7.0->arc-agi) (1.3.3)
+Requirement already satisfied: cycler>=0.10 in /usr/local/lib/python3.12/dist-packages (from matplotlib>=3.7.0->arc-agi) (0.12.1)
+Requirement already satisfied: fonttools>=4.22.0 in /usr/local/lib/python3.12/dist-packages (from matplotlib>=3.7.0->arc-agi) (4.62.1)
+Requirement already satisfied: kiwisolver>=1.3.1 in /usr/local/lib/python3.12/dist-packages (from matplotlib>=3.7.0->arc-agi) (1.5.0)
+Requirement already satisfied: packaging>=20.0 in /usr/local/lib/python3.12/dist-packages (from matplotlib>=3.7.0->arc-agi) (26.2)
+Requirement already satisfied: pyparsing>=2.3.1 in /usr/local/lib/python3.12/dist-packages (from matplotlib>=3.7.0->arc-agi) (3.3.2)
+Requirement already satisfied: python-dateutil>=2.7 in /usr/local/lib/python3.12/dist-packages (from matplotlib>=3.7.0->arc-agi) (2.9.0.post0)
+Requirement already satisfied: annotated-types>=0.6.0 in /usr/local/lib/python3.12/dist-packages (from pydantic>=2.0.0->arc-agi) (0.7.0)
+Requirement already satisfied: pydantic-core==2.41.4 in /usr/local/lib/python3.12/dist-packages (from pydantic>=2.0.0->arc-agi) (2.41.4)
+Requirement already satisfied: typing-extensions>=4.14.1 in /usr/local/lib/python3.12/dist-packages (from pydantic>=2.0.0->arc-agi) (4.15.0)
+Requirement already satisfied: typing-inspection>=0.4.2 in /usr/local/lib/python3.12/dist-packages (from pydantic>=2.0.0->arc-agi) (0.4.2)
+Requirement already satisfied: charset_normalizer<4,>=2 in /usr/local/lib/python3.12/dist-packages (from requests>=2.31.0->arc-agi) (3.4.7)
+Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.12/dist-packages (from requests>=2.31.0->arc-agi) (3.11)
+Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.12/dist-packages (from requests>=2.31.0->arc-agi) (2.5.0)
+Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.12/dist-packages (from requests>=2.31.0->arc-agi) (2026.2.25)
+Requirement already satisfied: six>=1.5 in /usr/local/lib/python3.12/dist-packages (from python-dateutil>=2.7->matplotlib>=3.7.0->arc-agi) (1.17.0)
+Installing collected packages: pillow, arcengine, arc-agi
+  Attempting uninstall: pillow
+    Found existing installation: pillow 11.3.0
+    Uninstalling pillow-11.3.0:
+      Successfully uninstalled pillow-11.3.0
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+ydata-profiling 4.18.4 requires numba<0.63,>=0.60, but you have numba 0.65.1 which is incompatible.
+ydata-profiling 4.18.4 requires numpy<2.4,>=1.22, but you have numpy 2.4.6 which is incompatible.
+dopamine-rl 4.1.2 requires gym<=0.25.2, but you have gym 0.26.2 which is incompatible.
+gradio 5.50.0 requires pillow<12.0,>=8.0, but you have pillow 12.2.0 which is incompatible.
+Successfully installed arc-agi-0.9.8 arcengine-0.9.3 pillow-12.2.0
+
+2026-10-20 12:54:11,028 INFO {"build_id": "0e0d88772889f6ec", "elapsed_seconds": 3.098, "event": "dependency_versions", "versions": {"arc-agi": "0.9.8", "arcengine": "0.9.3", "python-dotenv": "1.2.2"}}
+2026-10-20 12:54:11,028 INFO {"build_id": "0e0d88772889f6ec", "duration_seconds": 3.075, "elapsed_seconds": 3.098, "event": "stage_completed", "stage": "offline_dependencies"}
+2026-10-20 12:54:11,227 INFO {"build_id": "0e0d88772889f6ec", "elapsed_seconds": 3.297, "event": "stage_started", "stage": "bundle_verification"}
+2026-10-20 12:54:11,248 INFO {"build_id": "0e0d88772889f6ec", "elapsed_seconds": 3.318, "event": "bundle_verified", "modules": 17}
+2026-10-20 12:54:11,249 INFO {"build_id": "0e0d88772889f6ec", "duration_seconds": 0.022, "elapsed_seconds": 3.319, "event": "stage_completed", "stage": "bundle_verification"}
+2026-10-20 12:54:11,270 INFO {"build_id": "0e0d88772889f6ec", "elapsed_seconds": 3.34, "event": "not_evaluated", "message": "Save & Run All does not play hidden games. No submission file was generated. The competition gateway runs during Submit to Competition."}
