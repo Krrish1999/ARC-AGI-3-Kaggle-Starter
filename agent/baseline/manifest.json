@@ -1,0 +1,228 @@
+{
+  "notebook_sha256": "3c4815ce430b9fc501c077265da11a6b7847c7f7fcf66b7eeda1c77385972cdf",
+  "patches": {
+    "cell3": "07fd859e7ce7ad8ac8a2f8f726d862660c1be1abc97560a63b5985703ddf7f4f",
+    "dhia_0_1_21": "1deb782ae259f55ba4486b566cb857dd0691d0daca76afe0ea4bf98d20d663b4"
+  },
+  "modules": {
+    "noop_repeat_guard.py": {
+      "patch": "cell3",
+      "upstream": "agent/noop_repeat_guard.py",
+      "original_sha256": "7f35f1d60ed3dfac65b09e66b2e45e60a71aa08fbb0716b974ed953fc98189c8",
+      "extracted_sha256": "7f35f1d60ed3dfac65b09e66b2e45e60a71aa08fbb0716b974ed953fc98189c8",
+      "ported_sha256": "efad18a4c803b8a778f9561ebb13335d3d47372ee5c80fd6297a5f78258c5957"
+    },
+    "priority_scheduler.py": {
+      "patch": "cell3",
+      "upstream": "agent/priority_scheduler.py",
+      "original_sha256": "f9f8a4bd21a1066073bb97d50639be2c2410d481a97e5b1cab9d6214ebe70bbe",
+      "extracted_sha256": "f9f8a4bd21a1066073bb97d50639be2c2410d481a97e5b1cab9d6214ebe70bbe",
+      "ported_sha256": "46d77544a6285bdb5dad0e0c7fcd6e546f06961640fa13341f38b2cd5043fd19"
+    },
+    "animation.py": {
+      "patch": "cell3",
+      "upstream": "utils/animation.py",
+      "original_sha256": "b835584ead6d449c3bfb72f1c1df03186907ae882e4325cfc97dd584684c3824",
+      "extracted_sha256": "10ad03430960d2c37bb6f48ae5382692f19788e3885df7129711f29a3a978488",
+      "ported_sha256": "cb47d19f35e2ceeee160541963c12cc0d82ef2d608215db91128184c1e3fce86"
+    },
+    "frame_diff.py": {
+      "patch": "cell3",
+      "upstream": "utils/frame_diff.py",
+      "original_sha256": "843be0ce9225ae19de91dd34409bd7b7cf69ebad1ff73e69759c506c161bdeee",
+      "extracted_sha256": "843be0ce9225ae19de91dd34409bd7b7cf69ebad1ff73e69759c506c161bdeee",
+      "ported_sha256": "843be0ce9225ae19de91dd34409bd7b7cf69ebad1ff73e69759c506c161bdeee"
+    },
+    "retained_functions.py": {
+      "patch": "cell3",
+      "upstream": "utils/retained_functions.py",
+      "original_sha256": "9450d8c73fa5f84f40f7bd7bc3868ab63fadde2c68e4546de7b041b387be0b37",
+      "extracted_sha256": "9450d8c73fa5f84f40f7bd7bc3868ab63fadde2c68e4546de7b041b387be0b37",
+      "ported_sha256": "aaf7750b02c4b56a9bb3253d69e52992a18cf6bc65a7ed88e0d6aedf81852c9f"
+    },
+    "bounded_search.py": {
+      "patch": "dhia_0_1_21",
+      "upstream": "utils/bounded_search.py",
+      "original_sha256": "77110084d701e22bbf2dc24fcc91af4a3fdfc62fc10439b87f7644d4bda81d49",
+      "extracted_sha256": "77110084d701e22bbf2dc24fcc91af4a3fdfc62fc10439b87f7644d4bda81d49",
+      "ported_sha256": "dfa22cd0a686cf2315fdb942b387c572eb756fb9ce73db8b5439129710709ef2"
+    },
+    "checked_execution.py": {
+      "patch": "dhia_0_1_21",
+      "upstream": "utils/checked_execution.py",
+      "original_sha256": "f2a924d3740a96082a727599f0b0b59d7a3c0ebf91cc673f451efa209f4ef23b",
+      "extracted_sha256": "f2a924d3740a96082a727599f0b0b59d7a3c0ebf91cc673f451efa209f4ef23b",
+      "ported_sha256": "829aebfef19e039d7994ecd84bff6fd918244138fe0b1e941a076b5b9c297621"
+    },
+    "grid_coverage.py": {
+      "patch": "dhia_0_1_21",
+      "upstream": "utils/grid_coverage.py",
+      "original_sha256": "1d0b524149a146bc029d03029076aa865cafa2bde0296db61d678d481fbb957b",
+      "extracted_sha256": "1d0b524149a146bc029d03029076aa865cafa2bde0296db61d678d481fbb957b",
+      "ported_sha256": "1d0b524149a146bc029d03029076aa865cafa2bde0296db61d678d481fbb957b"
+    },
+    "replay_compare.py": {
+      "patch": "dhia_0_1_21",
+      "upstream": "utils/replay_compare.py",
+      "original_sha256": "601d10b4ec7b40e50916adbd9484be661ba5f0b385a3fb727a612debcea7d6c2",
+      "extracted_sha256": "601d10b4ec7b40e50916adbd9484be661ba5f0b385a3fb727a612debcea7d6c2",
+      "ported_sha256": "3cd7873bf52eac5edab570ac92f29ce309dbe9f530adec8a857717ab6abe90c7"
+    },
+    "state_contracts.py": {
+      "patch": "dhia_0_1_21",
+      "upstream": "utils/state_contracts.py",
+      "original_sha256": "0f42cf59514c4a48b6ef8dd96130eeb0882c7004a6242db33a1d3eb9f3e7e2eb",
+      "extracted_sha256": "0f42cf59514c4a48b6ef8dd96130eeb0882c7004a6242db33a1d3eb9f3e7e2eb",
+      "ported_sha256": "437a7ccef673e68c16c4b4ccc5c9fdd863c294eb38cc6c61e0728f7832044457"
+    },
+    "transition_evidence.py": {
+      "patch": "dhia_0_1_21",
+      "upstream": "utils/transition_evidence.py",
+      "original_sha256": "13f0b26146963435ce96c1bcdbe1a7f5e45ddaa90ec87f5d69f1860b0204fbeb",
+      "extracted_sha256": "13f0b26146963435ce96c1bcdbe1a7f5e45ddaa90ec87f5d69f1860b0204fbeb",
+      "ported_sha256": "0c82056d9a21ca7ed573213e786e0a93828834925611df705d465eb22c376947"
+    }
+  },
+  "requires_upstream_base": [
+    {
+      "patch": "cell3",
+      "path": "agent/action_names.py"
+    },
+    {
+      "patch": "cell3",
+      "path": "agent/prompts.py"
+    },
+    {
+      "patch": "cell3",
+      "path": "agent/python_tool_sandbox.py"
+    },
+    {
+      "patch": "cell3",
+      "path": "agent/runtime_state.py"
+    },
+    {
+      "patch": "cell3",
+      "path": "agent/tool_agent.py"
+    },
+    {
+      "patch": "cell3",
+      "path": "agent/vision_context.py"
+    },
+    {
+      "patch": "cell3",
+      "path": "framework/run.py"
+    },
+    {
+      "patch": "cell3",
+      "path": "framework/solver.py"
+    },
+    {
+      "patch": "cell3",
+      "path": "utils/openai_compat.py"
+    },
+    {
+      "patch": "cell3",
+      "path": "utils/segmentation.py"
+    },
+    {
+      "patch": "dhia_0_1_21",
+      "path": "agent/prompts.py"
+    },
+    {
+      "patch": "dhia_0_1_21",
+      "path": "agent/python_tool_sandbox.py"
+    },
+    {
+      "patch": "dhia_0_1_21",
+      "path": "agent/tool_agent.py"
+    },
+    {
+      "patch": "dhia_0_1_21",
+      "path": "utils/segmentation.py"
+    }
+  ],
+  "expected_dhia_source_hashes": {
+    "src/ARC3-Inference/Makefile": "03194bbee6d93be4d469090a620da9169e6a34c7940505074db750cdda021eba",
+    "src/ARC3-Inference/README.md": "3547705bad40217d199f8ddab8b0904286a98ae24a3b9e0829a8afec8ed612b8",
+    "src/ARC3-Inference/configs/eval.json": "ecd210094502c47eabb26d5dcf2995d3b2c069f66fe772016d9b164832f8c5e9",
+    "src/ARC3-Inference/configs/inference.json": "6902224082ad6dc6c824fdef68010c9beea5b8d7097a422cbdc7c1a2172aa44e",
+    "src/ARC3-Inference/configs/inference.openrouter.json": "d60d45e4a5a18fcb17338b2b1c316de83b36390dd5afb93031884491a6ca1c7e",
+    "src/ARC3-Inference/configs/significance.json": "41bae6010678729ba11d356f7c8e01fd8361f392ddcbf7a260fc6280f8ae35fc",
+    "src/ARC3-Inference/inference/__init__.py": "d9244cc613220677e2c47b8cd5a218786b918a542bcba63682a3d0778006cf8a",
+    "src/ARC3-Inference/inference/agent/__init__.py": "0c0a18c681d1f6c035848048af21405b36021f93bdd465e44896494454886813",
+    "src/ARC3-Inference/inference/agent/action_names.py": "baeb20a43e5873cd1e109637e65d1f2fd62c72f03603a8e06c858130c020284d",
+    "src/ARC3-Inference/inference/agent/noop_repeat_guard.py": "7f35f1d60ed3dfac65b09e66b2e45e60a71aa08fbb0716b974ed953fc98189c8",
+    "src/ARC3-Inference/inference/agent/priority_pace_reference.json": "313c779a28988aac3ee66b01d0dea7cc3b105fdd45e4f7b8c41de6c23762fa9c",
+    "src/ARC3-Inference/inference/agent/priority_scheduler.py": "f9f8a4bd21a1066073bb97d50639be2c2410d481a97e5b1cab9d6214ebe70bbe",
+    "src/ARC3-Inference/inference/agent/prompts.py": "57bdcf9d4586e8def594d921b88b3592dc10ffd483a961bdcfd79dad67d5dd2e",
+    "src/ARC3-Inference/inference/agent/python_tool_sandbox.py": "e7155e44f2206e89bfe9c8fe8e80febd68498562d7d4d71185c8bc298539c275",
+    "src/ARC3-Inference/inference/agent/runtime_state.py": "371e211ac2e364829f44acd1bd9de85284c365445c8bb4669445ac4a7545ac73",
+    "src/ARC3-Inference/inference/agent/tool_agent.py": "a4bb7d9ce2c30e790e645f6c0a5c3e9cce7ce04b5708975d8d9ca6b336c4ed61",
+    "src/ARC3-Inference/inference/agent/vision_context.py": "b30cadfacdf23524b19f6993f7a3c8bb68d13d01d5b68c0504b8fccd35195bf8",
+    "src/ARC3-Inference/inference/framework/__init__.py": "97c7fcfe9e5f8b109b90416413b052099ab628e8c1c6a8c888612b3074a1b6bf",
+    "src/ARC3-Inference/inference/framework/kaggle.py": "d600a993a8642a808fb83080be40bfc3fd9ababa6b84e15abba713e8e2d7ebbe",
+    "src/ARC3-Inference/inference/framework/run.py": "69756c29ee5bba3d7be8b519b1d3eac25bdfd347a092bbea7aff42344f9f0780",
+    "src/ARC3-Inference/inference/framework/solver.py": "42b4794f0447e071ba118194c64d009f7fa59df0b84f3d9c35da4dd215824c52",
+    "src/ARC3-Inference/inference/tools/__init__.py": "36ac2d2804aa381c402ee585e9c45f3d58d9a8b3075510cdd772df2eec2ef889",
+    "src/ARC3-Inference/inference/tools/chat.py": "f9ac5aa9459ef11161020b275e0af6595b255fc35a1f8d4966a505d955e4cd31",
+    "src/ARC3-Inference/inference/tools/config_value.py": "a10980e5e708f68cfdef0d065a0907137d6f26749ab6f2ba5f7135421847a5c6",
+    "src/ARC3-Inference/inference/tools/eval.py": "28df9899d6bcb5d02c068934d5828e217deddaebb29a12a706be5fe2a0f3c447",
+    "src/ARC3-Inference/inference/tools/eval_plot.py": "2e8a426161a230eb748bcc1db30ed2605c16351f6f5a51e77cae8d1cc19124f3",
+    "src/ARC3-Inference/inference/tools/significance.py": "d3d19d4b9f95c4ca0dda099f04857f5f6507c6a3a3479dd5cea20c6b8e2eb6af",
+    "src/ARC3-Inference/inference/tools/traces.py": "d8a4941558fb7117951474b1a72ad744eccfc330cef58187981556a2e00768b4",
+    "src/ARC3-Inference/inference/tools/vllm_runtime_lora_guard.py": "a5c3e4a06b8706d9c0f05f28d7395ae93e90c6774fbe2e15194e69536f6b6e2e",
+    "src/ARC3-Inference/inference/utils/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/ARC3-Inference/inference/utils/animation.py": "b835584ead6d449c3bfb72f1c1df03186907ae882e4325cfc97dd584684c3824",
+    "src/ARC3-Inference/inference/utils/bounded_search.py": "77110084d701e22bbf2dc24fcc91af4a3fdfc62fc10439b87f7644d4bda81d49",
+    "src/ARC3-Inference/inference/utils/checked_execution.py": "f2a924d3740a96082a727599f0b0b59d7a3c0ebf91cc673f451efa209f4ef23b",
+    "src/ARC3-Inference/inference/utils/frame_diff.py": "843be0ce9225ae19de91dd34409bd7b7cf69ebad1ff73e69759c506c161bdeee",
+    "src/ARC3-Inference/inference/utils/grid_coverage.py": "1d0b524149a146bc029d03029076aa865cafa2bde0296db61d678d481fbb957b",
+    "src/ARC3-Inference/inference/utils/grid_utils.py": "2c96de5a6e0da2ae0390ab191b39a154784089b00fce8e2da98ebb3960715b67",
+    "src/ARC3-Inference/inference/utils/openai_compat.py": "1d8a85edfabe1d7577348db2aed6dff6a858095e5c99a819cf0f45b123e2b1ce",
+    "src/ARC3-Inference/inference/utils/rearc_baselines.py": "c05d98e40704ae02b487862607964a18719ff96cc5c1d66bfd678a2c0bf4e4fb",
+    "src/ARC3-Inference/inference/utils/rearc_version.py": "2548c1b2ba4b3bdd65de8b6255ece8d3317a06f9d4bbc25ed58aa46ed1da8826",
+    "src/ARC3-Inference/inference/utils/replay_compare.py": "601d10b4ec7b40e50916adbd9484be661ba5f0b385a3fb727a612debcea7d6c2",
+    "src/ARC3-Inference/inference/utils/retained_functions.py": "9450d8c73fa5f84f40f7bd7bc3868ab63fadde2c68e4546de7b041b387be0b37",
+    "src/ARC3-Inference/inference/utils/run_artifacts.py": "c1a0c1a0bd994ae712dffe182b7c92af9fdd2dc68cccc8b472a356dbc3ad3b3b",
+    "src/ARC3-Inference/inference/utils/segmentation.py": "f75ab9360d2180b42aca2ba921b96bfca43c7c90f9d16ff34804704db6f8c298",
+    "src/ARC3-Inference/inference/utils/state_contracts.py": "0f42cf59514c4a48b6ef8dd96130eeb0882c7004a6242db33a1d3eb9f3e7e2eb",
+    "src/ARC3-Inference/inference/utils/transition_evidence.py": "13f0b26146963435ce96c1bcdbe1a7f5e45ddaa90ec87f5d69f1860b0204fbeb",
+    "src/ARC3-Inference/inference/utils/viewer_artifacts.py": "21f948f7398bdc16b8eaf9771edf0a3c6505349794c9c44154870b075f07a52f",
+    "src/ARC3-Inference/pyproject.toml": "5538b502bdedf7bf206f645731498ca5858571b148d05a89e4514e2934f54d0a",
+    "src/ARC3-Inference/scripts/ensure_server_api_key.sh": "77b7ddfbb851b728a6aab5654c770f0e0669327d7209216436ef694516f6ff0b",
+    "src/ARC3-Inference/scripts/server_curl.sh": "89c1433fe8357543fccaeb5b84b4504f26299d1f77affbfdf21b2c8a5b4f3907",
+    "src/ARC3-Inference/uv.lock": "ce317cea860fef6b066e6c795a0b67fc4d32a9612d77746f17fec1da2b0fd9f2",
+    "src/ARC3-Inference/viewer/__init__.py": "4cbb695abe781a6161423cba58afadb3128aa0b38b8db3b5f25f5bad8b513f10",
+    "src/ARC3-Inference/viewer/data.py": "fba85b9466760662c622e1952662014b6d6e891bca1733110d985c38e77f39f6",
+    "src/ARC3-Inference/viewer/index.html": "1ed5561d8d63574d4e1b4196fcccf0291deda1d4954125fb74c0529a3237cb1d",
+    "src/ARC3-Inference/viewer/server.py": "6e4a3d4d3f7a28e5a4ff0866d6e11fb5d40190ec71a388418024dc07a77f3069",
+    "src/tufa-arc-agi-framework/Makefile": "f52dc1fba0db556626e10e56f86c4ff229e94ada6e2c35b6724e7be97fae0c00",
+    "src/tufa-arc-agi-framework/README.md": "d35cec21c37539efa15aef2cbff62e09d318d79df3d6950d66329378881fe9ca",
+    "src/tufa-arc-agi-framework/pyproject.toml": "ec6fa0c8c192e0b384fdace109f87ac7afbdb18b08caa10d0c603a5d685973db",
+    "src/tufa-arc-agi-framework/scripts/refresh_examples.py": "941c7a84f9bc186edf125b583aa2d0773f67d9919b500ea18b4b88b401886909",
+    "src/tufa-arc-agi-framework/src/taaf/__init__.py": "f7f02949ee64cdaf6d1b0ae83f2096ace20acdc40fd3cacb4efd2f312101cedc",
+    "src/tufa-arc-agi-framework/src/taaf/benchmark.py": "d273e8056f83a3d1557d31c50c9716ed205258c8b1ba31747367a743d51c9497",
+    "src/tufa-arc-agi-framework/src/taaf/competition_arcade.py": "1d5adf9290ed8700fa15a4d0494944320403bb45906b263de195adf74a43abfa",
+    "src/tufa-arc-agi-framework/src/taaf/deploy.py": "d17296cad0178ab1ce34990152157d32f6e267fcd890093284b23ad1b5d94d7d",
+    "src/tufa-arc-agi-framework/src/taaf/deploy_inline.py": "e21e43e0457b4a5d140b3be3953c98afbf358a33d0b713cfba5b0276f4631a31",
+    "src/tufa-arc-agi-framework/src/taaf/deploy_kaggle.py": "e3a8517d021818fdced11dd35865304de79e69f9081b8a4619a5b807f98a03de",
+    "src/tufa-arc-agi-framework/src/taaf/deploy_slurm.py": "30b326ee4292fae799f9e439c513a5e199092790f364bed53d0d9259b5b9bfb4",
+    "src/tufa-arc-agi-framework/src/taaf/diagnostics.py": "b78e534f2a0f54eb92cae430106773f60f968eda5c8ac17791b511732642b6eb",
+    "src/tufa-arc-agi-framework/src/taaf/game.py": "8609e0646e96616decc936daf4bff102afd480beb69ef1e9e778cd2c1c7df225",
+    "src/tufa-arc-agi-framework/src/taaf/game_api.py": "51639e22cc0d35db49137f0168b2de557b1848482a4c2cf65ade2a1202511221",
+    "src/tufa-arc-agi-framework/src/taaf/game_examples.py": "9d349f8dfd5a9842a5e71d084a9e0b38aeaa4de29a4d5977da5bb8ddabd935f5",
+    "src/tufa-arc-agi-framework/src/taaf/kaggle/taaf_kaggle_run.ipynb": "717db2d0ef76ddbffb8fa646e5b618a5b9cdaa122bfbb693353669b3f49725d7",
+    "src/tufa-arc-agi-framework/src/taaf/kaggle/taaf_kaggle_run_share.ipynb": "a843f24f935c1828f82d37547ec955e8c95face8119622daef9e47c0a7ee7213",
+    "src/tufa-arc-agi-framework/src/taaf/kaggle_random.py": "26739fbac70efdf527f5d81e0f878ffeb4ed734540f0de872daefee07042d5c1",
+    "src/tufa-arc-agi-framework/src/taaf/solver.py": "8c126b6e762768ef5ee51e8a6b7bac2153d7f24a262f6d16a9e472817232d64f",
+    "src/tufa-arc-agi-framework/src/taaf/solver_examples.py": "1b6b47956c0e5ec9bdfda7f35d9b1f3e7a4834041ca1fc3c16a2586ac9d6b9d4",
+    "src/tufa-arc-agi-framework/src/taaf/standard_benchmarks.py": "a21b7d02369491fbed5872a28defb79b14afe9a2603ebb5fd6925ec43924087a",
+    "src/tufa-arc-agi-framework/src/taaf/support.py": "4c41b13970867b745124ef43ffeec41481eb61ab25a73e225fca3d03b155bc7f",
+    "src/tufa-arc-agi-framework/uv.lock": "912c88e380a859bcd5801d1bf5c87c202519594c9fca031b2c3950129f5f796f"
+  },
+  "port_notes": [
+    "Stdlib import/style and type clarifications; explicit callback exception boundaries.",
+    "animation.py uses local hexadecimal grid_display adapter; upstream grid_utils is absent.",
+    "Modified upstream files remain patch data, not reconstructed runnable modules."
+  ]
+}

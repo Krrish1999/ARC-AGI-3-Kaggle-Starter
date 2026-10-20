@@ -1,0 +1,360 @@
+{
+  "ticket": "S1-S",
+  "date": "2026-10-20",
+  "timezone": "Asia/Calcutta",
+  "mutation": "[EDIT] fail-closed containment and offline deployment",
+  "checks": {
+    "ruff": "passed",
+    "pyright": "0 errors, 0 warnings, 0 informations",
+    "systems_fixtures": "8 passed",
+    "notebook_python_parsing": "passed",
+    "generated_notebook_preflight": "passed"
+  },
+  "containment": {
+    "containment_passed": true,
+    "sandbox_isolated": true,
+    "checks": {
+      "deployed_sources_present": true,
+      "sandbox_present": true,
+      "engine_import_denied": true,
+      "absolute_read": true,
+      "traversal_read": true,
+      "symlink_read": true,
+      "write": true,
+      "symlink_write": true,
+      "directory_list": true,
+      "subprocess_escape": true,
+      "fork_escape": true,
+      "exec_escape": true,
+      "native_open": true,
+      "canary_unchanged": true,
+      "write_not_created": true,
+      "compute_works": true,
+      "memory_capped": true,
+      "planner_failure_visible": true,
+      "loop_terminated": true,
+      "missing_worker_fails": true
+    },
+    "violations": [],
+    "evidence": {
+      "engine_probe_returncode": 0,
+      "absolute_read": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "DENIED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.0320183310000175
+      },
+      "traversal_read": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "DENIED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.031889547999981005
+      },
+      "symlink_read": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "DENIED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.031989939000027334
+      },
+      "write": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "DENIED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.03191833099992891
+      },
+      "symlink_write": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "DENIED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.032054666000021825
+      },
+      "directory_list": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "DENIED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.03199404500003311
+      },
+      "subprocess_escape": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "DENIED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.03191058899994914
+      },
+      "fork_escape": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "DENIED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.031959082999946986
+      },
+      "exec_escape": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "DENIED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.03198419099999228
+      },
+      "native_open": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "DENIED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.031848445999912656
+      },
+      "memory": {
+        "ok": true,
+        "ready": true,
+        "timeout": false,
+        "returncode": 0,
+        "stdout": "MEMORY_CAPPED\n",
+        "stderr": "",
+        "error": null,
+        "elapsed_seconds": 0.031903838000062024
+      },
+      "loop": {
+        "ok": false,
+        "ready": true,
+        "timeout": true,
+        "returncode": -9,
+        "stdout": "",
+        "stderr": "",
+        "error": "timeout",
+        "elapsed_seconds": 15.001406659000054
+      }
+    },
+    "resource_limits_enabled": true
+  },
+  "representative_smoke": [
+    {
+      "game": "ls20",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "vc33",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "ft09",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    }
+  ],
+  "full_smoke": [
+    {
+      "game": "vc33",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "ft09",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "ls20",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "tu93",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "sb26",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "lf52",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "r11l",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "dc22",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "ka59",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "sc25",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "ar25",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "tn36",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "lp85",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "cd82",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "wa30",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "g50t",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "bp35",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "s5i5",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "su15",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "tr87",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "m0r0",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "cn04",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "re86",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "sp80",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    },
+    {
+      "game": "sk48",
+      "levels_completed": 0,
+      "framework_iterations": 3,
+      "state": "GameState.NOT_FINISHED"
+    }
+  ],
+  "smoke_max_steps_argument": 2,
+  "smoke_framework_off_by_one": "framework executes 3 iterations for MAX_ACTIONS=2; no score-lift interpretation",
+  "deployed_source_sha256": {
+    "agent/arclog.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "agent/my_agent.py": "c022b90666526cd946632830aed8c23154b7c6a6e6c9fc17f866fda90f748c39",
+    "agent/runtime.py": "2b59095e38911d5c0de52c9104990a601f89b4730e6ba05aa7a3b358c29c342e",
+    "agent/sandbox.py": "59a26176fbd45f3022110a7b7edf0f04b916a074141d1cd585f2882e635b4dfe",
+    "agent/baseline/grid_coverage.py": "1d0b524149a146bc029d03029076aa865cafa2bde0296db61d678d481fbb957b",
+    "agent/baseline/priority_scheduler.py": "46d77544a6285bdb5dad0e0c7fcd6e546f06961640fa13341f38b2cd5043fd19",
+    "agent/baseline/grid_display.py": "c536ffaa0a1250bdea7a2f9a29b6f56dfe3b5f46abb9495b76dfbad51a730b0a",
+    "agent/baseline/frame_diff.py": "843be0ce9225ae19de91dd34409bd7b7cf69ebad1ff73e69759c506c161bdeee",
+    "agent/baseline/noop_repeat_guard.py": "efad18a4c803b8a778f9561ebb13335d3d47372ee5c80fd6297a5f78258c5957",
+    "agent/baseline/transition_evidence.py": "0c82056d9a21ca7ed573213e786e0a93828834925611df705d465eb22c376947",
+    "agent/baseline/retained_functions.py": "aaf7750b02c4b56a9bb3253d69e52992a18cf6bc65a7ed88e0d6aedf81852c9f",
+    "agent/baseline/state_contracts.py": "437a7ccef673e68c16c4b4ccc5c9fdd863c294eb38cc6c61e0728f7832044457",
+    "agent/baseline/bounded_search.py": "dfa22cd0a686cf2315fdb942b387c572eb756fb9ce73db8b5439129710709ef2",
+    "agent/baseline/checked_execution.py": "829aebfef19e039d7994ecd84bff6fd918244138fe0b1e941a076b5b9c297621",
+    "agent/baseline/animation.py": "cb47d19f35e2ceeee160541963c12cc0d82ef2d608215db91128184c1e3fce86",
+    "agent/baseline/replay_compare.py": "3cd7873bf52eac5edab570ac92f29ce309dbe9f530adec8a857717ab6abe90c7",
+    "agent/baseline/__init__.py": "af3b0c639320a3a3559a3b41dfd7b3060205b8ad94b1e2b6d46071784fb3c8dc"
+  },
+  "notebook_sha256": "4841ec0217f749d90a82b4035c6cb9e868ad403c4e6975bca0768655c9f92ff7",
+  "offline_llm_ready": false,
+  "promotion": "hold: no paired-seed skill or score evidence"
+}

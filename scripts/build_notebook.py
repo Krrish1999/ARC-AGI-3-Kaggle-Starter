@@ -1,20 +1,12 @@
-"""Splice the current `agent/my_agent.py` into `notebooks/submission.ipynb`.
+"""Bundle deployed modules into an offline RTX 6000 submission notebook.
 
-The notebook follows the exact pattern used by Kaggle's official sample
-("ARC3 Sample Submission - Stochastic Goose"):
-
-  Cell 1: install the `arc-agi` wheel from the offline competition dataset.
-  Cell 2: write `my_agent.py` to /kaggle/working/ — its body is THIS file.
-  Cell 3: if running inside the Kaggle competition rerun, wait for the
-          gateway sidecar, copy the framework into /kaggle/working/, register
-          MyAgent, and run `python main.py --agent myagent`.
-  Cell 4: otherwise (during commit / save-and-run-all), write a dummy
-          submission.parquet so Kaggle accepts the commit.
-
-You don't normally need to call this directly — `make submit` runs it for you.
+The payload contains both agent entry modules and reusable support modules,
+verifies their SHA256 hashes, runs behavioral containment before evaluation,
+and bounds the framework lifetime against a shared 29,700-second run target.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from textwrap import dedent
@@ -28,7 +20,7 @@ from textwrap import dedent
 #   "rtx6000"  — Nvidia RTX 6000 (g4-standard-48). ARC-AGI-3 exclusive,
 #                burns GPU quota faster — use only when you're confident.
 # ─────────────────────────────────────────────────────────────────────────────
-ACCELERATOR = "t4"
+ACCELERATOR = "rtx6000"
 
 # Internal mapping; don't edit unless Kaggle adds new options.
 _ACCELERATORS = {
@@ -61,7 +53,26 @@ def markdown_cell(source: str) -> dict:
 def build() -> dict:
     if not AGENT_SRC.exists():
         raise SystemExit(f"Could not find {AGENT_SRC}")
-    agent_body = AGENT_SRC.read_text()
+    sources = sorted((ROOT / "agent").rglob("*.py"))
+    for required in ("my_agent.py", "arclog.py", "runtime.py", "sandbox.py"):
+        if not (ROOT / "agent" / required).is_file():
+            raise SystemExit(f"Missing bundled module: {required}")
+    write_cells = [code_cell(
+        "%%writefile /tmp/agent_bundle/" + path.relative_to(ROOT / "agent").as_posix()
+        + "\n" + path.read_text()) for path in sources]
+
+    source_hashes = {path.relative_to(ROOT / "agent").as_posix():
+                     hashlib.sha256(path.read_bytes()).hexdigest() for path in sources}
+    verification_cell = code_cell(
+        "import hashlib\nfrom pathlib import Path\n"
+        + "expected = " + repr(source_hashes) + "\n"
+        + "for name, digest in expected.items():\n"
+        + "    assert hashlib.sha256((Path('/tmp/agent_bundle') / name).read_bytes()).hexdigest() == digest, name\n"
+    )
+    audit_cell = code_cell("%%writefile /tmp/submission_audit.py\n" +
+                           (ROOT / "scripts/audit_containment.py").read_text().replace(
+                               'ROOT = Path(__file__).resolve().parents[1]',
+                               "ROOT = Path('/tmp/agent_preflight')"))
 
     install_cell = code_cell(
         "!pip install --no-index --find-links \\\n"
@@ -73,9 +84,15 @@ def build() -> dict:
     # as a notebook output. Otherwise the "Submit to Competition" UI would
     # offer it as a candidate submission file alongside submission.parquet,
     # and an unlucky default selection rejects the submission.
-    write_agent_cell = code_cell(
-        "%%writefile /tmp/my_agent.py\n" + agent_body
-    )
+    setup_cell = code_cell(dedent("""\
+        import os
+        import time
+        from pathlib import Path
+        os.environ.setdefault('ARC3_RUN_STARTED', str(time.time()))
+        for name in ('ENABLE_SANDBOX_LIMITS', 'ENABLE_PREFIX_LOCK', 'ENABLE_LEVEL_BUDGET'):
+            os.environ.setdefault(name, '1')
+        Path('/tmp/agent_bundle/baseline').mkdir(parents=True, exist_ok=True)
+    """))
 
     run_cell_source = dedent(
         """\
@@ -91,8 +108,26 @@ def build() -> dict:
                    /kaggle/working/ARC-AGI-3-Agents
 
             # Drop our agent in as a framework template.
-            !cp /tmp/my_agent.py \\
-                /kaggle/working/ARC-AGI-3-Agents/agents/templates/my_agent.py
+            !cp -r /tmp/agent_bundle/. \\
+                /kaggle/working/ARC-AGI-3-Agents/agents/templates/
+
+            # Engine-free planner interpreter; seccomp support is mandatory at
+            # worker startup. No system-site-packages or online installation.
+            import subprocess
+            import sys
+            subprocess.run([sys.executable, '-m', 'venv',
+                            '/kaggle/working/.venv_agent_sandbox'], check=True)
+            os.environ['ARC3_SANDBOX_PYTHON'] = '/kaggle/working/.venv_agent_sandbox/bin/python'
+            from pathlib import Path
+            preflight = Path('/tmp/agent_preflight')
+            preflight.mkdir(exist_ok=True)
+            for name, target in [('agent', '/tmp/agent_bundle'),
+                                 ('.venv_agent_sandbox', '/kaggle/working/.venv_agent_sandbox')]:
+                link = preflight / name
+                if not link.is_symlink():
+                    link.symlink_to(target, target_is_directory=True)
+            # Behavioral Gate 1 must pass before live dispatch.
+            subprocess.run([sys.executable, '/tmp/submission_audit.py'], check=True)
 
             # Register MyAgent in the framework's agent registry. We rewrite
             # __init__.py because the upstream version eagerly imports
@@ -125,10 +160,31 @@ def build() -> dict:
         RECORDINGS_DIR=/kaggle/working/server_recording
         \"\"\")
 
-            # Run it. The gateway records every action and emits submission.parquet.
-            !cd /kaggle/working/ARC-AGI-3-Agents && \\
-                MPLBACKEND=agg \\
-                python main.py --agent myagent
+            # Include setup in the shared 8.25-hour target. The 9-hour cap
+            # retains cleanup/headroom; process-group cleanup covers children.
+            import signal
+            import time
+            deadline = float(os.environ['ARC3_RUN_STARTED']) + 29_700
+            remaining = deadline - time.time()
+            if remaining <= 0:
+                raise RuntimeError('run budget exhausted during setup')
+            run_env = dict(os.environ, MPLBACKEND='agg')
+            process = subprocess.Popen(
+                [sys.executable, 'main.py', '--agent', 'myagent'],
+                cwd='/kaggle/working/ARC-AGI-3-Agents', env=run_env,
+                start_new_session=True,
+            )
+            try:
+                process.wait(timeout=remaining)
+                if process.returncode:
+                    raise RuntimeError(f'framework failed: {process.returncode}')
+            finally:
+                try:
+                    os.killpg(process.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                process.wait()
+
         """
     )
     run_cell = code_cell(run_cell_source)
@@ -184,12 +240,15 @@ def build() -> dict:
         "cells": [
             markdown_cell(
                 "# ARC Prize 2026 — ARC-AGI-3 Submission\n\n"
-                "Built from `agent/my_agent.py` via `scripts/build_notebook.py`. "
+                "Built from `agent/my_agent.py`, `agent/arclog.py` and support modules via `scripts/build_notebook.py`. "
                 "Do not edit cells directly — edit the source file and re-run "
                 "`make submit`."
             ),
+            setup_cell,
             install_cell,
-            write_agent_cell,
+            *write_cells,
+            verification_cell,
+            audit_cell,
             run_cell,
             dummy_submission_cell,
         ],

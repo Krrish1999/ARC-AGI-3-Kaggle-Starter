@@ -1,0 +1,1557 @@
+diff -ruN --exclude=*.orig /tmp/dfranzen_taaf/src/ARC3-Inference/inference/agent/prompts.py /tmp/dhia_scan/dataset/src/ARC3-Inference/inference/agent/prompts.py
+--- /tmp/dfranzen_taaf/src/ARC3-Inference/inference/agent/prompts.py	2026-10-15 09:39:36
++++ /tmp/dhia_scan/dataset/src/ARC3-Inference/inference/agent/prompts.py	2026-10-15 09:31:29
+@@ -199,7 +199,16 @@
+     "- Use `current_frame.segmentation` as your primary view of the board -- objects, colors, containment, adjacency, and cross-frame object hashes.\n"
+     "- Use `current_frame.ascii` only to read a small, specific region of the board when `segmentation` is not enough; never use it to scan or summarize the whole board.\n"
+     "- Every `python` tool call starts fresh. Re-import modules or re-define any custom utility logic you need.\n"
+-    "- The only importable standard-library modules are: bisect, collections, copy, fractions, functools, heapq, itertools, json, math, operator, random, re, statistics, string.\n"
++    "- The only importable standard-library modules are: bisect, collections, copy, difflib, fractions, functools, heapq, itertools, json, math, operator, random, re, statistics, string, time. Use time only to measure or bound computation, not to sleep or delay.\n"
++    "- The standard-library `json` module is already available in every Python call; importing it explicitly is also fine. Other ordinary variables still reset between calls.\n"
++    "- For finite, discrete, unit-cost planning, prefer the provided search_plan(start, successors, is_goal, *, key=None, max_nodes=50000, max_depth=128, timeout_s=2.0, max_edges=250000) instead of rewriting BFS queues and predecessor bookkeeping. Define successors(state) to yield (action, next_state) pairs and is_goal(state) to test your inferred objective. This searches YOUR model, not the real game.\n- Use immutable, hashable state snapshots, or provide key(state) returning a hashable identity including every variable relevant to transitions and the goal. Callbacks must be pure: action(...) and nested search_plan calls are blocked during search. The helper never executes the returned actions.\n- The returned dict has status, reason, actions, depth, expanded, discovered, edges, elapsed_s, effective_limits and clamped_limits. status='found' returns a shortest unit-cost plan under your supplied rules; actions=[] means the start already satisfies your goal. status='exhausted' means the reachable supplied model was exhausted, not that the real game is impossible. status='limit' with reason nodes/edges/depth/time is inconclusive; actions is None. Reaching an unexpanded depth boundary conservatively counts as a limit.\n- Defaults bound each search; hard maxima are 100000 discovered states, 1000000 yielded edges, depth 1024 and timeout_s=5. Valid requests above these maxima are capped, not rejected; effective_limits reports the bounds used and clamped_limits lists adjusted parameter names. Invalid types, non-finite times and values below the minimum are still rejected (depth 0 is valid). Time checks are cooperative between callback work; the existing Python-tool deadline still terminates blocked callbacks. Nothing is resumed or retained between searches. Do not repeat an identical capped search expecting a different result. Callback errors propagate without retries.\n- Each completed helper call prints a compact [search_plan] status/counter line with effective limits and clamped parameter names automatically. Inspect its proposed plan. A found plan does not establish that your inferred mechanics, perception or goal are correct. Do not execute it blindly: retain the existing observe/plan/act loop and re-ground if actual outcomes contradict your model.\n"
++    '- For an inferred multi-action plan, prefer execute_plan(actions, observe, predict, *, expected_start, max_steps=32) over handwritten action loops. actions must be a list/tuple of at most 128 concrete single action strings/dicts (translate search labels first); nested batches/generators are rejected. max_steps is an integer from 1 to 128, default 32. The existing tool/game deadlines are unchanged. Only the requested prefix up to max_steps is attempted; there is no automatic continuation or retry.\n- Supply observe() returning a fresh, deepcopy-able model state from current_frame, and predict(state, action) returning the expected next model state; both must be pure and use ordinary Python state equality. Real action calls and nested execute_plan are blocked inside these callbacks. expected_start is the model state used to plan; a start mismatch stops without action. Define all required dependencies in the same snippet or a self-contained retained function.\n- execute_plan sends exactly one action at a time through the existing guarded action interface. It checks run completion, game over and level completion BEFORE decoding the new board. On nonterminal steps it stops for no-op/refusal/stop_reason or a predicted-vs-observed mismatch. A completed level is not an old-level prediction failure. It never executes a remaining old-level plan on the replacement board.\n- Inspect the report: status, phase, attempted, confirmed_executed, executed_actions, execution_uncertain, last_action_result, expected, observed and error. plan_complete only means this plan matched observations, NOT that the game was won. level_completed/run_complete/game_over stop immediately; start_mismatch/mismatch/no_op/not_executed/stopped/limit require re-observation and replanning, not blind continuation. callback_error retains the confirmed executed prefix. action_error with execution_uncertain=True means a dispatch may have executed: never replay it on assumption of failure. Ordinary callback/dispatch exceptions become reports; existing noncatchable action guards and hard tool timeouts still propagate, with host action history authoritative.\n- Each returned helper report prints one compact [execute_plan] summary. The helper checks only YOUR supplied representation and predictions, not whether your mechanics, perception or goal are correct. It does not fix unrelated Python errors or infer a plan. After any stop, inspect the action result/current board before deciding what to do next.\n'
++    '- Terminal boundary behavior: when action(...) reports level_completed, game_over, run_complete or done, the current Python snippet ends successfully immediately after recording the action. An automatic [action_boundary] line explains why. No later statements, exception handlers, finally blocks, or context-manager cleanup in that snippet run; do not depend on post-terminal logging or assignments. The next turn receives the current board; inspect it before planning again. Ordinary no-op probes still return normally so you can inspect them, and all existing refusal guards remain active. Never replay an action because the snippet ended at a boundary.\n- execute_plan still verifies nonterminal steps and returns ordinary nonterminal reports. On a terminal result it emits its [execute_plan] summary and then ends the snippet at the same successful boundary; a terminal report is not assigned back to your Python caller. The recorded action prefix and terminal flags remain available to the harness. Define reusable functions before acting; definitions after a terminal action are not reached. These boundary stops do not infer game mechanics or validate a model.\n'
++    '- Every segmentation node also provides bbox_rc=[min_row,min_col,max_row,max_col] and bbox_center2_rc=[min_row+max_row,min_col+max_col], calculated from all component cells, not just contour corners. Divide center2 coordinates by two for a bounding-box center; odd numerators mean a half-cell center. This is not a guaranteed anchor, occupied cell or game-object center: touching same-color objects can merge, and nodes/ids are frame-local. Use containment, small crops and transition evidence to determine actual entities.\n- MOUSE row/col must be separate in-bounds integers; an invalid coordinate anywhere in a batch rejects that batch before its first dispatch. Never silently round a half-cell center or send a nested tuple as one coordinate.\n- On a Python error, value_shapes describes referenced variables in the failing frame without saving them. execution_receipt reports host-recorded action progress and last confirmed level/step. Repair from current_frame/history, not a pre-action state; do not replay the recorded prefix. Missing snippet-local data must be passed explicitly into retained functions. These reports do not infer mechanics or automatically repair code.\n'
++    "- Automatic [transition_evidence] notes and `current_frame.transition_evidence` expose bounded pixel evidence: decreasing contiguous two-color row/column candidates, matching scenes with differing stripes, and recent game-over snapshots even after an automatic RESET. Candidate stripes are NOT classified resources: they could be ordinary geometry. No palette role, HUD location, resource units, hidden identity or cause of death is asserted. Do not ignore changing counters/meters or equate matching positions with equivalent state. Preserve raw pixels and distinguish resource exhaustion evidence from collision/hazard disagreement before changing a model. No note does not prove safety or complete state coverage.\n- Before executing a route, account for any observed action/resource allowance and the actions already spent on probes. A plan from a fresh attempt may not fit the current attempt. Use only observed units/rates and explicit uncertainty; do not derive an exact action allowance from a pixel count without evidence. After a death, compare resource, player, hazard and terminal evidence separately. A game_over flag alone does not refute a spatial rule. Do not retry automatically. If another attempt is needed, inspect valid_actions and use the environment's supported reset/attempt mechanism; preserve learned evidence.\n- `execute_plan` still takes a zero-argument observe callback. Read the live binding INSIDE it: `def observe(): return decode(current_frame)`. Never capture a frame in `def observe(fr=current_frame)` or a closure over an old frame; that can manufacture a mismatch after a correct move. [observation_binding] diagnoses direct frame defaults without rewriting callbacks or replaying actions. It does not detect every stale closure.\n- When using model-based execution, observe and predict the relevant hazard positions/directions/presence, phase and resources as well as the player. A matching player-only prefix is not validation of the whole transition model. State these coverage limits explicitly. Make absent detections representable (for example player=None) rather than leaving a variable uninitialized; preserve uncertainty about disappearance. Read terminal results before running old-level decoders. No automatic identity, hazard mechanic or full-goal correctness is supplied by the helpers.\n"
++    "- `[grid_coverage]` reports repeated-component lattice candidates, not proven board bounds. Check `current_frame.grid_candidates` before `v=current_frame.grid_view(candidate=0)`; a unique candidate allows `grid_view()`. Manual geometry requires origin_rc, pitch_rc, shape_rc (integer row/column pairs). Crops never silently expand: inspect coverage and omitted_extent_evidence, including observed last rows/columns, before concluding unreachable.\n- GRID DATA CONTRACT: print(v['sample_rows']) for compact scalar-color rows. v['samples'][r][c] is a SINGLE sampled pixel color, not terrain. For observed markers use v['color_cells'].get(color, []) (distinct tile [r,c] pairs), or v['color_counts'][r][c].get(color, 0). Counts include every raw pixel, including off-center markers. A raw v['tiles'][r][c] is a LIST OF ROW STRINGS: `color in tile` tests row equality and is WRONG for color presence. Existing tiles/samples are unchanged. Multiple colors can refer to one tile; a color occurrence is not an object identity. Compare decoded presence with raw pixels before acting on empty positions.\n- OPTIONAL STATIC TOPOLOGY ON THE SAME VIEW: pass topology={'node_colors': floor_sample_colors, 'occupied_colors': observed_actor_colors, 'connector_colors': intermediate_sample_colors, 'stride_rc': (row_step,col_step), 'start_rc': current_cell, 'goal_rc': goal_cell}. All six fields are required and describe YOUR hypotheses, not engine rules. Node colors select sampled cells; occupied colors select pixel-containing cells and RETAIN them as candidate nodes with unknown terrain underneath. Edges join cardinal endpoints at the specified strides only when every intermediate sampled cell has a connector color. No diagonals/wraps are inferred. v['topology'] gives nodes_rc, neighbors (parallel lists of node INDICES), start_index, goal_index, missing_endpoints and connected. None endpoints / missing_endpoint mean a representation problem to resolve, NOT a failed hazard search. False connected is only under those color/stride hypotheses. Do not filter the player out as non-floor or omit an occluded known goal. For handwritten graphs check start/goal membership and start adjacency before debugging hazard timing.\n- Topology is NOT a safe plan: do not treat occupied nodes as safe landings. Retain validated hazard, phase, resource and terminal state separately. Coverage is not complete-board proof, samples use the documented upper/left-center convention, and raw pixels/ASCII remain authoritative. This interface neither certifies nor intercepts arbitrary handwritten decoders or planners; raw actions remain available.\n"
++    '- If a tool aborts without a completed retention report, the host preserves only the previously committed helper definitions. New definitions/replacements/deletions in that call did not commit. Consult the current retained-function inventory; do not assume an attempted definition exists. This never rolls back or repeats actions: use the execution receipt and fresh current_frame/history to continue from the confirmed state. A completed report can still remove or reject helpers normally.\n- Before trusting a simulator for long search, compare predicted transitions against already observed transitions at the same action granularity. Check movement distance, phase and direction, visible marker/overlay changes, hazard flags and resource state; separate observed facts from unresolved collision ordering. An unsupported assumption or relaxed-model path is not a safe route. Prefer a short informative probe when the evidence cannot distinguish hypotheses.\n- Prefer the bounded search_plan helper over a new unbounded BFS. A timeout or node/edge/depth limit is not proof of unreachable. If dynamics are supported as periodic, canonicalize the validated phase in the visited-state key instead of retaining unbounded absolute time, while retaining all other future-relevant resource/hazard state. Do not merge states on an unverified period. Check lookup-table coverage and that bit indices, initial masks and packed-state widths agree. These are model checks, not new action restrictions.\n'
++    "- Optional replay API: `r=replay_transitions(observe, predict, records=transitions[-16:], max_cases=16, timeout_s=2.0)`. `observe(frame)` must decode the EXPLICIT frame argument into a nonempty dict of named fields (e.g. player_rc, hazard_rc, active, resource); `predict(state, action_label)` must return the same kind of named state, not a positional tuple. Include all fields relevant to your hypothesis. Each case starts independently from its observed before-state, never from the previous prediction. The helper never executes actions; callbacks must be pure. Raw action(...) remains available outside callbacks without a ticket.\n- Inspect r['status'], r['counts'], r['cases'] and r['skip_reasons']; each mismatch has a path plus typed predicted/observed previews. Reset/terminal/uncertain/stopped/nonconsecutive records are skipped, not counted as successes. Default uses current transitions; at most 128 tail records are scanned and 64 eligible cases checked, with at most 8 differences per case. Timeout is cooperative (hard tool deadline unchanged); empty/limit/callback_error never means validated. Use assignments to avoid dumping whole reports. A compact summary is printed automatically.\n- `matches_observed` means only the selected supplied fields match those endpoints. It does not certify your decoder, safety, collision ordering, goal, unseen actions or period. A constant/incomplete observer can hide errors. TEMPORAL CALIBRATION: before treating a failed search as evidence about the engine, separate observed state from assumed rules. Preserve activation/visibility, remembered occluded locations and resource observations; an absent marker is not a known direction or proof of disappearance. Keep competing target/update/tie hypotheses explicit. Compare them on the SAME recorded transitions using the existing optional replay API or equivalent named-field checks: reports = {name: replay_transitions(observe, predictor, records=transitions[-16:]) for name, predictor in candidates.items()}. If both match, mark the evidence NONDISCRIMINATING, not calibrated. Before a cautious short probe, write each candidate's predicted next named fields; prefer a probe where predictions differ and check its actual result before revising only the contradicted rule. A worst-case choice among all shortest-path ties is an assumption, not an observed tie-break. Branch-wise BFS is not an all-branches-safe strategy. If no safe distinguishing probe is known, retain uncertainty rather than inventing certainty. Once a short prefix is supported, execute and compare fresh observations instead of repeatedly rewriting the simulator; neither deadline pressure nor a printed path makes it safe. Raw actions and replay remain optional/unrestricted outside existing pure callbacks.\n- `[planning_progress]` is an automatic readonly game-clock snapshot plus consecutive Python calls without confirmed actions on the same observed frame. It is not a learning-quality score or an action restriction. Time continues during generation; other deadlines may be sooner, and unknown means unavailable, not unlimited. A printed path executes nothing. Once evidence supports a short sequence, perform a checked prefix (for example execute_plan) while time remains, or gather a discriminating observation. Never blindly execute a route just because time is low.\n"
+     "- The only tool is `python`; call it with one ephemeral `code` string.\n"
+     "- Always inspect `current_frame`, `history`, and `valid_actions` from Python instead of reasoning from the raw board by eye.\n"
+     "- For the most recent change, compare `previous_frame` to `current_frame`, or `last_transition.before_frame` to `last_transition.after_frame`. `history[-1].frame` is the current frame, so comparing it to `current_frame` only compares the board to itself.\n"
+diff -ruN --exclude=*.orig /tmp/dfranzen_taaf/src/ARC3-Inference/inference/agent/python_tool_sandbox.py /tmp/dhia_scan/dataset/src/ARC3-Inference/inference/agent/python_tool_sandbox.py
+--- /tmp/dfranzen_taaf/src/ARC3-Inference/inference/agent/python_tool_sandbox.py	2026-10-15 09:39:36
++++ /tmp/dhia_scan/dataset/src/ARC3-Inference/inference/agent/python_tool_sandbox.py	2026-10-15 09:31:29
+@@ -18,6 +18,12 @@
+ from inference.utils import frame_diff as _frame_diff_module
+ from inference.utils import segmentation as _segmentation
+ from inference.utils import retained_functions as _retained_functions
++from inference.utils import bounded_search as _bounded_search_module
++from inference.utils import checked_execution as _checked_execution_module
++from inference.utils import state_contracts as _state_contracts
++from inference.utils import transition_evidence as _transition_evidence_module
++from inference.utils import replay_compare as _replay_compare_module
++from inference.utils import grid_coverage as _grid_coverage_module
+ from inference.utils.grid_utils import ARC_COLOR_CHARS
+ 
+ 
+@@ -45,6 +51,18 @@
+ 
+     __RETAINED_FUNCTIONS_SOURCE__
+ 
++    __BOUNDED_SEARCH_SOURCE__
++
++    __CHECKED_EXECUTION_SOURCE__
++
++    __STATE_CONTRACTS_SOURCE__
++
++    __TRANSITION_EVIDENCE_SOURCE__
++
++    __GRID_COVERAGE_SOURCE__
++
++    __REPLAY_COMPARE_SOURCE__
++
+     HOST_STDOUT = sys.stdout
+ 
+     SAFE_MODULES = {
+@@ -68,6 +86,7 @@
+         "re",
+         "statistics",
+         "string",
++        "time",  # CPU/wall-clock measurements; tool timeout remains enforced.
+     }
+     SAFE_BUILTINS = {
+         # Exception types. Only four were present, so anything narrower than
+@@ -157,6 +176,8 @@
+         return json.loads(line)
+ 
+ 
++    _grid_contract_noted = False
++
+     class FrameView:
+         def __init__(self, *, ascii, step, level, shape, grid):
+             self.ascii = ascii
+@@ -165,8 +186,40 @@
+             self.shape = tuple(shape)
+             self._grid = grid
+             self._segmentation = None
++            self._transition_evidence = None
++            self._grid_candidates_cache = None
++            self._evidence_frames = [{"grid": grid, "step": step, "level": level}]
+ 
+         @property
++        def transition_evidence(self):
++            if self._transition_evidence is None:
++                self._transition_evidence = transition_evidence(self._evidence_frames, COLOR_CHARS)
++            return self._transition_evidence
++
++        @property
++        def grid_candidates(self):
++            if self._grid_candidates_cache is None:
++                self._grid_candidates_cache = grid_coverage_candidates(self._grid)
++            return self._grid_candidates_cache
++
++        def grid_view(self, *, candidate=None, origin_rc=None, pitch_rc=None, shape_rc=None, topology=None):
++            view = extract_grid_view(self._grid, COLOR_CHARS, candidate=candidate,
++                origin_rc=origin_rc, pitch_rc=pitch_rc, shape_rc=shape_rc, topology=topology)
++            global _grid_contract_noted
++            if not _grid_contract_noted:
++                print(grid_contract_note(view))
++                _grid_contract_noted = True
++            elif view['topology'] is not None:
++                t = view['topology']
++                print('[grid_topology] status=' + t['status'] + '; nodes=' +
++                    str(len(t['nodes_rc'])) + '; missing=' + str(t['missing_endpoints']) +
++                    '; caller-hypothesis connectivity only, NOT route safety.')
++            warning = grid_view_warning(view)
++            if warning:
++                print(warning)
++            return view
++
++        @property
+         def segmentation(self):
+             if self._segmentation is None:
+                 self._segmentation = segment_layer(self._grid, COLOR_CHARS)
+@@ -358,10 +411,48 @@
+                 for name in SAFE_BUILTINS
+             },
+             "result": None,
++            "json": json,  # Fresh standard-library binding; no snippet state persists.
+         }
+         runtime_globals["__builtins__"]["__import__"] = _safe_import
+         _animation_views = []
++        _planning_active = [False]
+ 
++        def search_plan(start, successors, is_goal, *, key=None, max_nodes=50000,
++                        max_depth=128, timeout_s=2.0, max_edges=250000):
++            if _planning_active[0]:
++                raise RuntimeError("Nested search_plan calls are not supported")
++            _planning_active[0] = True
++            try:
++                report = bounded_bfs(start, successors, is_goal, key=key,
++                    max_nodes=max_nodes, max_depth=max_depth,
++                    timeout_s=timeout_s, max_edges=max_edges)
++                print("[search_plan] status=%s reason=%s depth=%s expanded=%d discovered=%d edges=%d elapsed_s=%.3f effective_limits=%s clamped_limits=%s" % (
++                    report["status"], report["reason"], report["depth"], report["expanded"],
++                    report["discovered"], report["edges"], report["elapsed_s"],
++                    report["effective_limits"], report["clamped_limits"]))
++                return report
++            finally:
++                _planning_active[0] = False
++
++        runtime_globals["search_plan"] = search_plan
++
++        def replay_transitions(observe, predict, *, records=None, max_cases=16, timeout_s=2.0):
++            if _planning_active[0] or _execution_active[0]:
++                raise RuntimeError("replay_transitions cannot nest inside planning/execution callbacks")
++            selected = runtime_globals.get("transitions", []) if records is None else records
++            # Reuse the existing pure-planning action guard only while this
++            # optional helper runs. Raw actions outside callbacks are unchanged.
++            _planning_active[0] = True
++            try:
++                report = replay_named_transitions(selected, observe, predict,
++                    max_cases=max_cases, timeout_s=timeout_s)
++            finally:
++                _planning_active[0] = False
++            print(replay_summary(report))
++            return report
++
++        runtime_globals["replay_transitions"] = replay_transitions
++
+         def frame_diff(before=None, after=None):
+             # Object-level diff between two frames. Defaults: previous_frame -> current_frame.
+             # Returns only what changed; unchanged objects are omitted.
+@@ -393,6 +484,15 @@
+             action_result.pop("action_echo", None)
+             transitions = _transitions_from_history(history)
+             last_transition = transitions[-1] if transitions else None
++            # Snapshot context is host data only. No user state is retained and
++            # no pixels, segmentation, action policy or terminal flags change.
++            recent = [{**e["frame"], "action": e.get("action", ""), "result": e.get("result") or {}}
++                      for e in (state_payload.get("history") or [])[-64:]
++                      if isinstance(e, dict) and isinstance(e.get("frame"), dict)]
++            if current_frame is not None and recent:
++                tail = recent[-1]
++                if tail.get("step") == current_frame.step and tail.get("level") == current_frame.level and tail.get("grid") == current_frame._grid:
++                    current_frame._evidence_frames = recent
+ 
+             runtime_globals["current_frame"] = current_frame
+             runtime_globals["latest_frame"] = current_frame
+@@ -487,9 +587,14 @@
+         }
+ 
+         def action(actions):
++            if _execution_active[0] and not _execution_dispatch_active[0]:
++                raise RuntimeError("execute_plan callbacks must be pure; real game actions are blocked")
++            if _planning_active[0]:
++                raise RuntimeError("search_plan callbacks must use pure planning; real game actions are blocked during search")
+             if _terminal_state:
+                 raise TerminalStateActionError(_TERMINAL_DETAIL[_terminal_state[0]])
+             normalized_actions = _normalize_actions(actions)
++            validate_mouse_coordinates(normalized_actions, runtime_globals["current_frame"].shape)
+             _send({
+                 "type": "action",
+                 "actions": normalized_actions,
+@@ -565,6 +670,8 @@
+                 # stop it only if it tries to ACT on the stale belief.
+                 if not _stale_state:
+                     _stale_state.append(str(_name))
++            if _terminal_state and not _execution_dispatch_active[0]:
++                _finish_terminal_boundary()
+             return action_result
+ 
+         def _animation_fetch(kind):
+@@ -588,6 +695,56 @@
+                 for item in (payload or [])
+             ]
+ 
++        _execution_active = [False]
++        _execution_dispatch_active = [False]
++
++        def execute_plan(actions, observe, predict, *, expected_start, max_steps=32):
++            if _planning_active[0] or _execution_active[0]:
++                raise RuntimeError("execute_plan cannot run inside search_plan or another execute_plan")
++            if _terminal_state:
++                raise TerminalStateActionError(_TERMINAL_DETAIL[_terminal_state[0]])
++            if type(actions) not in (list, tuple) or len(actions) > 128:
++                raise ValueError("actions must be a finite list/tuple of at most 128 single actions")
++            if type(max_steps) is not int or not 1 <= max_steps <= 128:
++                raise ValueError("max_steps must be an integer in [1, 128]")
++            if not callable(observe) or not callable(predict):
++                raise TypeError("observe and predict must be callable")
++            _execution_active[0] = True
++            try:
++                # Reject nested batches/malformed action syntax before any move.
++                for item in actions:
++                    if not isinstance(item, (str, dict)):
++                        raise TypeError("each plan item must be a single action string or dict")
++                    _normalize_actions([item])
++
++                def _send_one(item):
++                    _execution_dispatch_active[0] = True
++                    try:
++                        return action([item])
++                    finally:
++                        _execution_dispatch_active[0] = False
++
++                _frozen_observer = frozen_frame_defaults(observe, FrameView)
++                if _frozen_observer:
++                    print("[observation_binding] observe has a FrameView default captured at definition time. It will not follow current_frame refreshes. Use a zero-argument callback reading current_frame inside its body. No callback rewritten or action replayed; execution policy unchanged.")
++                report = checked_execute(actions, observe, predict, _send_one,
++                    expected_start=expected_start, max_steps=max_steps)
++                print("[execute_plan] status=%s phase=%s attempted=%d confirmed_executed=%d execution_uncertain=%s" % (
++                    report["status"], report["phase"], report["attempted"],
++                    report["confirmed_executed"], report["execution_uncertain"]))
++                if _terminal_state:
++                    _finish_terminal_boundary(report)
++                if _frozen_observer:
++                    report["observation_binding_warning"] = "captured_frame_default"
++                    if report["status"] == "mismatch":
++                        print("[observation_binding] Mismatch may come from the frozen observer, not the movement model. Inspect the fresh current_frame before revising mechanics. Never replay the confirmed action prefix.")
++                return report
++            finally:
++                _execution_active[0] = False
++                _execution_dispatch_active[0] = False
++
++        runtime_globals["execute_plan"] = execute_plan
++
+         runtime_globals["action"] = action
+         if initial.get("animation_enabled"):
+             # Globals rather than attributes on last_transition: after a death
+@@ -631,6 +788,15 @@
+                 def get(self, key, default=None):
+                     return self._get().get(key, default)
+ 
++                def items(self):
++                    return self._get().items()
++
++                def values(self):
++                    return self._get().values()
++
++                def copy(self):
++                    return self._get().copy()
++
+                 def __repr__(self):
+                     return repr(self._get())
+ 
+@@ -679,6 +845,41 @@
+                 return {"keepable_functions": [], "retention_rejected": [
+                     {"name": "all", "reason": "retention failed; redefine needed functions"}]}
+ 
++        def _finish_terminal_boundary(execution_report=None):
++            # This process handles exactly one snippet. Finish the normal IPC
++            # protocol, then exit without Python stack unwinding: user finally/
++            # except/with cleanup must not resume old-board code at a boundary.
++            # Host-side action records are authoritative; do not serialize an
++            # earlier user result or mutable aliases of earlier action replies.
++            terminal = _terminal_state[0]
++            reply = action_results[-1]
++            frame = runtime_globals.get("current_frame")
++            boundary = {
++                "status": "terminal_boundary",
++                "reason": terminal,
++                "action_result": dict(reply),
++                "next_level": getattr(frame, "level", None),
++                "next_step": getattr(frame, "step", None),
++            }
++            if execution_report is not None:
++                # Predictions may be user objects. Keep only the helper's
++                # scalar execution summary, not arbitrary user serialization.
++                boundary["execution_report"] = {
++                    name: execution_report[name] for name in (
++                        "status", "phase", "attempted", "confirmed_executed",
++                        "execution_uncertain")
++                }
++            summary = ("[action_boundary] reason=%s next_level=%s next_step=%s; snippet ended successfully; inspect the current board next turn" % (
++                terminal, boundary["next_level"], boundary["next_step"]))
++            _send({
++                "type": "final",
++                **_collect_retention_payload(),
++                "stdout": summary + "\n" + stdout.getvalue(),
++                "result": boundary,
++                # Omission selects the host's untouched recorded action prefix.
++            })
++            os._exit(0)
++
+         try:
+             _code_text = str(initial.get("code", ""))
+             _tree = ast.parse(_code_text, "<python_tool>")
+@@ -688,6 +889,16 @@
+                 ast.copy_location(_last_expr, _tree.body[-1])
+                 _tree.body = _tree.body[:-1]
+             with contextlib.redirect_stdout(stdout):
++                # Automatic once per snippet, before user code. No helper
++                # adoption required; no action dispatch or retry performed.
++                _evidence_frame = runtime_globals.get("current_frame")
++                if _evidence_frame is not None:
++                    _evidence_note = transition_evidence_note(_evidence_frame.transition_evidence)
++                    if _evidence_note:
++                        print(_evidence_note)
++                    _grid_note = grid_coverage_note(_evidence_frame.grid_candidates)
++                    if _grid_note:
++                        print(_grid_note)
+                 if _tree.body:
+                     exec(compile(_tree, "<python_tool>", "exec"), runtime_globals, runtime_globals)
+                 if _last_expr is not None:
+@@ -724,7 +935,7 @@
+                 {
+                     "type": "error",
+                     **_collect_retention_payload(),
+-                    "error": _sanitize_exception(exc),
++                    "error": _sanitize_exception(exc) + exception_shape_context(exc, _code_text),
+                     "stdout": stdout.getvalue(),
+                     "action_results": _json_safe(action_results),
+                 }
+@@ -734,10 +945,14 @@
+     if __name__ == "__main__":
+         main()
+     """
+-).replace("__RETAINED_FUNCTIONS_SOURCE__\n", inspect.getsource(_retained_functions)).replace(
++).replace("__REPLAY_COMPARE_SOURCE__\n", inspect.getsource(_replay_compare_module)).replace("__GRID_COVERAGE_SOURCE__\n", inspect.getsource(_grid_coverage_module)).replace("__TRANSITION_EVIDENCE_SOURCE__\n", inspect.getsource(_transition_evidence_module)).replace("__STATE_CONTRACTS_SOURCE__\n", inspect.getsource(_state_contracts)).replace("__RETAINED_FUNCTIONS_SOURCE__\n", inspect.getsource(_retained_functions)).replace(
+     "__SEGMENTATION_SOURCE__\n", inspect.getsource(_segmentation)
+ ).replace(
+     "__FRAME_DIFF_SOURCE__\n", inspect.getsource(_frame_diff_module)
++).replace(
++    "__BOUNDED_SEARCH_SOURCE__\n", inspect.getsource(_bounded_search_module)
++).replace(
++    "__CHECKED_EXECUTION_SOURCE__\n", inspect.getsource(_checked_execution_module)
+ )
+ 
+ 
+@@ -816,6 +1031,12 @@
+ ) -> dict[str, Any]:
+     with tempfile.TemporaryDirectory(prefix="rgb_python_tool_") as sandbox_dir:
+         host_action_results: list[dict[str, Any]] = []
++        last_confirmed_frame = dict(initial_state.get("current_frame") or {})
++        execution_uncertain = False
++
++        def _receipt(error):
++            return str(error or "") + _state_contracts.execution_receipt(
++                host_action_results, last_confirmed_frame, execution_uncertain)
+         try:
+             process = subprocess.Popen(
+                 [sys.executable, "-I", "-S", "-c", _SANDBOX_BOOTSTRAP],
+@@ -870,7 +1091,7 @@
+                 _kill_process_group(process)
+                 _wait_for_process_exit(process)
+                 return {
+-                    "error": f"Tool timed out after {timeout_seconds}s",
++                    "error": _receipt(f"Tool timed out after {timeout_seconds}s"),
+                     "stdout": "",
+                     "action_results": list(host_action_results),
+                 }
+@@ -933,6 +1154,7 @@
+                         stale_after=message.get("stale_after"),
+                     )
+                 except Exception:  # noqa: BLE001
++                    execution_uncertain = True
+                     _send_json_line(
+                         process.stdin,
+                         {
+@@ -941,6 +1163,9 @@
+                         },
+                     )
+                     continue
++                next_frame = (action_result_payload.get("state") or {}).get("current_frame")
++                if isinstance(next_frame, dict):
++                    last_confirmed_frame = dict(next_frame)
+                 raw_action_result = action_result_payload.get("action_result") or {}
+                 if isinstance(raw_action_result, dict):
+                     host_action_results.append(dict(raw_action_result))
+@@ -959,8 +1184,8 @@
+                 return {
+                     "stdout": str(message.get("stdout", "") or ""),
+                     "result": message.get("result"),
+-                    "error": str(message.get("error", "") or ""),
+-                    "action_results": list(message.get("action_results") or host_action_results),
++                    "error": _receipt(message.get("error")) if msg_type == "error" else str(message.get("error", "") or ""),
++                    "action_results": list(host_action_results) if msg_type == "error" else list(message.get("action_results") or host_action_results),
+                     "keepable_functions": list(message.get("keepable_functions") or []),
+                     **({"retention_rejected": message.get("retention_rejected", [])}
+                        if kept_functions is not None else {}),
+diff -ruN --exclude=*.orig /tmp/dfranzen_taaf/src/ARC3-Inference/inference/agent/tool_agent.py /tmp/dhia_scan/dataset/src/ARC3-Inference/inference/agent/tool_agent.py
+--- /tmp/dfranzen_taaf/src/ARC3-Inference/inference/agent/tool_agent.py	2026-10-15 09:39:36
++++ /tmp/dhia_scan/dataset/src/ARC3-Inference/inference/agent/tool_agent.py	2026-10-15 09:31:29
+@@ -30,6 +30,7 @@
+ )
+ from inference.agent.action_names import reset_exposed, to_engine_action, to_model_action, undo_exposure_mode
+ from inference.utils.retained_functions import function_signature
++from inference.utils.replay_compare import planning_progress_note as _replay_progress_note
+ from inference.agent.prompts import (
+     apply_level_transfer_system_guidance,
+     LEVEL_START_USER_PROMPT,
+@@ -4616,6 +4617,20 @@
+             return
+         try:
+             previous = self._kept_functions
++            # An aborted runner cannot supply a completed retention snapshot.
++            # Missing metadata is not the same as an explicitly empty report.
++            # Keep only the previously committed source definitions: no partial
++            # new definitions, namespace data, action replay, or frame snapshots.
++            if "keepable_functions" not in sandbox_result:
++                payload["function_retention"] = (
++                    "[function_retention] No completed retention report; preserved "
++                    + str(len(previous)) + " previously committed helper definitions. "
++                    "Definitions, replacements and deletions from this call were not committed. "
++                    "Use the retained-function inventory; redefine any intended changes. "
++                    "This does not undo or repeat actions. Check the execution receipt and "
++                    "current_frame/history before continuing; action uncertainty is unchanged."
++                )
++                return
+             kept = {}
+             signatures = {}
+             for item in sandbox_result.get("keepable_functions") or []:
+@@ -4657,7 +4672,29 @@
+             self._kept_functions = {}
+             payload["function_retention"] = "Your retained functions were cleared after a retention error; redefine any you need."
+ 
++    def _planning_progress_note(self, frame, *, executed=None):
++        # Diagnostics only. Never dispatch an action, change a deadline, or
++        # infer remaining allowance from a stale last-action timestamp.
++        try:
++            session = getattr(getattr(self, "_step_env_callback", None), "__self__", None)
++            timing = {}
++            try:
++                reader = getattr(session, "timing_payload", None)
++                if callable(reader):
++                    timing = reader()
++            except Exception:
++                timing = {}
++            key = (str(getattr(self, "_session_runtime_dir", "")), id(session),
++                   getattr(frame, "level", None), getattr(frame, "step", None))
++            state, note = _replay_progress_note(
++                getattr(self, "_planning_progress_state", None), key, time.monotonic(), timing, executed)
++            self._planning_progress_state = state
++            return note
++        except Exception:
++            return ""
++
+     def _build_user_message(self, user_prompt: str, current_frame: Frame | None) -> dict[str, Any]:
++        user_prompt += "\n\n" + self._planning_progress_note(current_frame)
+         user_prompt += self._retained_function_context()
+         image_part = current_grid_image_part(current_frame)
+         diff_part = self._pending_diff_image
+@@ -5956,7 +5993,20 @@
+     def _dispatch_tool(self, state_path: Path, name: str, arguments: dict[str, Any]) -> _ToolDispatchResult:
+         self._ensure_session(state_path)
+         if name == "python":
+-            return self._run_python_tool(state_path, arguments)
++            dispatch = self._run_python_tool(state_path, arguments)
++            # Attach after computation so inspection-only calls receive fresh
++            # clock/progress evidence too. Preserve the original action flags.
++            try:
++                frame, _ = load_runtime_state(state_path)
++                note = self._planning_progress_note(frame, executed=dispatch.step_executed)
++                payload = json.loads(dispatch.content)
++                if note and isinstance(payload, dict):
++                    payload["stdout"] = note + "\n" + str(payload.get("stdout", "") or "")
++                    return _ToolDispatchResult(json.dumps(payload, indent=2),
++                        step_executed=dispatch.step_executed, made_progress=dispatch.made_progress)
++            except Exception:
++                pass
++            return dispatch
+         return _ToolDispatchResult(json.dumps({"error": f"Unknown tool: {name}"}, indent=2))
+ 
+     def _calibrate_from_usage(
+diff -ruN --exclude=*.orig /tmp/dfranzen_taaf/src/ARC3-Inference/inference/utils/bounded_search.py /tmp/dhia_scan/dataset/src/ARC3-Inference/inference/utils/bounded_search.py
+--- /tmp/dfranzen_taaf/src/ARC3-Inference/inference/utils/bounded_search.py	1970-01-01 07:30:00
++++ /tmp/dhia_scan/dataset/src/ARC3-Inference/inference/utils/bounded_search.py	2026-10-15 09:31:29
+@@ -0,0 +1,156 @@
++"""Generic unit-cost BFS, also embedded verbatim into the isolated Python tool.
++
++No environment access, puzzle identifiers, transition rules or action execution.
++Time limits are cooperative; the sandbox's outer timeout remains authoritative.
++"""
++from collections import deque as _bfs_deque
++from copy import deepcopy as _bfs_copy
++from time import monotonic as _bfs_clock
++from math import isfinite as _bfs_finite
++
++
++def bounded_bfs(start, successors, is_goal, *, key=None, max_nodes=50000,
++                max_depth=128, timeout_s=2.0, max_edges=250000):
++    """Search a model supplied by the caller, never the real environment.
++
++    successors(state) yields (action, next_state). is_goal(state) is a predicate.
++    States must be deepcopy-able and hashable, or key(state) must be hashable.
++    Keys must distinguish every state variable relevant to transitions and goals.
++    Callbacks must be pure. Copies isolate ordinary mutable state/action aliases.
++
++    Result status: found, exhausted, or limit (reason: nodes/edges/depth/time).
++    Only found has a list of actions; [] means the start already satisfies goal.
++    Exhausted refers only to the fully explored supplied model, NOT the real game.
++    Hitting max_depth conservatively reports limit even if its boundary is a leaf.
++    Unit-cost shortest paths only; there is no heuristic or weighted-edge mode.
++    Valid oversized requests are capped at unchanged hard maxima: 100000 nodes,
++    1024 depth, 1000000 edges and 5 seconds. Defaults remain unchanged.
++    Results include effective_limits and clamped_limits (names, not input values).
++    Zero depth remains valid; other limits must be positive. No type coercion.
++    Callback exceptions propagate; no automatic retry or partial plan is returned.
++    """
++    # Validate types/lower bounds before capping: do not coerce malformed inputs.
++    effective_limits = {}
++    clamped_limits = []
++    for name, value, lower, upper in (
++        ('max_nodes', max_nodes, 1, 100000),
++        ('max_depth', max_depth, 0, 1024),
++        ('max_edges', max_edges, 1, 1000000),
++    ):
++        if type(value) is not int or value < lower:
++            raise ValueError('%s must be an integer >= %s' % (name, lower))
++        effective_limits[name] = min(value, upper)
++        if value > upper:
++            clamped_limits.append(name)
++    if (isinstance(timeout_s, bool) or not isinstance(timeout_s, (int, float))
++            or (isinstance(timeout_s, float) and not _bfs_finite(timeout_s))
++            or timeout_s <= 0):
++        raise ValueError('timeout_s must be finite and greater than 0')
++    # Python integers are finite; cap before converting even very large integers.
++    effective_limits['timeout_s'] = float(min(timeout_s, 5.0))
++    if timeout_s > 5.0:
++        clamped_limits.append('timeout_s')
++    max_nodes = effective_limits['max_nodes']
++    max_depth = effective_limits['max_depth']
++    max_edges = effective_limits['max_edges']
++    timeout_s = effective_limits['timeout_s']
++    if not callable(successors) or not callable(is_goal) or (key is not None and not callable(key)):
++        raise TypeError('successors and is_goal must be callable; key must be callable or None')
++
++    began = _bfs_clock()
++    deadline = began + timeout_s
++    states, parents, incoming, depths = [], [], [], []
++    seen = {}
++    expanded = 0
++    edges = 0
++    depth_cut = False
++
++    def timed_out():
++        return _bfs_clock() >= deadline
++
++    def result(status, reason=None, node=None):
++        actions = None
++        depth = None
++        if status == 'found':
++            actions = []
++            depth = depths[node]
++            while parents[node] != -1:
++                actions.append(_bfs_copy(incoming[node]))
++                node = parents[node]
++            actions.reverse()
++            # Reconstruction/copying is charged to the same cooperative budget.
++            if timed_out():
++                status, reason, actions, depth = 'limit', 'time', None, None
++        return {'status': status, 'reason': reason, 'actions': actions,
++                'depth': depth, 'expanded': expanded, 'discovered': len(states),
++                'edges': edges, 'elapsed_s': _bfs_clock() - began,
++                'effective_limits': dict(effective_limits),
++                'clamped_limits': list(clamped_limits)}
++
++    def state_key(state):
++        value = key(_bfs_copy(state)) if key is not None else state
++        try:
++            hash(value)
++        except TypeError as exc:
++            raise TypeError('Unhashable search state/key; provide key(state) with a hashable, complete state identity') from exc
++        return _bfs_copy(value)
++
++    root = _bfs_copy(start)
++    root_key = state_key(root)
++    states.append(root); parents.append(-1); incoming.append(None); depths.append(0)
++    seen[root_key] = 0
++    if timed_out():
++        return result('limit', 'time')
++    solved = is_goal(_bfs_copy(root))
++    if timed_out():
++        return result('limit', 'time')
++    if solved:
++        return result('found', node=0)
++    frontier = _bfs_deque([0])
++
++    while frontier:
++        if timed_out():
++            return result('limit', 'time')
++        node = frontier.popleft()
++        if depths[node] >= max_depth:
++            depth_cut = True
++            continue
++        expanded += 1
++        iterator = iter(successors(_bfs_copy(states[node])))
++        if timed_out():
++            return result('limit', 'time')
++        while True:
++            if timed_out():
++                return result('limit', 'time')
++            if edges >= max_edges:
++                return result('limit', 'edges')
++            try:
++                edge = next(iterator)
++            except StopIteration:
++                break
++            if timed_out():
++                return result('limit', 'time')
++            edges += 1
++            if not isinstance(edge, (tuple, list)) or len(edge) != 2:
++                raise ValueError('successors(state) must yield pairs (action, next_state)')
++            action, candidate = edge
++            candidate = _bfs_copy(candidate)
++            identity = state_key(candidate)
++            if timed_out():
++                return result('limit', 'time')
++            if identity in seen:
++                continue
++            if len(states) >= max_nodes:
++                return result('limit', 'nodes')
++            child = len(states)
++            # Store parent indices separately: no model-written predecessor tuples.
++            states.append(candidate); parents.append(node)
++            incoming.append(_bfs_copy(action)); depths.append(depths[node] + 1)
++            seen[identity] = child
++            solved = is_goal(_bfs_copy(candidate))
++            if timed_out():
++                return result('limit', 'time')
++            if solved:
++                return result('found', node=child)
++            frontier.append(child)
++    return result('limit', 'depth') if depth_cut else result('exhausted')
+diff -ruN --exclude=*.orig /tmp/dfranzen_taaf/src/ARC3-Inference/inference/utils/checked_execution.py /tmp/dhia_scan/dataset/src/ARC3-Inference/inference/utils/checked_execution.py
+--- /tmp/dfranzen_taaf/src/ARC3-Inference/inference/utils/checked_execution.py	1970-01-01 07:30:00
++++ /tmp/dhia_scan/dataset/src/ARC3-Inference/inference/utils/checked_execution.py	2026-10-15 09:31:29
+@@ -0,0 +1,119 @@
++"""Generic checked execution. Environment access is supplied by the sandbox adapter.
++
++No game identifiers, decoders, transition rules, retries, persistence or search.
++The existing outer Python-tool deadline is the hard timeout.
++"""
++from copy import deepcopy as _exec_copy
++
++
++def checked_execute(actions, observe, predict, send_one, *, expected_start,
++                    max_steps=32):
++    """Run a finite concrete plan, checking every nonterminal transition.
++
++    observe() returns a deepcopy-able model state with ordinary equality.
++    predict(state, action) returns its predicted successor. Neither may act.
++    send_one(action) sends exactly one action via the existing guarded interface.
++    The adapter owns callback action blocking and syntax validation of actions.
++
++    A completed plan is NOT a won game. Reports retain confirmed execution even
++    on ordinary callback errors. BaseException guards and hard timeouts propagate
++    unchanged; the host's action records remain authoritative in those cases.
++    """
++    if type(actions) not in (list, tuple) or len(actions) > 128:
++        raise ValueError('actions must be a finite list/tuple of at most 128 single actions')
++    if type(max_steps) is not int or not 1 <= max_steps <= 128:
++        raise ValueError('max_steps must be an integer in [1, 128]')
++    if not all(callable(f) for f in (observe, predict, send_one)):
++        raise TypeError('observe, predict and send_one must be callable')
++    report = {'status': None, 'phase': 'prepare', 'attempted': 0,
++              'confirmed_executed': 0, 'executed_actions': [],
++              'execution_uncertain': False, 'last_action_result': None,
++              'expected': None, 'observed': None, 'error': None}
++
++    def finish(status):
++        report['status'] = status
++        return report
++
++    def failure(status, exc):
++        try:
++            message = str(exc)[:600]
++        except Exception:
++            message = '<exception message unavailable>'
++        report['error'] = type(exc).__name__ + ': ' + message
++        return finish(status)
++
++    try:
++        plan = _exec_copy(list(actions))
++        expected = _exec_copy(expected_start)
++        report['expected'] = _exec_copy(expected)
++        if not plan:
++            return finish('plan_complete')
++        report['phase'] = 'observe_start'
++        state = _exec_copy(observe())
++        report['observed'] = _exec_copy(state)
++        if state != expected:
++            return finish('start_mismatch')
++    except Exception as exc:
++        return failure('callback_error', exc)
++
++    for index, item in enumerate(plan):
++        if index >= max_steps:
++            report['phase'] = 'step_limit'
++            return finish('limit')
++        try:
++            report['phase'] = 'predict'
++            predicted = _exec_copy(predict(_exec_copy(state), _exec_copy(item)))
++            report['expected'] = _exec_copy(predicted)
++            # Save the exact request before dispatch; copies cannot trigger a
++            # post-action bookkeeping failure before execution is recorded.
++            sent = _exec_copy(item)
++        except Exception as exc:
++            return failure('callback_error', exc)
++        report['phase'] = 'action'
++        report['attempted'] += 1
++        report['observed'] = None
++        report['last_action_result'] = None
++        try:
++            reply = send_one(sent)
++        except Exception as exc:
++            # No retry: transport/refresh errors can happen after a real action.
++            report['execution_uncertain'] = True
++            return failure('action_error', exc)
++        if not isinstance(reply, dict):
++            report['execution_uncertain'] = True
++            return failure('action_error', TypeError('action result must be a dict'))
++        report['last_action_result'] = reply
++        count = reply.get('executed')
++        confirmed = count is True or (type(count) is int and count == 1)
++        if confirmed:
++            report['confirmed_executed'] += 1
++            report['executed_actions'].append(item)
++        elif count is not False and not (type(count) is int and count == 0):
++            report['execution_uncertain'] = True
++        # Terminal flags MUST precede old-level decoding and comparison.
++        report['phase'] = 'action_result'
++        if reply.get('run_complete') or reply.get('done'):
++            return finish('run_complete')
++        if reply.get('game_over'):
++            return finish('game_over')
++        if reply.get('level_completed'):
++            return finish('level_completed')
++        if report['execution_uncertain']:
++            return finish('action_error')
++        if not confirmed:
++            return finish('not_executed')
++        if reply.get('no_op') or reply.get('gameplay_changed') is False:
++            return finish('no_op')
++        if reply.get('stop_reason'):
++            return finish('stopped')
++        try:
++            report['phase'] = 'observe_after'
++            observed = _exec_copy(observe())
++            report['observed'] = _exec_copy(observed)
++            if observed != predicted:
++                return finish('mismatch')
++            state = observed
++        except Exception as exc:
++            return failure('callback_error', exc)
++    report['phase'] = 'complete'
++    return finish('plan_complete')
+diff -ruN --exclude=*.orig /tmp/dfranzen_taaf/src/ARC3-Inference/inference/utils/grid_coverage.py /tmp/dhia_scan/dataset/src/ARC3-Inference/inference/utils/grid_coverage.py
+--- /tmp/dfranzen_taaf/src/ARC3-Inference/inference/utils/grid_coverage.py	1970-01-01 07:30:00
++++ /tmp/dhia_scan/dataset/src/ARC3-Inference/inference/utils/grid_coverage.py	2026-10-15 09:31:29
+@@ -0,0 +1,257 @@
++"""Bounded repeated-rectangle lattice evidence and exact pixel crop extraction.
++No game IDs, palette roles, terrain rules, paths, fixed origins or tile sizes.
++Pitch-equals-component-size is a hypothesis, not a universal board detector.
++Dependency-free so this module can be injected into the isolated Python tool.
++"""
++
++
++def _gc_grid(grid):
++    if type(grid) not in (list, tuple) or not grid or len(grid) > 256:
++        return None
++    if type(grid[0]) not in (list, tuple) or not grid[0] or len(grid[0]) > 256:
++        return None
++    w = len(grid[0])
++    if len(grid)*w > 8192 or any(type(row) not in (list, tuple) or len(row) != w or any(type(v) is not int or not 0 <= v < 16 for v in row) for row in grid):
++        return None
++    return grid
++
++
++def _gc_components(grid):
++    h,w = len(grid),len(grid[0])
++    seen = [[False]*w for _ in range(h)]
++    nodes = []
++    for r in range(h):
++        for c in range(w):
++            if seen[r][c]:
++                continue
++            if len(nodes) >= 1024:
++                return None
++            queue = [(r,c)];seen[r][c] = True
++            r0=r1=r;c0=c1=c
++            for rr,cc in queue:
++                r0=min(r0,rr);r1=max(r1,rr);c0=min(c0,cc);c1=max(c1,cc)
++                for nr,nc in ((rr-1,cc),(rr+1,cc),(rr,cc-1),(rr,cc+1)):
++                    if 0<=nr<h and 0<=nc<w and not seen[nr][nc] and grid[nr][nc]==grid[r][c]:
++                        seen[nr][nc]=True;queue.append((nr,nc))
++            nodes.append({'id':len(nodes),'bbox_rc':[r0,c0,r1,c1],'pixels':len(queue)})
++    return nodes
++
++
++def grid_coverage_candidates(grid):
++    """Find repeated component-box candidates. Extents are inclusive.
++
++At least four solid rectangles, >=2 distinct row AND column starts, and a
++common size/residue are required. Non-solid same-sized aligned components can
++extend the supported extent, but do not supply the initial repetition evidence.
++Singleton markers never define a pitch. Thin HUD lines are not assigned a role.
++Multiple aligned regions may share a candidate: grouping remains unresolved.
++"""
++    result = {'status':'ok','candidates':[],'candidates_truncated':False,
++              'limits':{'cells':8192,'dimension':256,'components':1024,'candidates':8},
++              'coverage':'observed repeated-component evidence only, not proof of complete board bounds'}
++    g = _gc_grid(grid)
++    if g is None:
++        result.update(status='unavailable',reason='invalid_or_oversized_grid');return result
++    nodes = _gc_components(g)
++    if nodes is None:
++        result.update(status='unavailable',reason='component_limit');return result
++    groups = {}
++    for n in nodes:
++        r0,c0,r1,c1=n['bbox_rc'];ph,pw=r1-r0+1,c1-c0+1
++        if ph<2 or pw<2:
++            continue
++        key=(ph,pw,r0%ph,c0%pw)
++        groups.setdefault(key,[]).append(n)
++    candidates = []
++    for (ph,pw,rr,cc),group in groups.items():
++        solid=[n for n in group if n['pixels']==ph*pw]
++        if len(solid)<4 or len({n['bbox_rc'][0] for n in solid})<2 or len({n['bbox_rc'][1] for n in solid})<2:
++            continue
++        r0=min(n['bbox_rc'][0] for n in group);c0=min(n['bbox_rc'][1] for n in group)
++        r1=max(n['bbox_rc'][2] for n in group);c1=max(n['bbox_rc'][3] for n in group)
++        shape=[(r1-r0+1)//ph,(c1-c0+1)//pw]
++        partial=[]
++        # Nearby smaller components at an aligned start can indicate clipped or
++        # partial edge cells. Report, don't extend a rectangle through them.
++        for n in nodes:
++            a,b,c,d=n['bbox_rc'];nh,nw=c-a+1,d-b+1
++            outside=a<r0 or b<c0 or c>r1 or d>c1
++            near=r0-ph<=a<=r1+ph and c0-pw<=b<=c1+pw
++            if outside and near and nh<=ph and nw<=pw and (nh<ph or nw<pw) and a%ph==rr and b%pw==cc:
++                partial.append(n['id'])
++        candidates.append({'origin_rc':[r0,c0],'pitch_rc':[ph,pw],'shape_rc':shape,
++            'bbox_rc':[r0,c0,r1,c1],'solid_support':len(solid),'box_support':len(group),
++            'support_component_ids':[n['id'] for n in group],
++            'nearby_partial_component_ids':partial[:8],'nearby_partial_count':len(partial),
++            'interpretation':'candidate only; pitch equals component size; separate aligned regions may be grouped; roles/identity unresolved'})
++    candidates.sort(key=lambda x:(-x['solid_support'],-x['box_support'],x['pitch_rc'],x['origin_rc']))
++    result['candidates_truncated']=len(candidates)>8
++    result['candidates']=candidates[:8]
++    return result
++
++
++def _gc_pair(value, name, positive=False):
++    if type(value) not in (list,tuple) or len(value)!=2 or any(type(x) is not int for x in value):
++        raise TypeError(name+' must be an integer row/column pair; no rounding')
++    if any(x < (1 if positive else 0) for x in value):
++        raise ValueError(name+' is outside the supported range')
++    return tuple(value)
++
++
++def extract_grid_view(grid, colors, *, candidate=None, origin_rc=None, pitch_rc=None, shape_rc=None, topology=None):
++    """Return requested raw tiles/samples AND a geometric coverage audit.
++
++Never silently expand/clip the requested crop, classify walkability, infer a
++hazard model, or certify an unreachable result. Explicit candidate selection is
++required if multiple interpretations exist. Manual geometry works without a
++candidate, but its coverage is then unverified. Geometry is re-derived from raw
++pixels, not from the caller's mutable cached candidate dictionary.
++"""
++    g=_gc_grid(grid)
++    if g is None:
++        raise ValueError('grid view requires a valid grid within the documented bounds')
++    report=grid_coverage_candidates(g)
++    choices=report['candidates']
++    manual=any(x is not None for x in (origin_rc,pitch_rc,shape_rc))
++    if candidate is not None and manual:
++        raise ValueError('choose a candidate OR supply all three geometry pairs')
++    if not manual:
++        if report['status']!='ok' or not choices:
++            raise ValueError('no supported candidate; supply explicit geometry and treat coverage as unverified')
++        if candidate is None:
++            if len(choices)!=1 or report['candidates_truncated']:
++                raise ValueError('ambiguous candidates; select candidate=index or supply explicit geometry')
++            candidate=0
++        if type(candidate) is not int or not 0<=candidate<len(choices):
++            raise ValueError('candidate must be an in-range integer index')
++        chosen=choices[candidate]
++        origin_rc,pitch_rc,shape_rc=(chosen[k] for k in ('origin_rc','pitch_rc','shape_rc'))
++    elif any(x is None for x in (origin_rc,pitch_rc,shape_rc)):
++        raise ValueError('explicit geometry requires origin_rc, pitch_rc AND shape_rc')
++    r0,c0=_gc_pair(origin_rc,'origin_rc');ph,pw=_gc_pair(pitch_rc,'pitch_rc',True);nr,nc=_gc_pair(shape_rc,'shape_rc',True)
++    r1,c1=r0+nr*ph-1,c0+nc*pw-1
++    if r1>=len(g) or c1>=len(g[0]):
++        raise ValueError('requested full tiles extend outside the frame; no silent clipping')
++    matching=[x for x in choices if x['pitch_rc']==[ph,pw] and (r0-x['origin_rc'][0])%ph==0 and (c0-x['origin_rc'][1])%pw==0]
++    omissions=[]
++    for x in matching:
++        a,b,c,d=x['bbox_rc']
++        if a<r0 or b<c0 or c>r1 or d>c1:
++            omissions.append({'observed_bbox_rc':x['bbox_rc'],'suggested_origin_rc':x['origin_rc'],
++                              'suggested_shape_rc':x['shape_rc'],
++                              'outside_sides':[name for name,test in (('top',a<r0),('left',b<c0),('bottom',c>r1),('right',d>c1)) if test]})
++    coverage='incomplete_observed_extent' if omissions else ('covers_observed_extent' if matching else 'unverified')
++    tiles=[];samples=[];mixed=[];color_cells={};color_counts=[]
++    # Even-sized tiles have no central pixel. Explicit convention: upper/left
++    # of the central pair. Preserve the full tile, never synthesize a color.
++    sr,sc=(ph-1)//2,(pw-1)//2
++    for r in range(nr):
++        row=[];srow=[];counts_row=[]
++        for c in range(nc):
++            a,b=r0+r*ph,c0+c*pw
++            tile=[''.join(colors[v] for v in line[b:b+pw]) for line in g[a:a+ph]]
++            row.append(tile);srow.append(colors[g[a+sr][b+sc]])
++            counts={}
++            for line in tile:
++                for color in line:counts[color]=counts.get(color,0)+1
++            for color in sorted(counts):color_cells.setdefault(color,[]).append([r,c])
++            counts_row.append(counts)
++            if len(counts)>1:mixed.append([r,c])
++        tiles.append(row);samples.append(srow);color_counts.append(counts_row)
++    view = {'origin_rc':[r0,c0],'pitch_rc':[ph,pw],'shape_rc':[nr,nc],
++            'bbox_rc':[r0,c0,r1,c1],'sample_offset_rc':[sr,sc],
++            'samples':samples,'tiles':tiles,'mixed_cells_rc':mixed,
++            'sample_rows':[''.join(row) for row in samples],
++            'color_cells':color_cells,'color_counts':color_counts,
++            'schema':{'samples':'[r][c] single observed color',
++                      'sample_rows':'[r] string of sample colors',
++                      'tiles':'[r][c][pixel_row] string of raw pixels; NOT a color list',
++                      'color_cells':'color -> distinct [r,c] tiles containing that pixel color',
++                      'color_counts':'[r][c] -> color: pixel count'},
++            'coverage':coverage,'omitted_extent_evidence':omissions,
++            'candidate_report_status':report['status'],'candidate_report_truncated':report['candidates_truncated'],
++            'nearby_partial_count':sum(x['nearby_partial_count'] for x in matching),
++            'meaning':'samples are observed pixel colors, not semantic terrain; coverage is not proof of complete board or safe reachability'}
++
++    view['topology'] = None if topology is None else _gc_topology(view,topology,colors)
++    return view
++
++
++def grid_coverage_note(report):
++    if report['status']!='ok' or not report['candidates']:
++        return ''
++    parts=[]
++    for i,x in enumerate(report['candidates'][:2]):
++        parts.append(str(i)+': origin='+str(x['origin_rc'])+' pitch='+str(x['pitch_rc'])+' rows,cols='+str(x['shape_rc'])+' inclusive_bbox='+str(x['bbox_rc']))
++    return ('[grid_coverage] '+'; '.join(parts)+
++        '; candidate extents, not proven board bounds. current_frame.grid_view() audits crop coverage; include observed last rows/columns before concluding unreachable.')[:650]
++
++
++def grid_view_warning(view):
++    if view['coverage']=='incomplete_observed_extent':
++        return '[grid_coverage] requested crop omits aligned observed extent: '+str(view['omitted_extent_evidence'][:2])[:420]+'; do not conclude unreachable from this crop alone. No crop expansion or action performed.'
++    if view['coverage']=='unverified':
++        return '[grid_coverage] no matching repeated-component extent; requested samples returned, coverage UNVERIFIED. No completeness/safety claim.'
++    if view['nearby_partial_count'] or view['candidate_report_truncated']:
++        return '[grid_coverage] covers selected observed extent, but nearby partial components or truncated candidates leave bounds unresolved.'
++    return ''
++
++
++def _gc_topology(view, spec, colors):
++    """Static graph under EXPLICIT caller color/stride hypotheses, never safety.
++
++Node samples select candidate floor; pixel presence selects occupied nodes.
++An occupied node's terrain remains unknown. Intermediate connector samples
++must match the caller's connector colors. No diagonals, wraps or inferred roles.
++"""
++    keys={'node_colors','occupied_colors','connector_colors','stride_rc','start_rc','goal_rc'}
++    if type(spec) is not dict or any(type(k) is not str for k in spec) or set(spec)!=keys:
++        raise ValueError('topology requires exactly node_colors, occupied_colors, connector_colors, stride_rc, start_rc, goal_rc')
++    def palette(name):
++        xs=spec[name]
++        if type(xs) not in (list,tuple,str) or len(xs)>16:
++            raise TypeError(name+' must be at most 16 single-character colors')
++        if any(type(x) is not str or len(x)!=1 or x not in colors for x in xs):
++            raise ValueError(name+' contains an invalid color')
++        return set(xs)
++    floor=palette('node_colors');occupied=palette('occupied_colors');connector=palette('connector_colors')
++    stride=_gc_pair(spec['stride_rc'],'stride_rc',True)
++    if max(stride)>256:raise ValueError('stride exceeds supported dimension')
++    start=_gc_pair(spec['start_rc'],'start_rc');goal=_gc_pair(spec['goal_rc'],'goal_rc')
++    nr,nc=view['shape_rc']
++    if any(r>=nr or c>=nc for r,c in (start,goal)):raise ValueError('endpoint outside requested view')
++    occupied_rc={tuple(rc) for color in occupied for rc in view['color_cells'].get(color,[])}
++    nodes=sorted({(r,c) for r,row in enumerate(view['samples']) for c,color in enumerate(row) if color in floor}|occupied_rc)
++    index={rc:i for i,rc in enumerate(nodes)};neighbors=[[] for rc in nodes]
++    for i,(r,c) in enumerate(nodes):
++        for dr,dc in ((-stride[0],0),(stride[0],0),(0,-stride[1]),(0,stride[1])):
++            dest=(r+dr,c+dc)
++            if dest not in index:continue
++            steps=abs(dr)+abs(dc);rr=(dr>0)-(dr<0);cc=(dc>0)-(dc<0)
++            if all(view['samples'][r+k*rr][c+k*cc] in connector for k in range(1,steps)):
++                neighbors[i].append(index[dest])
++    missing=[name for name,rc in (('start',start),('goal',goal)) if rc not in index]
++    connected=None
++    if not missing:
++        seen={index[start]};queue=[index[start]]
++        for i in queue:
++            for j in neighbors[i]:
++                if j not in seen:seen.add(j);queue.append(j)
++        connected=index[goal] in seen
++    return {'status':'missing_endpoint' if missing else ('connected' if connected else 'disconnected'),
++            'nodes_rc':[list(rc) for rc in nodes],'neighbors':neighbors,
++            'start_index':index.get(start),'goal_index':index.get(goal),
++            'missing_endpoints':missing,'connected':connected,
++            'occupied_rc':[list(rc) for rc in sorted(occupied_rc)],
++            'underlay_unknown_rc':[list(rc) for rc in sorted(occupied_rc)],
++            'hypothesis':{'node_colors':sorted(floor),'occupied_colors':sorted(occupied),
++                          'connector_colors':sorted(connector),'stride_rc':list(stride)},
++            'meaning':'caller-hypothesis static topology ONLY; occupied nodes retained, underlying terrain unknown; no hazard, collision, resource, route-safety or complete-board certification'}
++
++
++def grid_contract_note(view):
++    note='[grid_contract] sample_rows[r] is a string; samples[r][c] is one pixel color. color_cells[color] lists tiles with that color; color_counts[r][c] counts pixels. tiles[r][c] is a LIST OF ROW STRINGS, not colors.'
++    t=view['topology']
++    if t is not None:
++        note+=' Topology='+t['status']+'; nodes='+str(len(t['nodes_rc']))+'; missing='+str(t['missing_endpoints'])+'.'
++    return note+' Occupancy is not terrain; static connectivity is NOT route safety.'
+diff -ruN --exclude=*.orig /tmp/dfranzen_taaf/src/ARC3-Inference/inference/utils/replay_compare.py /tmp/dhia_scan/dataset/src/ARC3-Inference/inference/utils/replay_compare.py
+--- /tmp/dfranzen_taaf/src/ARC3-Inference/inference/utils/replay_compare.py	1970-01-01 07:30:00
++++ /tmp/dhia_scan/dataset/src/ARC3-Inference/inference/utils/replay_compare.py	2026-10-15 09:31:29
+@@ -0,0 +1,180 @@
++"""Bounded, optional named-state replay and advisory progress text; stdlib only.
++No game rules, actions, identity inference, global budgets or authorization.
++"""
++import json as _rc_json
++import math as _rc_math
++import time as _rc_time
++
++
++def _rc_snapshot(value, root=True, depth=0, budget=None):
++    if budget is None:
++        budget = [4096]
++    budget[0] -= 1
++    if budget[0] < 0 or depth > 8:
++        raise ValueError('named state exceeds 4096 values or depth 8')
++    t = type(value)
++    if root and (t is not dict or not value):
++        raise TypeError('observe/predict must return a nonempty dict of named fields, not a positional tuple')
++    if t is dict:
++        if len(value) > 64 or any(type(k) is not str or len(k) > 80 for k in value):
++            raise ValueError('state dict needs at most 64 string keys, each at most 80 characters')
++        return {k: _rc_snapshot(v, False, depth+1, budget) for k, v in value.items()}
++    if t in (list, tuple):
++        if len(value) > 1024:
++            raise ValueError('state sequence exceeds 1024 items')
++        items = [_rc_snapshot(v, False, depth+1, budget) for v in value]
++        return tuple(items) if t is tuple else items
++    if t is str:
++        if len(value) > 256:
++            raise ValueError('state strings must be at most 256 characters')
++        return value
++    if t is int:
++        if value.bit_length() > 256:
++            raise ValueError('state integer exceeds 256 bits')
++        return value
++    if t is float:
++        if not _rc_math.isfinite(value):
++            raise ValueError('state numbers must be finite')
++        return value
++    if value is None or t is bool:
++        return value
++    raise TypeError('state values must be plain dict/list/tuple and finite scalar data')
++
++
++def _rc_preview(value):
++    text = _rc_json.dumps(value, ensure_ascii=True, separators=(',', ':'))
++    return {'type': type(value).__name__, 'value_preview': text[:160], 'truncated': len(text) > 160}
++
++
++def _rc_differences(predicted, observed):
++    out = []; count = 0
++    def add(path, kind, p=None, o=None, missing=None):
++        nonlocal count
++        count += 1
++        if len(out) < 8:
++            d = {'path': list(path), 'kind': kind}
++            if missing != 'predicted': d['predicted'] = _rc_preview(p)
++            if missing != 'observed': d['observed'] = _rc_preview(o)
++            out.append(d)
++    def walk(p, o, path):
++        if type(p) is not type(o):
++            add(path, 'type', p, o)
++        elif type(p) is dict:
++            for key in sorted(p.keys() | o.keys()):
++                if key not in p: add(path+(key,), 'missing_predicted_field', o=o[key], missing='predicted')
++                elif key not in o: add(path+(key,), 'extra_predicted_field', p=p[key], missing='observed')
++                else: walk(p[key], o[key], path+(key,))
++        elif type(p) in (list, tuple):
++            if len(p) != len(o): add(path, 'length', len(p), len(o))
++            for i in range(min(len(p),len(o))): walk(p[i], o[i], path+(i,))
++        elif p != o:
++            add(path, 'value', p, o)
++    walk(predicted, observed, ())
++    return out, count
++
++
++def _rc_skip(record):
++    before = getattr(record, 'before_frame', None)
++    after = getattr(record, 'after_frame', None)
++    action_name = getattr(record, 'action', None)
++    result = getattr(record, 'result', None)
++    if type(action_name) is not str or not action_name.strip() or len(action_name) > 256:
++        return 'invalid_action_label'
++    if action_name.strip().upper() == 'RESET': return 'reset'
++    if type(result) is not dict: return 'missing_result'
++    if result.get('execution_uncertain'): return 'execution_uncertain'
++    if any(result.get(k) for k in ('game_over','level_completed','run_complete','done')): return 'terminal_boundary'
++    if 'executed' in result and not result['executed']: return 'not_executed'
++    if result.get('stop_reason'): return 'stopped'
++    if before is None or after is None: return 'missing_frame'
++    if getattr(before,'level',None) != getattr(after,'level',None): return 'level_boundary'
++    bs = getattr(before,'step',None); es = getattr(after,'step',None)
++    if type(bs) is not int or type(es) is not int or es != bs+1: return 'nonconsecutive_steps'
++    return None
++
++
++def replay_named_transitions(records, observe, predict, *, max_cases=16, timeout_s=2.0):
++    """Each prediction starts at an independently decoded observed before-state.
++    Only endpoint fields supplied by the caller are compared. A match is not
++    safety, completeness, physical update-order proof or a plan execution ticket.
++    """
++    if type(records) not in (list,tuple): raise TypeError('records must be a finite list/tuple of TransitionView records')
++    if not callable(observe) or not callable(predict): raise TypeError('observe and predict must be callable')
++    if type(max_cases) is not int or max_cases < 1: raise ValueError('max_cases must be a positive integer')
++    if type(timeout_s) not in (int,float) or not _rc_math.isfinite(timeout_s) or timeout_s <= 0:
++        raise ValueError('timeout_s must be finite and positive')
++    effective_cases = min(max_cases,64); effective_time = min(timeout_s,5.0)
++    start = _rc_time.monotonic(); expired = lambda: _rc_time.monotonic()-start >= effective_time
++    report = {'status':'empty','scope':'selected observed nonterminal transitions and supplied named fields only; not safety or model certification',
++        'input_count':len(records),'scanned_count':0,'input_truncated':len(records)>128,
++        'eligible_count':0,'selected_count':0,'selection_truncated':False,
++        'counts':{'matched':0,'mismatched':0,'errors':0,'skipped':0},'skip_reasons':{},'cases':[],
++        'effective_limits':{'max_cases':effective_cases,'timeout_s':effective_time,'scan_records':128,'diffs_per_case':8},
++        'clamped_limits':[k for k,v in (('max_cases',max_cases>64),('timeout_s',timeout_s>5.0)) if v]}
++    eligible=[]
++    for i in range(max(0,len(records)-128),len(records)):
++        if expired(): report['status']='limit';report['reason']='time';break
++        record=records[i];report['scanned_count']+=1;why=_rc_skip(record)
++        if why:
++            report['counts']['skipped']+=1
++            report['skip_reasons'][why]=report['skip_reasons'].get(why,0)+1
++        else: eligible.append((i,record))
++    report['eligible_count']=len(eligible)
++    chosen=eligible[-effective_cases:];report['selected_count']=len(chosen)
++    report['selection_truncated']=len(chosen)<len(eligible)
++    if report['status']!='limit':
++        for index,record in chosen:
++            if expired(): report['status']='limit';report['reason']='time';break
++            entry={'index':index,'before_step':record.before_frame.step,'after_step':record.after_frame.step,'level':record.before_frame.level,'action':record.action}
++            phase='observe_before'
++            try:
++                before=_rc_snapshot(observe(record.before_frame))
++                if expired(): report['status']='limit';report['reason']='time';break
++                phase='observe_after';observed=_rc_snapshot(observe(record.after_frame))
++                if expired(): report['status']='limit';report['reason']='time';break
++                phase='predict';predicted=_rc_snapshot(predict(_rc_snapshot(before),record.action))
++                if expired(): report['status']='limit';report['reason']='time';break
++                diffs,total=_rc_differences(predicted,observed)
++                entry.update(status='mismatch' if total else 'match',fields=sorted(observed),differences=diffs,difference_count=total,differences_truncated=total>len(diffs))
++                report['counts']['mismatched' if total else 'matched']+=1
++            except Exception as exc:
++                entry.update(status='callback_error',phase=phase,error_type=type(exc).__name__)
++                # No repr/str on callback-owned exceptions or arbitrary objects.
++                report['counts']['errors']+=1
++                report['cases'].append(entry);report['status']='callback_error';break
++            report['cases'].append(entry)
++        if report['status'] not in ('limit','callback_error'):
++            report['status']='mismatch' if report['counts']['mismatched'] else ('matches_observed' if report['counts']['matched'] else 'empty')
++    report['elapsed_s']=round(_rc_time.monotonic()-start,6)
++    return report
++
++
++def replay_summary(report):
++    c=report['counts'];text='[replay_transitions] status=%s matched=%d mismatched=%d errors=%d skipped=%d selected=%d; supplied fields only, not safety.' % (report['status'],c['matched'],c['mismatched'],c['errors'],c['skipped'],report['selected_count'])
++    first=next((x for x in report['cases'] if x['status']!='match'),None)
++    if first:
++        text+=' First issue: step %s %s' % (first['after_step'],first['status'])
++        if first.get('differences'): text+=' path='+_rc_json.dumps(first['differences'][0]['path'],ensure_ascii=True)[:120]
++        if first.get('phase'):text+=' phase='+first['phase']+' type='+first['error_type']
++    if report['input_truncated'] or report['selection_truncated']:text+=' Selected tail only; earlier evidence not checked.'
++    return text[:480]
++
++
++def planning_progress_note(previous, key, now, timing, executed=None):
++    """Readonly session timing snapshot; no synthesized/extended game deadline.
++    executed is None for opener, False for a call without confirmed action,
++    True for confirmed actions. No-action count is not lack-of-learning proof.
++    """
++    if type(previous) is not dict or previous.get('key')!=key or executed is True:
++        previous={'key':key,'since':now,'calls':0}
++    current=dict(previous)
++    if executed is False: current['calls']=min(999999,current.get('calls',0)+1)
++    elapsed=max(0.0,now-current['since'])
++    remaining=timing.get('time_remaining_seconds') if type(timing) is dict else None
++    if type(remaining) not in (int,float) or not _rc_math.isfinite(remaining) or remaining<0:
++        remaining=None
++    clock='unknown' if remaining is None else '%.1fs'%remaining
++    text='[planning_progress] game_remaining_at_note=%s; no_action_calls=%d; interval=%.1fs. Clock snapshot ages during generation.' % (clock,current['calls'],elapsed)
++    if current['calls']>=3 or (remaining is not None and remaining<=120):
++        text+=' Prefer a short evidence-checked execution or a probe that distinguishes predictions over another rewrite. A printed plan executes nothing; raw actions remain available. Never blindly execute an unvalidated route.'
++    return current,text[:480]
+diff -ruN --exclude=*.orig /tmp/dfranzen_taaf/src/ARC3-Inference/inference/utils/segmentation.py /tmp/dhia_scan/dataset/src/ARC3-Inference/inference/utils/segmentation.py
+--- /tmp/dfranzen_taaf/src/ARC3-Inference/inference/utils/segmentation.py	2026-10-15 09:39:36
++++ /tmp/dhia_scan/dataset/src/ARC3-Inference/inference/utils/segmentation.py	2026-10-15 09:31:29
+@@ -117,6 +117,14 @@
+     return canonical, rotation, symmetry, hashes[0], shape_hash
+ 
+ 
++def component_geometry(cells):
++    r0 = min(p[0] for p in cells)
++    c0 = min(p[1] for p in cells)
++    r1 = max(p[0] for p in cells)
++    c1 = max(p[1] for p in cells)
++    return {'bbox_rc': [r0, c0, r1, c1],
++            'bbox_center2_rc': [r0 + r1, c0 + c1]}
++
+ def segment_layer(layer, color_chars):
+     """Segment one frame layer into connected-component nodes.
+ 
+@@ -244,6 +252,7 @@
+                 "pose_hash": signature[3],
+                 "shape_hash": signature[4],
+                 "pixels": len(comp["cells"]),
++                **component_geometry(comp["cells"]),
+                 "boundary": [[r, c] for r, c in boundary],
+                 "children": children[cid],
+             }
+diff -ruN --exclude=*.orig /tmp/dfranzen_taaf/src/ARC3-Inference/inference/utils/state_contracts.py /tmp/dhia_scan/dataset/src/ARC3-Inference/inference/utils/state_contracts.py
+--- /tmp/dfranzen_taaf/src/ARC3-Inference/inference/utils/state_contracts.py	1970-01-01 07:30:00
++++ /tmp/dhia_scan/dataset/src/ARC3-Inference/inference/utils/state_contracts.py	2026-10-15 09:31:29
+@@ -0,0 +1,138 @@
++"""Geometry, dispatch validation and bounded error context; no game mechanics.
++
++No new persistence, model inference, automatic retry or action dispatch.
++"""
++import ast as _sc_ast
++import json as _sc_json
++
++
++def component_geometry(cells):
++    r0 = min(p[0] for p in cells)
++    c0 = min(p[1] for p in cells)
++    r1 = max(p[0] for p in cells)
++    c1 = max(p[1] for p in cells)
++    return {'bbox_rc': [r0, c0, r1, c1],
++            'bbox_center2_rc': [r0 + r1, c0 + c1]}
++
++
++def validate_mouse_coordinates(actions, shape):
++    """Validate the whole normalized batch BEFORE its first dispatch; no coercion."""
++    for i, item in enumerate(actions, 1):
++        if item.get('action', '').upper() != 'MOUSE':
++            continue
++        if 'row' not in item or 'col' not in item:
++            raise ValueError('MOUSE action %d requires both integer row and col.' % i)
++        r, c = item['row'], item['col']
++        if type(r) is not int or type(c) is not int:
++            raise TypeError('MOUSE action %d: row and col must each be an integer, not nested coordinates, floats, strings or booleans. Use one explicit (row, col) pair.' % i)
++        if len(shape) != 2 or not (0 <= r < shape[0] and 0 <= c < shape[1]):
++            raise ValueError('MOUSE action %d coordinate is outside current_frame.shape.' % i)
++
++
++def _value_shape(v, depth=0):
++    # Never call repr/str/len/iteration hooks on a user-defined object.
++    t = type(v)
++    if v is None:
++        return 'None'
++    for cls, label in ((bool, 'bool'), (int, 'int'), (float, 'float')):
++        if t is cls:
++            return label
++    if t is str:
++        return 'str(length=%d)' % len(v)
++    if t is dict:
++        keys = []
++        for i, k in enumerate(v):
++            if i >= 8:
++                break
++            if type(k) is str:
++                keys.append(k[:24])
++        return 'dict(keys=%s%s)' % (','.join(keys), ',...' if len(v) > 8 else '')
++    if t in (list, tuple):
++        name = 'list' if t is list else 'tuple'
++        if depth >= 2:
++            return '%s(length=%d)' % (name, len(v))
++        return '%s(length=%d,first=%s)' % (name, len(v),
++                   ','.join(_value_shape(x, depth+1) for x in v[:3]))
++    if t in (set, frozenset):
++        return 'set(length=%d)' % len(v)
++    return 'object'
++
++
++def exception_shape_context(exc, code):
++    """Type/shape facts at the failing generated frame, never candidate contents."""
++    tb = exc.__traceback__
++    selected = None
++    while tb is not None:
++        if tb.tb_frame.f_code.co_filename in ('<python_tool>', '<retained>'):
++            selected = tb
++        tb = tb.tb_next
++    if selected is None:
++        return ''
++    f = selected.tb_frame
++    names = []
++    if f.f_code.co_filename == '<python_tool>':
++        try:
++            tree = _sc_ast.parse(code)
++            for node in _sc_ast.walk(tree):
++                if isinstance(node, _sc_ast.Name) and node.lineno == selected.tb_lineno:
++                    if node.id not in names:
++                        names.append(node.id)
++        except (SyntaxError, ValueError):
++            pass
++    # Include local arguments of retained helpers and lambdas, with a firm cap.
++    for name in f.f_code.co_varnames:
++        if name not in names:
++            names.append(name)
++    shapes = {}
++    for name in names[:10]:
++        if name.startswith('__'):
++            continue
++        if name in f.f_locals:
++            value = f.f_locals[name]
++        elif name in f.f_globals:
++            value = f.f_globals[name]
++        else:
++            shapes[name[:40]] = 'MISSING'
++            continue
++        shapes[name[:40]] = _value_shape(value)[:180]
++    if not shapes:
++        return ''
++    omitted = 0
++    text = _sc_json.dumps({'values': shapes, 'omitted': omitted}, separators=(',', ':'), ensure_ascii=True)
++    while len(text) > 1800 and shapes:
++        shapes.popitem(); omitted += 1
++        text = _sc_json.dumps({'values': shapes, 'omitted': omitted}, separators=(',', ':'), ensure_ascii=True)
++    return '\n[value_shapes] ' + text + '\nShapes only; no data restored or repaired. Pass snippet-local data explicitly into retained functions.'
++
++
++def execution_receipt(results, frame, uncertain=False):
++    """Host-owned facts: never infer exact counts from an ambiguous batch reply."""
++    count = 0
++    complete = True
++    calls = 0
++    for r in results:
++        executed = r.get('executed')
++        if executed:
++            calls += 1
++        n = r.get('executed_count')
++        if type(n) is int and n >= 0:
++            count += n
++        elif type(executed) is int and executed >= 0:
++            count += executed
++        elif executed is True:
++            names = r.get('executed_actions')
++            if type(names) is list:
++                count += len(names)
++            else:
++                complete = False
++        elif executed not in (False, None):
++            complete = False
++    details = {'action_calls_confirmed': calls,
++               'confirmed_actions': count if complete else None,
++               'execution_uncertain': bool(uncertain)}
++    for name in ('level', 'step'):
++        value = frame.get(name) if type(frame) is dict else None
++        if type(value) is int:
++            details['last_confirmed_' + name] = value
++    return ('\n[execution_receipt] ' + _sc_json.dumps(details, separators=(',', ':')) +
++            '\nNo automatic retry. Re-read current_frame/history before repairing the code; never replay an already executed prefix. The last confirmed frame may be stale if execution is uncertain.')
+diff -ruN --exclude=*.orig /tmp/dfranzen_taaf/src/ARC3-Inference/inference/utils/transition_evidence.py /tmp/dhia_scan/dataset/src/ARC3-Inference/inference/utils/transition_evidence.py
+--- /tmp/dfranzen_taaf/src/ARC3-Inference/inference/utils/transition_evidence.py	1970-01-01 07:30:00
++++ /tmp/dhia_scan/dataset/src/ARC3-Inference/inference/utils/transition_evidence.py	2026-10-15 09:31:29
+@@ -0,0 +1,162 @@
++"""Bounded visual/terminal evidence, not a resource decoder or death classifier.
++Standard library only; source is injected into the isolated Python tool.
++"""
++
++def _te_grid(frame):
++    g = frame.get('grid') if type(frame) is dict else None
++    if type(g) not in (list, tuple) or not g or len(g) > 256:
++        return None
++    if type(g[0]) not in (list, tuple) or not g[0] or len(g[0]) > 256 or len(g)*len(g[0]) > 8192:
++        return None
++    w = len(g[0])
++    if any(type(row) not in (list, tuple) or len(row) != w or any(type(x) is not int or not 0 <= x < 16 for x in row) for row in g):
++        return None
++    return tuple(tuple(row) for row in g)
++
++
++def _te_contiguous(a, b):
++    if type(a) is not dict or type(b) is not dict:
++        return False
++    if any(type(f.get(k)) is not int for f in (a,b) for k in ('step','level')):
++        return False
++    action = b.get('action')
++    result = b.get('result')
++    if type(action) is not str or not action or action.strip().upper().startswith('RESET') or type(result) is not dict:
++        return False
++    if any(result.get(k) is True for k in ('level_completed','run_complete','execution_uncertain')):
++        return False
++    if 'executed' in result and result['executed'] in (False,0,None):
++        return False
++    # A death frame itself is evidence; do not discard the terminal transition.
++    return a['level'] == b['level'] and b['step'] == a['step']+1
++
++
++def _te_stripes(frames, colors):
++    if len(frames) < 3 or not all(_te_contiguous(a,b) for a,b in zip(frames[-3:],frames[-2:])):
++        return []
++    grids = [_te_grid(f) for f in frames[-3:]]
++    if any(g is None for g in grids) or len({(len(g),len(g[0])) for g in grids}) != 1:
++        return []
++    results = []
++    for axis in ('row','col'):
++        lines = grids if axis == 'row' else [tuple(zip(*g)) for g in grids]
++        for index in range(len(lines[0])):
++            stripe = [g[index] for g in lines]
++            # A contiguous two-color fill is only a CANDIDATE indicator. No edge,
++            # palette role, game identifier or pixel coordinate is assumed.
++            palette = set().union(*(set(line) for line in stripe))
++            if len(palette) != 2 or any(sum(a != b for a,b in zip(line,line[1:])) > 1 for line in stripe):
++                continue
++            for color in sorted(palette):
++                counts = [line.count(color) for line in stripe]
++                if counts[0] > counts[1] > counts[2]:
++                    results.append({'axis':axis,'index':index,'color':colors[color],
++                        'counts':counts,'steps':[f['step'] for f in frames[-3:]],
++                        'length':len(stripe[0]),'empty_now':counts[-1] == 0,
++                        'interpretation':'possible resource/counter or ordinary geometry; unresolved'})
++    results.sort(key=lambda x:(not x['empty_now'],-(x['counts'][0]-x['counts'][-1]),x['axis'],x['index']))
++    return results
++
++
++def transition_evidence(frames, colors):
++    """Frames: at most 64 recent host snapshots including action/result metadata.
++
++Raw grids remain unchanged. No physical IDs, hazard rules, resource units,
++remaining-action estimates or terminal causes are asserted.
++"""
++    out = {'status':'ok','stripe_candidates':[],'same_scene_comparisons':[],
++           'recent_death':None,'cause':'unknown','candidates_truncated':False,
++           'limits':{'history':64,'grid_cells':8192,'dimension':256,'stripes':4,'comparisons':2},
++           'coverage':'narrow visual evidence, not complete resource/hazard state'}
++    if type(frames) not in (list,tuple) or not frames or any(type(f) is not dict for f in frames[-64:]):
++        out.update(status='unavailable',reason='invalid_or_missing_history');return out
++    frames = frames[-64:]
++    current = frames[-1]
++    grid = _te_grid(current)
++    if grid is None:
++        out.update(status='unavailable',reason='invalid_or_oversized_grid');return out
++    candidates = _te_stripes(frames,colors)
++    out['candidates_truncated'] = len(candidates)>4
++    out['stripe_candidates'] = candidates[:4]
++    # Equal visible scene EXCEPT an explicitly identified candidate stripe does
++    # not imply equivalent state. Both the differing counts and terminal flags
++    # are retained, including comparisons across attempts in the same level.
++    for stripe in candidates[:4]:
++        axis,index = stripe['axis'],stripe['index']
++        rows = grid if axis == 'row' else tuple(zip(*grid))
++        key = rows[:index]+rows[index+1:]
++        for old in reversed(frames[:-1]):
++            if old.get('level') != current.get('level') or old.get('step') == current.get('step'):
++                continue
++            previous = _te_grid(old)
++            if previous is None or (len(previous),len(previous[0])) != (len(grid),len(grid[0])):
++                continue
++            other = previous if axis == 'row' else tuple(zip(*previous))
++            if other[index] == rows[index] or other[:index]+other[index+1:] != key:
++                continue
++            color = colors.index(stripe['color'])
++            result_old = old.get('result') if type(old.get('result')) is dict else {}
++            result_now = current.get('result') if type(current.get('result')) is dict else {}
++            out['same_scene_comparisons'].append({'axis':axis,'index':index,'color':stripe['color'],
++                'steps':[old.get('step'),current.get('step')],
++                'counts':[other[index].count(color),rows[index].count(color)],
++                'game_over':[result_old.get('game_over') is True,result_now.get('game_over') is True],
++                'outside_stripe_equal':True,'state_equivalence':'not established'})
++            break
++        if len(out['same_scene_comparisons']) >= 2:
++            break
++    # Include a just-ended attempt even when the harness has appended RESET.
++    # Do not leak a previous level's death or repeatedly warn many actions later.
++    for i in range(len(frames)-1,max(-1,len(frames)-5),-1):
++        end = frames[i]
++        result = end.get('result')
++        if end.get('level') != current.get('level') or type(result) is not dict or result.get('game_over') is not True:
++            continue
++        death = {'step':end.get('step'),'cause':'unknown','stripe_candidates':[],
++                 'colors_lost_completely':[],'interpretation':'terminal evidence, not a collision/exhaustion verdict'}
++        death['stripe_candidates'] = _te_stripes(frames[max(0,i-2):i+1],colors)[:4]
++        if i and _te_contiguous(frames[i-1],end):
++            before,after = _te_grid(frames[i-1]),_te_grid(end)
++            if before and after and (len(before),len(before[0])) == (len(after),len(after[0])):
++                ca,cb = [0]*16,[0]*16
++                for row in before:
++                    for x in row:ca[x]+=1
++                for row in after:
++                    for x in row:cb[x]+=1
++                death['colors_lost_completely'] = [{'color':colors[c],'before_pixels':ca[c],'after_pixels':0} for c in range(16) if ca[c] and not cb[c]][:4]
++        out['recent_death'] = death
++        break
++    return out
++
++
++def transition_evidence_note(evidence):
++    """Only internally generated plain data is formatted; never a user callback."""
++    if evidence['status'] != 'ok':
++        return ''
++    parts = []
++    death = evidence['recent_death']
++    if death:
++        parts.append('recent game_over step='+str(death['step'])+' cause=unknown')
++        for stripe in death['stripe_candidates'][:1]:
++            parts.append('terminal stripe '+stripe['axis']+'='+str(stripe['index'])+' '+stripe['color']+' counts='+str(stripe['counts'])+' empty='+str(stripe['empty_now']))
++        if death['colors_lost_completely']:
++            parts.append('colors absent after death='+str([x['color'] for x in death['colors_lost_completely']]))
++    for stripe in evidence['stripe_candidates'][:1]:
++        parts.append('candidate stripe '+stripe['axis']+'='+str(stripe['index'])+' '+stripe['color']+' counts='+str(stripe['counts']))
++    for pair in evidence['same_scene_comparisons'][:1]:
++        parts.append('same pixels outside stripe at steps='+str(pair['steps'])+' but counts='+str(pair['counts'])+' game_over='+str(pair['game_over']))
++    if not parts:
++        return ''
++    return ('[transition_evidence] '+'; '.join(parts)+
++        '; resource meaning unresolved. Do not equate these states or infer new hazard rules from death alone. Details: current_frame.transition_evidence.')[:850]
++
++
++def frozen_frame_defaults(callback, frame_type):
++    """Detect direct frame defaults on plain functions only; no arbitrary hooks.
++    Not a universal stale-closure detector. Do not mutate or invoke the callback.
++    """
++    if type(callback) is not type(lambda:None):
++        return False
++    defaults = callback.__defaults__
++    kw = callback.__kwdefaults__
++    return (type(defaults) is tuple and any(type(x) is frame_type for x in defaults[:64])) or (type(kw) is dict and any(type(x) is frame_type for x in list(kw.values())[:64]))
