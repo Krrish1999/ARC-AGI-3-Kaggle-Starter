@@ -888,3 +888,20 @@ Build 7cf1b632a694c2af. Competition-isolation submission 57449526 was accepted
 and is PENDING; no competition success is claimed. Evidence and a ready-to-send
 maintainer report are saved under kaggle-output/runtime-check. No support
 message was sent.
+
+
+### Successful competition evaluation (confirmed 2026-10-21 Asia/Kolkata)
+
+Submission 57449526 completed with publicScore=0.12, totalBytes=3471, and
+errorDescription=null. This is a real gateway evaluation, not the synthetic
+preflight or the empty saved artifact. The successful notebook is
+aanchaI009/arc-agi-3-runtime-check version 1 (account: aanchal009).
+
+Promoted the verified notebook ID/title and its empty model_sources into the
+canonical kernel-metadata.json, preserving competition data, GPU shape, private
+visibility, offline networking and the pinned image. Future make submit and
+make evaluate commands now target the successful notebook. This does not isolate
+a unique root cause: kernel identity, mounted inputs and interpreter setup
+changed across experiments. It establishes a working deployment configuration.
+The agent policy is unchanged and still has no LLM reasoning backend, so this
+result does not reproduce the user-confirmed 28-point baseline.
