@@ -406,3 +406,139 @@ revalidation: `pytest tests/test_perception_s1p.py` PASS 20/20;
 The prior 30/30 paired smoke runs and 25/25 compatibility smokes remain recorded
 above; they were not rerun for publication. No score promotion or Kaggle
 submission is authorized or claimed.
+
+## S1-W implementation and Sprint 1 integration — 2026-10-20 (Asia/Calcutta)
+
+**Mutation: [REPLACE] evidence-based memory and planning**, with four independent
+default-`1` ablations. Executed under explicit user authorization, including
+branch/commit/push/PR publication. Integration parent is main `cf020b6`, containing
+the merged S1-S and S1-P contracts. The architectural reference remains
+`top_programs/baseline_28_score.ipynb`; its recorded SHA256 and all extracted
+baseline module hashes are unchanged. No verified champion or score promotion is
+inferred from the notebook filename.
+
+### Implemented pipeline
+
+- `agent/my_agent.py` now hosts `WorldModel` and `Playbook`, consuming immutable
+  S1-P `Transition`/`FrameView` records, public object/diff/HUD interfaces and
+  the S1-S engine-free worker. Generated source never executes in the engine
+  host. The archived replay comparison and checked-execution designs are adapted
+  to full-history gating and asynchronous framework responses. The extracted BFS
+  executes in the worker with its host-only type annotation removed; archived
+  helpers themselves remain unchanged.
+- `ENABLE_RETRODICTION=1`: host-generated `verify_hypothesis(log_history)` invokes
+  each candidate's `step(state, action)` in explicit chunks (default 16, maximum
+  chunk 64) over **all** relevant transitions, including earlier episodes and
+  observed level/terminal transitions. There is no last-128 scan or total-case
+  clamp. Reports bind source/history SHA256, level/game scope, input/excluded/
+  eligible/checked/matched counts, every completed chunk and counterexamples.
+  Comparison covers the entire settled non-HUD board plus public level/status,
+  including unchanged cells. Reset/full-reset/unrendered cases are explicitly
+  excluded; this is endpoint consistency, not proof of hidden/transient rules.
+  Empty, timed-out, malformed, incomplete and crashed runs cannot grant a pass.
+  A consistent source may authorize exactly one probe with concrete differing
+  cell predictions; expected cells must also match the candidate's forward
+  prediction. New/stale evidence invalidates its dispatch scope. Rejected
+  hypotheses cannot fall through to an alternative `actions` response field.
+  Toggle `0` exposes an `ablation_bypass`, retaining containment and forward
+  prediction validation without labeling the source verified.
+- `ENABLE_EXPECT_QUEUE=1`: entire concrete enum/coordinate plans validate before
+  enqueueing. Every item requires nonempty settled non-HUD cells and an explicit
+  `expect_level_up` boolean. One action is dispatched, then its settled response
+  is checked before another. First mismatch, reset, terminal, level boundary,
+  stale scope, dispatch failure or perception substitution flushes the queue.
+  The final host interception prevents direct-call bypass and silent retargeting
+  through mutable complex-action enums. Toggle `0` permits missing/unchecked
+  expectations while boundary invalidation and containment remain mandatory.
+- `ENABLE_PLAYBOOK_RESET=1`: evidence-backed section memory distinguishes scoped
+  historical consistency, counterexamples and unresolved hypotheses, retaining
+  source files and coverage references. Live probe counterexamples demote the
+  corresponding scoped fact. Distillation at boundaries and conservative
+  serialized-byte token ceilings writes immutable `playbook.vNNNN.md` plus
+  `playbook.md`, then starts a fresh context from that snapshot. Same-source
+  facts on different levels remain separate. Turns append within each context;
+  copied complete requests pass S1-S PrefixLock immediately before an optional
+  backend callback. Full `log.txt` replay evidence remains outside context.
+  Toggle `0` restores oldest-exchange drain with persistent section memory,
+  using a fresh context ID to preserve immutable submitted prefixes.
+- `ENABLE_TIER1_SIMULATOR=1`: after 40 cumulative zero settled-and-transient
+  causal-effect moves on level >=3, require simulator synthesis, executable
+  `step` definition, full current-level replay and only then bounded BFS
+  (2,000 nodes, depth 32, 10,000 edges, two seconds; worker hard timeout 15s).
+  Compile and replay successes are separate events. Goal is a modeled level
+  advance/WIN. Without a backend, a partial exact-transition lookup is synthesized
+  from observations; unknown/conflicting edges remain unknown. Failed/exhausted
+  search is exposed before exploration fallback. Toggle `0` suppresses this
+  trigger. Simulator replay remains mandatory even if general retrodiction is off.
+- The structured backend handoff (`agent.world.backend(messages)`) is documented
+  in `agent/baseline/README.md`. External source/model/wheel mounts remain absent
+  as recorded by S1-S; no inference server or remote API is invented. Default
+  public gameplay therefore records available-action exploration fallback.
+  Cache reuse, actual model throughput and learned-policy score lift remain N/A.
+
+### Final verification and measured denominators
+
+Primary Python 3.12.14 and the separate sandbox interpreter were verified before
+code changes. The sandbox lacks the engine package; behavioral containment
+passed before candidate runs and again after final agent changes. Only the engine
+host downloaded/loaded public games; researcher/worker code never inspected game
+implementation files.
+
+| Check | Final result |
+|---|---|
+| `pytest -q` | PASS, 71/71: 43 world-model, 20 perception, 8 systems cases |
+| `ruff check agent/` | PASS; broader `agent/ scripts/` and new fixture lint also PASS |
+| `pyright agent/` | PASS, 0 errors / warnings |
+| `python scripts/audit_containment.py` | PASS, `containment_passed=true`, 20/20 checks |
+| Archived extraction/hash verification; `pip check`; `git diff --check` | PASS |
+| Toy incorrect-mechanic replay | 3/3 rejected by zero-action replay; 0 live actions |
+| Toy consistent-mechanic replay | 1/1 complete pass; separate fixture permits exactly one probe |
+| Toy non-probing rollout coverage / match | 2/2 covered, 2/2 matched; synthetic only |
+| Toy simulator compile / replay | Compile 2/3; replay 1/2 compiled candidates; failures deliberately injected |
+| Long-history fixture | 145/145 transitions checked in 12 chunks; old counterexample rejected; consistent source passes all 145 |
+| Public paired matrix | PASS, 40/40 runs: four games x two seeds x five flag configurations |
+| Full public compatibility smoke, cap 2 | PASS, 25/25 games; 3 framework iterations each, 0 levels, score 0.0 |
+
+Evidence: `research_lab/traces/s1_w_validation.json`,
+`research_lab/traces/s1_w_smoke.json`, `containment.json` and the synthetic fixtures
+in `tests/test_world_model_s1w.py`. Runtime evidence/source/playbook files stay
+beside each ignored perception log; public trace hashes are recorded. Reproduce
+the toy and matrix validation with
+`python scripts/validate_world_model.py --public`; the containment audit must pass
+first. `pytest.ini` discovers project `tests/` and `scripts/`, excluding the
+separately vendored framework's optional SDK tests.
+
+Public protocol was fixed before running: environment and policy seeds `{7,19}`;
+`ls20`, `ft09`, `vc33`, `re86`; cap argument 40 (the inherited `<=` loop executes
+41 iterations); all-on versus one world-model flag off at a time; unchanged
+dependencies/data/action budgets within pairs. There were eight matched samples
+per flag. Every configuration records 328/328 observed responses, 1/328 zero
+causal effects, 0 RESETs, and 0 completed levels. All eight paired zero-effect
+rate differences per flag are zero; paired bootstrap 95% intervals are [0,0]
+(5,000 resamples, seed 917). These degenerate intervals reflect dormant action
+gates and do **not** establish equivalence or causal improvement. Four playbook
+distillations occur per configuration except playbook-off (zero versions).
+
+Public prediction coverage is absent: 0 predictions across 328 nonboundary
+responses per configuration. Hypothesis rejection, match and simulator rates are
+**N/A (0/0)**; no backend emitted mechanics/plans and no run reached level >=3
+(0/328 late-level opportunities). Synthetic positives and intentional negatives
+are reported separately and cannot satisfy game-performance promotion gates.
+No late-level completion, >=75% public prediction coverage, >=85% public match
+rate, >=5 RHAE lift or >=20% Level 3–5 action reduction has been demonstrated.
+
+Repair accounting: pre-check compilation caught and fixed an f-string typo.
+Initial tooling also exposed vendored pytest collection, one fixture style issue,
+an inferred dictionary type and missing optional primary-environment scientific
+packages. Repair 1 fixed discovery/style/types and installed the existing S1-P
+optional dependencies; 54/66 fixtures then passed, with failures tracing to a
+blocked disk-backed `__future__` import in the generated driver. Repair 2 removed
+that dependency and stripped only the trusted BFS annotation: 66/66 passed with
+lint/types clean. Final dispatch/evidence review added five passing regression
+cases, bringing the suite to 71/71; no containment weakening or failed-game
+fallback was hidden. No third repair cycle was needed.
+
+**Sprint 1 status:** S1-S/S1-P/S1-W functional integration and Gate 1 PASS on this
+checkout. Gates 2–3 and statistical promotion remain on hold pending real offline
+inference assets and paired late-level policy evidence. This task authorizes the
+feature PR only; no champion promotion, merge or Kaggle submission was performed.
