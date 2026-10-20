@@ -1,0 +1,395 @@
+{
+  "date": "2026-10-20T13:36:08.711776+05:30",
+  "source_commit": "6f4dc442f587ac5ba26fea2fdf1de889291dfc6f",
+  "mutation": "[EDIT] archive and ledger only; no deployed code changes",
+  "sprint1_status": "complete: functional integration only",
+  "containment": {
+    "passed": true,
+    "checks_passed": 20,
+    "checks_total": 20,
+    "report": "containment.json",
+    "sha256": "6175e1a13d434e2843366ac73c317d51e04c428a97a0b5266dac08ac169188a4",
+    "loop_elapsed_seconds": 15.00087555799999
+  },
+  "tests": {
+    "command": "pytest -q --junitxml=work/sprint1_closeout_tests.xml",
+    "passed": 71,
+    "collected": 71,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "matrix": {
+      "tests.test_perception_s1p": 20,
+      "tests.test_world_model_s1w": 43,
+      "scripts.test_systems.SystemsTests": 8
+    },
+    "cases": [
+      {
+        "suite": "tests.test_perception_s1p",
+        "name": "test_reverting_flash_animation"
+      },
+      {
+        "suite": "tests.test_perception_s1p",
+        "name": "test_object_translation_and_component_contract"
+      },
+      {
+        "suite": "tests.test_perception_s1p",
+        "name": "test_monotonic_border_timer_and_ablation[False]"
+      },
+      {
+        "suite": "tests.test_perception_s1p",
+        "name": "test_monotonic_border_timer_and_ablation[True]"
+      },
+      {
+        "suite": "tests.test_perception_s1p",
+        "name": "test_timer_requires_border_and_action_diversity[False-actions0]"
+      },
+      {
+        "suite": "tests.test_perception_s1p",
+        "name": "test_timer_requires_border_and_action_diversity[True-actions1]"
+      },
+      {
+        "suite": "tests.test_perception_s1p",
+        "name": "test_inert_signature_exact_threshold_action_scope_and_boundaries"
+      },
+      {
+        "suite": "tests.test_perception_s1p",
+        "name": "test_archived_noop_reference_blocks_then_allows_insistence"
+      },
+      {
+        "suite": "tests.test_perception_s1p",
+        "name": "test_consecutive_reset_blocked_before_dispatch_and_ablation"
+      },
+      {
+        "suite": "tests.test_perception_s1p",
+        "name": "test_choose_action_intercepts_dead_target_and_records_final_response"
+      },
+      {
+        "suite": "tests.test_perception_s1p",
+        "name": "test_immutable_complete_evidence_and_separate_refusals"
+      },
+      {
+        "suite": "tests.test_perception_s1p",
+        "name": "test_outer_history_is_not_animation"
+      },
+      {
+        "suite": "tests.test_perception_s1p",
+        "name": "test_border_flash_is_not_masked_as_a_timer"
+      },
+      {
+        "suite": "tests.test_perception_s1p",
+        "name": "test_dead_signature_cleared_on_terminal_or_full_reset[GAME_OVER-False]"
+      },
+      {
+        "suite": "tests.test_perception_s1p",
+        "name": "test_dead_signature_cleared_on_terminal_or_full_reset[WIN-False]"
+      },
+      {
+        "suite": "tests.test_perception_s1p",
+        "name": "test_dead_signature_cleared_on_terminal_or_full_reset[NOT_FINISHED-True]"
+      },
+      {
+        "suite": "tests.test_perception_s1p",
+        "name": "test_no_available_nonreset_action_fails_without_dispatch"
+      },
+      {
+        "suite": "tests.test_perception_s1p",
+        "name": "test_choose_action_reference_override_is_not_consumed_twice"
+      },
+      {
+        "suite": "tests.test_perception_s1p",
+        "name": "test_dispatch_error_is_visible_and_never_fabricates_transition"
+      },
+      {
+        "suite": "tests.test_perception_s1p",
+        "name": "test_exhausted_dead_signatures_replan_once_without_reviving_targets"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_counterexample_rejected_at_zero_live_action_cost"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_consistent_mechanic_gets_exactly_one_disambiguating_probe"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_full_history_including_early_counterexample_and_chunks"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_compile_crash_or_malformed_result_never_passes[def step(:]"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_compile_crash_or_malformed_result_never_passes[def step(s,a): raise RuntimeError(\"bad\")]"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_compile_crash_or_malformed_result_never_passes[def step(s,a): return True]"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_compile_crash_or_malformed_result_never_passes[def step(s,a): return {\"grid\": []}]"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_empty_limited_timeout_and_missing_worker_are_not_passes"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_explicit_level_and_game_coverage_across_episodes"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_replay_compares_whole_nonhud_board_and_status"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_queue_interrupts_on_first_mismatch_before_next_dispatch"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_queue_flushes_on_every_boundary_even_predicted_level_up[reset]"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_queue_flushes_on_every_boundary_even_predicted_level_up[level]"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_queue_flushes_on_every_boundary_even_predicted_level_up[terminal]"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_queue_flushes_on_every_boundary_even_predicted_level_up[full_reset]"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_invalid_plan_rejected_before_dispatch[item0]"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_invalid_plan_rejected_before_dispatch[item1]"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_invalid_plan_rejected_before_dispatch[item2]"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_invalid_plan_rejected_before_dispatch[item3]"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_invalid_plan_rejected_before_dispatch[item4]"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_invalid_plan_rejected_before_dispatch[item5]"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_invalid_plan_rejected_before_dispatch[item6]"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_invalid_plan_rejected_before_dispatch[item7]"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_invalid_plan_rejected_before_dispatch[item8]"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_hud_prediction_disallowed_and_stale_scope_flushes"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_expected_queue_reference_ablation_keeps_actions_after_mismatch"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_retrodiction_ablation_exposes_bypass"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_probe_must_distinguish_and_match_candidate"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_cross_level_playbook_preserves_facts_and_immutable_prefix"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_token_ceiling_and_reference_drain_keep_prefixes_immutable"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_simulator_compile_then_full_current_level_replay_then_bfs"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_simulator_failure_never_searches_even_with_replay_toggle_off"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_tier1_trigger_counts_forty_wasted_moves_and_ablation"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_lookup_synthesizes_only_observed_edges_and_is_not_universal_claim"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_framework_backend_rejects_hypothesis_without_live_dispatch"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_framework_plan_flushes_after_first_live_cell_mismatch"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_backend_request_prefix_is_immutable_and_returned_alias_cannot_change_it"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_hud_changes_are_excluded_from_replay_comparison"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_live_probe_counterexample_demotes_scoped_playbook_fact"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_same_source_has_independent_cross_level_evidence"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_float_color_cannot_pass_through_normalizer_coercion"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_direct_framework_call_cannot_bypass_waiting_queue"
+      },
+      {
+        "suite": "tests.test_world_model_s1w",
+        "name": "test_mutable_complex_enum_cannot_silently_retarget_queued_action"
+      },
+      {
+        "suite": "scripts.test_systems.SystemsTests",
+        "name": "test_budget_rollover_and_caps"
+      },
+      {
+        "suite": "scripts.test_systems.SystemsTests",
+        "name": "test_engine_import_success_fails_closed"
+      },
+      {
+        "suite": "scripts.test_systems.SystemsTests",
+        "name": "test_extracted_modules_import_and_search"
+      },
+      {
+        "suite": "scripts.test_systems.SystemsTests",
+        "name": "test_limits_off_remains_contained_and_requires_fixture"
+      },
+      {
+        "suite": "scripts.test_systems.SystemsTests",
+        "name": "test_missing_sandbox_fails_closed"
+      },
+      {
+        "suite": "scripts.test_systems.SystemsTests",
+        "name": "test_notebook_payload_and_metadata"
+      },
+      {
+        "suite": "scripts.test_systems.SystemsTests",
+        "name": "test_prefix_alias_mutation_and_reset"
+      },
+      {
+        "suite": "scripts.test_systems.SystemsTests",
+        "name": "test_worker_startup_failure_fails_closed"
+      }
+    ],
+    "interpretation": "parametrized regression cases; not measured line or branch coverage"
+  },
+  "checks": {
+    "ruff check agent/ scripts/": "passed",
+    "pyright agent/": "passed: 0 errors, 0 warnings",
+    "python -m pip check": "passed",
+    "python scripts/extract_baseline.py": "passed: 11 complete modules",
+    "python scripts/build_notebook.py": "passed",
+    "snapshot_roundtrip_and_compile": "passed: exact bytes of both source modules",
+    "snapshot_support_hashes": "passed",
+    "generated_python_payload_syntax_and_hashes": "passed",
+    "notebook_and_kernel_gpu_offline_metadata": "passed",
+    "generated_containment_preflight": "passed: 20/20; temporary fixture root substitution only",
+    "git diff --check": "passed"
+  },
+  "snapshot": {
+    "path": "research_lab/top_programs/v1_retrodict_world_model_harness.py",
+    "sha256": "bc5fb63634e716fb9d1be65c4c1f5a401cff6fc64d4e2511a411f025a5951b93",
+    "source_sha256": {
+      "agent/my_agent.py": "1e34d0cbbedbb4b72c26dc7b0902950e17be0768eeb90f054c89c8f1dcaf6777",
+      "agent/arclog.py": "3043cf1829bf61621dc717226cc71d2a8cfc2a61039ae25c3fdad79e28a94589"
+    },
+    "support_sha256": {
+      "agent/baseline/__init__.py": "af3b0c639320a3a3559a3b41dfd7b3060205b8ad94b1e2b6d46071784fb3c8dc",
+      "agent/baseline/animation.py": "cb47d19f35e2ceeee160541963c12cc0d82ef2d608215db91128184c1e3fce86",
+      "agent/baseline/bounded_search.py": "dfa22cd0a686cf2315fdb942b387c572eb756fb9ce73db8b5439129710709ef2",
+      "agent/baseline/checked_execution.py": "829aebfef19e039d7994ecd84bff6fd918244138fe0b1e941a076b5b9c297621",
+      "agent/baseline/frame_diff.py": "843be0ce9225ae19de91dd34409bd7b7cf69ebad1ff73e69759c506c161bdeee",
+      "agent/baseline/grid_coverage.py": "1d0b524149a146bc029d03029076aa865cafa2bde0296db61d678d481fbb957b",
+      "agent/baseline/grid_display.py": "c536ffaa0a1250bdea7a2f9a29b6f56dfe3b5f46abb9495b76dfbad51a730b0a",
+      "agent/baseline/noop_repeat_guard.py": "efad18a4c803b8a778f9561ebb13335d3d47372ee5c80fd6297a5f78258c5957",
+      "agent/baseline/priority_scheduler.py": "46d77544a6285bdb5dad0e0c7fcd6e546f06961640fa13341f38b2cd5043fd19",
+      "agent/baseline/replay_compare.py": "3cd7873bf52eac5edab570ac92f29ce309dbe9f530adec8a857717ab6abe90c7",
+      "agent/baseline/retained_functions.py": "aaf7750b02c4b56a9bb3253d69e52992a18cf6bc65a7ed88e0d6aedf81852c9f",
+      "agent/baseline/state_contracts.py": "437a7ccef673e68c16c4b4ccc5c9fdd863c294eb38cc6c61e0728f7832044457",
+      "agent/baseline/transition_evidence.py": "0c82056d9a21ca7ed573213e786e0a93828834925611df705d465eb22c376947",
+      "agent/runtime.py": "2b59095e38911d5c0de52c9104990a601f89b4730e6ba05aa7a3b358c29c342e",
+      "agent/sandbox.py": "59a26176fbd45f3022110a7b7edf0f04b916a074141d1cd585f2882e635b4dfe"
+    },
+    "statistical_promotion": false
+  },
+  "notebook": {
+    "path": "notebooks/submission.ipynb",
+    "sha256": "998edb21cf01828035c3012e9d7d3f1c4859b0b400db2462b7284af0e323ea6a",
+    "python_writefile_payloads": 18,
+    "accelerator": "nvidiaRtx6000",
+    "gpu_enabled": true,
+    "internet_enabled": false,
+    "kernel_metadata_sha256": "0a6e53d06ac725888bb0b8190c875dadd6bbb7d1ced062cee5d9b4a27326f368",
+    "full_offline_gpu_execution": "pending Sprint 2; no GPU/model/wheelhouse runtime validation"
+  },
+  "versions": {
+    "pytest": "9.1.1",
+    "ruff": "0.17.1",
+    "pyright": "1.1.414",
+    "arc-agi": "0.9.9",
+    "arcengine": "0.9.3",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "networkx": "3.7"
+  },
+  "python_version": "3.12.14",
+  "diagnostics": {
+    "games_found": 0,
+    "files": []
+  },
+  "historical_public_evidence": {
+    "rerun_for_closeout": false,
+    "perception_matrix_runs": "30/30",
+    "world_model_matrix_runs": "40/40",
+    "full_short_smoke_games": "25/25",
+    "interpretation": "compatibility only; no score or late-level promotion evidence"
+  },
+  "critic": {
+    "gate1": "pass",
+    "gate2": "hold: no real backend prediction coverage",
+    "gate3": "hold: no paired late-level skill or score lift",
+    "kaggle_submission_performed": false
+  },
+  "sprint2_scope": [
+    "complete Pennyroyal SGLang v2/Qwen 3.8 AutoRound/draft/wheelhouse bundle and backend adapter",
+    "validate generated notebook in clean offline Kaggle RTX 6000 runtime within 32400 seconds"
+  ]
+}

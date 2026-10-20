@@ -1,6 +1,188 @@
 # ARC-AGI-3 PhD Research Laboratory Ledger
 
-## Sprint 1 Task Packet — PI issue; critic hold
+## Sprint 2 Task Packet — offline bundle and RTX 6000 validation
+
+Issued 2026-10-20 (Asia/Calcutta) after all three Sprint 1 implementation PRs
+merged into main `6f4dc44`. **Sprint 1 is COMPLETE for functional integration**
+(S1-S, S1-P, S1-W). Gate 1 passes; real-inference Gates 2–3 and statistical
+promotion remain open. The historical audits below retain their original scope
+and dates; this packet and the closeout supersede their current-status claims.
+
+**Selected engineering parent:**
+`research_lab/top_programs/v1_retrodict_world_model_harness.py`, an exact archive
+of the unified `agent/my_agent.py` and `agent/arclog.py` at
+`6f4dc442f587ac5ba26fea2fdf1de889291dfc6f` (use the archive's `SOURCE_COMMIT`
+as the authoritative full revision). It records module and support-module hashes;
+restore the two `SOURCE_FILES` entries under their original package paths with
+support modules from that revision. This user-requested checkpoint is not a
+score-promoted champion. No highest-scoring verified parent exists yet. Keep
+`baseline_28_score.ipynb` and `v0_franzen_m2_baseline.py` unchanged as references.
+
+**Failure triage for Sprint 2**
+
+| Area | Current evidence | Priority / owner |
+|---|---|---|
+| Type A — perception | Immutable objects/diffs, animation/HUD/dead-target/reset contracts pass deterministic fixtures; short public runs provide no late-level evidence | Preserve S1-P contracts; no new perception mutation ticket |
+| Type B — memory/planning | Full-history replay, expect queue, scoped playbook and Tier-1 simulator fixtures pass; `WorldModel.backend` is still `None` in default gameplay | Connect the real local backend in S2-B; phd-world-model contract review |
+| Type C — deployment/throughput | Builder bundles Python sources and containment, but launches no model server; source bundle, wheelhouse and target/draft mounts are absent in `offline_inventory.json` | Blocking deployment gap; phd-systems, S2-B then S2-V |
+| Evaluation | Historical public coverage is 0 predictions / 328 nonboundary responses per configuration; match, replay-rejection and simulator rates N/A; latest diagnostic file scan finds 0 logs | No per-level causal diagnosis or score claim possible; critic retains Gates 2–3 hold |
+
+Execute these two bounded tickets in dependency order. S2-V may prepare its
+validator while S2-B is implemented, but its final run must use the exact generated
+bundle. Shared builder edits require coordination. No prompt-only changes.
+
+### S2-B: phd-systems | [EDIT] complete offline inference bundle
+
+- Targets: `scripts/build_notebook.py`, `notebooks/kernel-metadata.json`,
+  `research_lab/offline_inventory.json`, and a minimal adapter to the existing
+  `WorldModel.backend(messages)` interface. Preserve the S1 source archive and
+  sandbox/evidence/expect interfaces; include both entry modules and every needed
+  support module, launcher and configuration in the generated notebook.
+- Independent default-`1` ablations: `ENABLE_OFFLINE_BACKEND` connects the local
+  backend; `ENABLE_SPECULATIVE_DRAFT` selects the verified target-plus-draft path.
+  Backend `0` restores the explicit logged exploration control for controlled
+  comparisons; draft `0` serves the same target without speculative decoding.
+  Neither toggle may disable containment, asset verification or deadlines.
+- Package the **Pennyroyal SGLang v2 launcher**, **Qwen 3.8 / Intel AutoRound
+  target weights mount**, compatible draft mount when enabled, and the complete
+  offline wheelhouse. Resolve exact upstream release, supported launcher entry
+  point, model/draft versions, quantization and serving flags from the actual
+  artifacts before pinning them. The historical inventory says Pennyroyal v253;
+  do not silently equate that label with v2 or claim mount availability.
+- Record immutable source/model/wheel versions, licenses/provenance, file hashes,
+  required files and resolved Kaggle mount paths in a bundle manifest. Verify
+  the archived source/patch hashes if reusing that bundle. Add the real dataset
+  and model attachments to kernel metadata; never invent attachment identifiers
+  or treat local fixture paths as actual mounts.
+- Resolve dependencies completely for the Kaggle Python/CUDA/PyTorch ABI. Install
+  only from attached wheels with `--no-index` and explicit `--find-links`, with
+  hash verification and no downloads or runtime source builds. Preflight fails
+  visibly on missing, corrupt or incompatible source, weights or wheels before
+  live dispatch. Preserve the stdlib perception fallback and engine-free worker.
+- Start the verified launcher on loopback, using the archived OpenAI-compatible
+  `flashnext` contract at `127.0.0.1:8001` if supported by v2. Keep it distinct
+  from the competition `gateway:8001`. Bound startup/readiness and inference
+  requests; record server errors and clean up its process group on all exits.
+- Connect complete immutable context requests through PrefixLock to the backend;
+  parse structured hypotheses/actions/simulator replies through the existing
+  gates. An enabled backend must fail visibly on unavailable/malformed output
+  rather than report an exploration run as model inference. Record actual
+  model identity, first response, throughput, cache metrics when available and
+  simulator/fallback telemetry; missing cache data remains N/A.
+- Validation targets: synthetic backend/asset failure fixtures first, then public
+  `ls20`, `ft09`, `vc33`, `re86` through host-owned interfaces with fixed environment
+  and policy seeds `{7,19}` and equal action budgets. Pass: all 71 existing tests,
+  lint/types and behavioral containment; source hash round-trip; offline install,
+  local readiness and at least one actual structured response reaching the
+  unchanged world-model gates. Performance lift is evaluated separately.
+
+### S2-V: phd-systems | [EDIT] generated submission acceptance validator
+
+- Targets: `scripts/build_notebook.py`, a generated-notebook validation entry
+  point under `scripts/`, and machine-readable evidence under
+  `research_lab/traces/`. Critic reviews results against Gates 1–3. Depends on
+  S2-B's complete bundle and its exact content hashes.
+- Default-`1` ablation: `ENABLE_DEPLOYMENT_PREFLIGHT`. Setting `0` may skip only
+  the extra deployment diagnostics in isolated synthetic comparisons; mandatory
+  containment, source/asset hashes, offline installation and deadline checks
+  remain enforced for all evaluation runs.
+- Validate the **generated** `notebooks/submission.ipynb` and
+  `notebooks/kernel-metadata.json` together: nbformat/cell syntax and payload
+  hashes; both agent modules/support imports; GPU enabled; internet disabled;
+  `ACCELERATOR = "rtx6000"`, notebook accelerator `nvidiaRtx6000`, target
+  `g4-standard-48`. Confirm the actual Kaggle accelerator/schema at execution
+  and record GPU model, VRAM, driver, Python, CUDA, PyTorch and SGLang versions;
+  metadata alone cannot prove hardware compatibility.
+- Execute from a clean Kaggle offline RTX 6000 session using only attached
+  assets and the competition gateway. Prove dependency closure, AutoRound load,
+  kernel/quantization compatibility, bounded readiness, real generation and
+  generated containment preflight before a live action. Run the notebook's
+  competition-rerun branch: dummy save-and-run parquet output is not acceptance.
+- Test missing/corrupt/incompatible wheel and weight manifests, absent GPU,
+  failed/OOM server, startup/request timeout, malformed responses and worker
+  failure. Each must expose a diagnostic and stop or record the defined failure
+  path without fabricating inference or weakening containment.
+- Measure setup + server load + gameplay + cleanup against one shared start:
+  29,700-second operating target and 32,400-second hard wall limit. Account for
+  both server and framework children, aggregate concurrent environment budgets,
+  and verify process-group cleanup and no deadline rollover. Require a complete
+  offline rehearsal with measured runtime/peak VRAM; an accelerated timeout
+  fixture alone is insufficient evidence for a nine-hour run.
+- Use the same four public targets, fixed paired seeds `{7,19}`, dependencies,
+  weights, action caps and scoring rules for default-on versus each backend/draft
+  ablation. Record non-probing coverage/match numerators and denominators,
+  zero-action rejection rate, compile/replay/search successes, visible fallbacks,
+  wasted actions, late-level opportunities/completion and paired RHAE deltas.
+  Add seed pairs under a prespecified protocol if needed for confidence; do not
+  infer significance from the eight-pair smoke or synthetic cases.
+- Pass requires reproducible generated-notebook validation and offline RTX 6000
+  execution artifacts bound to the source/notebook/asset hashes. If hardware or
+  attachments are unavailable, report **BLOCKED** with exact missing inputs;
+  static checks can pass while runtime acceptance remains pending.
+
+**Sprint 2 definition of done:** verified complete offline bundle, real local
+backend connected, generated-notebook checks and clean offline RTX 6000 rehearsal
+with resource/telemetry evidence. All 71 Sprint 1 regression cases and Gate 1 stay
+green. Score promotion additionally requires >=60% zero-action rejection,
+>=75% non-probing prediction coverage, >=85% settled non-HUD match, positive
+paired causal lift, and >=5 RHAE improvement or >=20% Level 3–5 action reduction
+against a measured parent. Report confidence intervals; PI's stronger two-sided
++8 target remains a research objective. This packet does not claim those results
+or consume a Kaggle competition submission slot.
+
+## Sprint 1 closeout — COMPLETE, functional acceptance
+
+Closed 2026-10-20 (Asia/Calcutta), after merged S1-S / S1-P / S1-W at `6f4dc44`.
+**Mutation: [EDIT] archival checkpoint and research ledger only.** Deployed
+`agent/` code and the notebook builder are unchanged by this closeout, so no new
+runtime ablation is introduced. The explicit user instruction authorizes saving
+the combined checkpoint under `top_programs/` and synchronizing main; it does
+not convert the archive into a statistically promoted strategy.
+
+Fresh evidence: `containment.json` and
+`research_lab/traces/sprint1_closeout_validation.json`. Primary Python 3.12.14
+and the separate engine-free sandbox were verified. The behavioral audit passes
+20/20 checks, including engine import denial, synthetic absolute/traversal/symlink
+access, writes/listing, native/subprocess/fork/exec denial, useful compute,
+resource limits, visible planner errors and timeout/worker cleanup. No real game
+implementation files were read.
+
+### 71/71 regression coverage matrix
+
+Counts refer to collected parametrized test cases, not measured line/branch
+coverage or public-game skill acquisition. Every case was rerun on the merged
+checkout for this closeout.
+
+| Sprint / test suite | Passing / collected | Behaviors covered |
+|---|---|---|
+| S1-S — `scripts/test_systems.py` | 8/8 | Missing/broken/importable-engine workers fail closed; resource-off remains contained; prefix alias/reset and budget rollover/caps; notebook payload/RTX metadata; extracted module imports/BFS |
+| S1-P — `tests/test_perception_s1p.py` | 20/20 | Reverting animation, translation/components, row/column HUD and negatives, exact dead-signature thresholds/scope/boundaries, reset guard and reference ablations, immutable evidence, final-response interception, stale/dead/no-action/dispatch-error paths |
+| S1-W — `tests/test_world_model_s1w.py` | 43/43 | Zero-action rejection/one-probe acceptance; full-history 145-transition replay; malformed/crashed/empty/limited/timeout workers; whole non-HUD state/status checks; expect validation/mismatch/boundaries/stale scope; scoped playbook/prefixes; simulator compile/replay/BFS and 40-waste trigger; fallback visibility; direct-dispatch and mutable-enum regressions |
+| **Total — `pytest -q`** | **71/71** | All three Sprint 1 contracts integrated; zero failures, errors or skipped cases |
+
+Additional fresh checks: `ruff check agent/ scripts/`, `pyright agent/`,
+`pip check`, archived baseline extraction/hash verification, generated notebook
+build/payload checks and `git diff --check`. Both archived source strings
+round-trip byte for byte with their deployed files and compile independently.
+All support sources are identified by SHA256 at the snapshot's parent commit.
+
+Historical public evidence is retained, not rerun as part of this documentation
+closeout: S1-P 30/30 and S1-W 40/40 paired compatibility runs; 25/25 full public
+short smokes. They complete no levels and establish no learned-policy lift.
+The latest diagnostics scan has zero files and cannot classify stalled levels.
+Actual offline source/model/wheel mounts and GPU runtime validation remain
+pending; existing builder metadata/source checks are not proof of a working
+Pennyroyal/Qwen deployment.
+
+**Critic disposition:** Gate 1 PASS; Sprint 1 functional integration accepted.
+Gate 2 public prediction coverage remains unsatisfied and Gate 3 statistical
+promotion is deferred. The root cause is no connected offline reasoning backend
+and no late-level paired evidence, addressed by Sprint 2. Preserve the checkpoint
+as an archive; no new score, champion or Kaggle execution is claimed.
+
+---
+
+## Historical Sprint 1 Task Packet — original PI issue; critic hold
 
 Issued 2026-10-20 (Asia/Calcutta). Audited checkout: `4eb5cd0` (remote main, including the newly added baseline notebook). The earlier source audit at `7a39d05` remains valid for unchanged Python files; the notebook findings below supersede assumptions that no LLM baseline artifact exists.
 
