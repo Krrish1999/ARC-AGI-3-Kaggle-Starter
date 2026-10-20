@@ -12,6 +12,11 @@ import hashlib
 import json
 from pathlib import Path
 
+try:
+    from .extract_llm_launcher import extract_launcher
+except ImportError:
+    from extract_llm_launcher import extract_launcher
+
 # ─────────────────────────────────────────────────────────────────────────────
 # CHANGE THIS ONE LINE TO PICK YOUR KAGGLE ACCELERATOR
 # Options:
@@ -65,8 +70,11 @@ def build() -> dict:
     source_hashes = {path.relative_to(ROOT / "agent").as_posix():
                      hashlib.sha256(path.read_bytes()).hexdigest() for path in sources}
     runtime_source = (ROOT / "scripts/notebook_runtime.py").read_text()
+    launcher_source, llm_manifest = extract_launcher()
+    daemon_source = (ROOT / 'scripts/llm_daemon.py').read_text()
     build_id = hashlib.sha256((json.dumps(source_hashes, sort_keys=True)
-                              + runtime_source + Path(__file__).read_text()).encode()).hexdigest()[:16]
+                              + runtime_source + launcher_source + daemon_source
+                              + Path(__file__).read_text()).encode()).hexdigest()[:16]
     setup_cell = code_cell(runtime_source + f"\nrunner = NotebookRunner(build_id={build_id!r})\nrunner.start()\n")
     install_cell = code_cell("runner.install_dependencies()\n")
     verification_cell = code_cell("runner.verify_sources(" + repr(source_hashes) + ")\n")
@@ -76,6 +84,8 @@ def build() -> dict:
                                "ROOT = Path('/tmp/agent_preflight')"))
     run_cell = code_cell("runner.run()\n")
     preflight_cell = code_cell("if not runner.rerun:\n    runner.preflight_framework()\n")
+    daemon_cell = code_cell('%%writefile /tmp/arc3_llm_daemon.py\n' + daemon_source)
+    launcher_cell = code_cell('%%writefile /tmp/arc3_llm_launcher.py\n' + launcher_source)
 
     if ACCELERATOR not in _ACCELERATORS:
         raise SystemExit(
@@ -86,7 +96,8 @@ def build() -> dict:
 
     notebook = {
         "metadata": {
-            "arc3": {"build_id": build_id, "submission_policy": "gateway-only"},
+            "arc3": {"build_id": build_id, "submission_policy": "gateway-only",
+                     "llm_bundle": llm_manifest},
             "kernelspec": {
                 "language": "python",
                 "display_name": "Python 3",
@@ -124,6 +135,9 @@ def build() -> dict:
             verification_cell,
             audit_cell,
             preflight_cell,
+            daemon_cell,
+            launcher_cell,
+            code_cell('runner.start_llm()\n'),
             run_cell,
         ],
     }
