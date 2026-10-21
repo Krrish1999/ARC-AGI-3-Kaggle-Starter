@@ -34,6 +34,8 @@ LEGAL = [GameAction.ACTION1, GameAction.ACTION2, GameAction.ACTION6]
 
 @pytest.fixture(autouse=True)
 def flags(monkeypatch):
+    # Explicit reference control; strict Generation 3 has separate acceptance fixtures.
+    monkeypatch.setenv('ENABLE_AUDITABLE_WORLD_MODEL', '0')
     for name in ('ENABLE_PLAYBOOK_RESET', 'ENABLE_RETRODICTION', 'ENABLE_EXPECT_QUEUE',
                  'ENABLE_TIER1_SIMULATOR', 'ENABLE_PREFIX_LOCK', 'ENABLE_SANDBOX_LIMITS'):
         monkeypatch.setenv(name, '1')

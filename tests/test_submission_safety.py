@@ -349,6 +349,8 @@ def test_prepare_framework_registers_agent_and_preserves_audit_report(runner, au
 
 
 def make_agent(tmp_path, monkeypatch):
+    # Explicit reference control; strict Generation 3 has separate acceptance fixtures.
+    monkeypatch.setenv('ENABLE_AUDITABLE_WORLD_MODEL', '0')
     monkeypatch.setenv('ARC3_LOG_DIR', str(tmp_path))
     monkeypatch.setenv('ENABLE_ACTION_FALLBACK', '1')
     return MyAgent(card_id='fixture', game_id='synthetic', agent_name='fixture',
