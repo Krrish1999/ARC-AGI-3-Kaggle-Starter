@@ -13,7 +13,7 @@ WEIGHT_DATASETS = {
 }
 
 
-def extract_launcher() -> tuple[str, dict]:
+def extract_launcher(*, local_model_root: str = '/kaggle/temp/arc3-models') -> tuple[str, dict]:
     path = ROOT / 'research_lab/top_programs/baseline_28_score.ipynb'
     raw = path.read_bytes()
     expected = json.loads((ROOT / 'agent/baseline/manifest.json').read_text())['notebook_sha256']
@@ -56,9 +56,10 @@ def extract_launcher() -> tuple[str, dict]:
                 'precache_model_thread = None\n'
                 'if os.getenv("ENABLE_BASELINE_PREFETCH", "1") == "1":\n'
                 '    precache(WHEELHOUSE_DIR)\n'
-                '    precache_model_thread = threading.Thread(target=precache,\n'
-                '        args=(MODEL_DIR, DRAFT_MODEL_DIR) if os.getenv("ENABLE_SPECULATIVE_DRAFT", "1") == "1" else (MODEL_DIR,),\n'
-                '        kwargs={"delay": 60, "threads": 3}, daemon=True)\n')
+                '    if os.getenv("ENABLE_LOCAL_MODEL_STAGING", "1") != "1":\n'
+                '        precache_model_thread = threading.Thread(target=precache,\n'
+                '            args=(MODEL_DIR, DRAFT_MODEL_DIR) if os.getenv("ENABLE_SPECULATIVE_DRAFT", "1") == "1" else (MODEL_DIR,),\n'
+                '            kwargs={"delay": 60, "threads": 3}, daemon=True)\n')
     marker = '# ---- launch detached and wait for health ----'
     if serving.count(marker) != 1:
         raise ValueError('Baseline serving boundary changed')
@@ -73,6 +74,7 @@ def extract_launcher() -> tuple[str, dict]:
         '    SPEC=True,': '    SPEC=os.getenv("ENABLE_SPECULATIVE_DRAFT", "1") == "1",',
         '"--no-index", "--find-links", str(WHEELS)':
             '"--no-index", "--only-binary", ":all:", "--find-links", str(WHEELS)',
+        '"--model-path", MODEL_DIR,': '"--model-path", str(LOCAL_MODEL_DIR),',
     }
     for before, after in edits.items():
         if serving.count(before) != 1:
@@ -92,7 +94,22 @@ def extract_launcher() -> tuple[str, dict]:
         'asset_report_path = WORKING_DIR / "diagnostics/llm_assets.json"\n'
         'asset_report_path.parent.mkdir(parents=True, exist_ok=True)\n'
         'asset_report_path.write_text(json.dumps(asset_report, indent=2) + "\\n")\n')
-    source = header + prefetch + assets_source + inspection + serving + tail
+    staging_source = (ROOT / 'scripts/model_staging.py').read_text().replace('from __future__ import annotations\n', '')
+    staging = (
+        '\n# Blocking checkpoint-copy barrier: publish no launch arguments before completion.\n'
+        'if os.getenv("ENABLE_LOCAL_MODEL_STAGING", "1") == "1":\n'
+        '    staging_report = stage_checkpoints(Path(asset_report["target"]["path"]),\n'
+        '        Path(asset_report["draft"]["path"]) if "draft" in asset_report else None,\n'
+        f'        Path({local_model_root!r}), WORKING_DIR / "diagnostics/model_staging.json")\n'
+        '    for kind, model in staging_report["models"].items():\n'
+        '        local_report = checkpoint_report(Path(model["path"]))\n'
+        '        for field in ("config_sha256", "index_sha256", "shard_sizes"):\n'
+        '            if local_report[field] != asset_report[kind][field]:\n'
+        '                raise ValueError("Staged checkpoint verification failed: " + kind + ":" + field)\n'
+        '    MODEL_DIR = staging_report["models"]["target"]["path"]\n'
+        '    DRAFT_MODEL_DIR = staging_report["models"].get("draft", {}).get("path", DRAFT_MODEL_DIR)\n'
+        'LOCAL_MODEL_DIR = Path(MODEL_DIR)\n')
+    source = header + prefetch + assets_source + inspection + staging_source + staging + serving + tail
     compile(source, '<extracted-pennyroyal-launcher>', 'exec')
     provenance = {
         'baseline_notebook_sha256': expected,
@@ -105,7 +122,9 @@ def extract_launcher() -> tuple[str, dict]:
         'upstream_commit': 'd00d88efc8d6281b12be4f4073126aec95038c55',
         'sglang_wheel': 'sglang-0.5.19+gd00d88efc8d6-cp312-cp312-linux_x86_64.whl',
         'served_model': 'flashnext', 'startup_seconds': 2400,
-        'prefetch': 'Cell 7 wheel prewarm (16 readers); Cell 13 model-prefetch start (3 readers, 60s delay); best-effort I/O only, mandatory asset validation retained',
+        'prefetch': 'Cell 7 wheel prewarm (16 readers); models copied with a blocking 4-worker barrier before installation/launch. Original model page-cache prefetch is an explicit staging-off control only.',
+        'local_model_staging': {'root': local_model_root, 'toggle': 'ENABLE_LOCAL_MODEL_STAGING',
+                                'default': '1', 'workers': 4, 'copy_barrier': 'all files closed/fsynced; target and draft validated before args/Popen'},
         'radix_cache': 'enabled by server default; schedule-policy=lpm; cache reporting enabled',
         'configuration_edits': edits,
     }

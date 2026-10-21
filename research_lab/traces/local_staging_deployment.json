@@ -1,0 +1,45 @@
+{
+  "status": "prepared",
+  "phase": "A",
+  "prepared_at_utc": "2026-10-21T11:56:43.250922+00:00",
+  "mutation": "[EDIT]",
+  "branch": "feat/local-model-staging",
+  "parent_commit": "d509fa2",
+  "kernel_id": "aanchal009/arc-agi-3-runtime-check",
+  "build_id": "8e291c0a90d1533a",
+  "startup_seconds": 2400,
+  "local_model_staging": {
+    "root": "/kaggle/temp/arc3-models",
+    "toggle": "ENABLE_LOCAL_MODEL_STAGING",
+    "default": "1",
+    "workers": 4,
+    "copy_barrier": "all files closed/fsynced; target and draft validated before args/Popen"
+  },
+  "dataset_sources": [
+    "dfranzen/pennyroyal-v253",
+    "mirzamilanfarabi/intel-qwen3-8-flash-next-w4a16-autoround",
+    "mirzamilanfarabi/albucino-qwen3-8-flash-next-drafter"
+  ],
+  "checks": {
+    "pytest_cases": 237,
+    "new_staging_cases": 13,
+    "ruff_passed": true,
+    "pyright_errors": 0,
+    "containment_passed": true,
+    "containment_checks": 20,
+    "source_build_sync": true
+  },
+  "phase_b_submitted": false,
+  "hidden_score": null,
+  "sha256": {
+    "scripts/build_notebook.py": "c9bddb4349fbc883159cd4aaf2ff931e4a74ea0172d2ab29badd9523fe7faa26",
+    "scripts/extract_llm_launcher.py": "0380b2f3f2f3b5148e317f0011a90ed347b9ccd96fbcbb9a4912b6b17abfd819",
+    "scripts/model_staging.py": "d011d4b65e29d79cf721807e0e4752bf002d4e0d6878f471a3afd702975ece2e",
+    "scripts/llm_daemon.py": "a88cf4e397add9e7d48132aa99e82c9b8a750a4e7b731ffaa4c43d7ba7278f17",
+    "agent/my_agent.py": "5e6a76bc2376407c045fed7f4a7eed0e254e658009955b0c304c89b281826bc9",
+    "agent/arclog.py": "0c119b81ad71aa39e84069dbbbabba7562aa462c94f5f19e5a2177a957c0375e",
+    "notebooks/submission.ipynb": "1a79801935df26c4435225a14d2de91e67f707f6ddb55391cd377af6780f85ca",
+    "notebooks/kernel-metadata.json": "05bf130a005c885153cf248065b7a73fad5d01d1afd8e5212427263c48cdffb7",
+    "containment.json": "f0f5d857946f4f215d079057c7919a12979c279213b2be2352f7710f069319b2"
+  }
+}

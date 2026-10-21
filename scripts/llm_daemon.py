@@ -26,6 +26,7 @@ class LLMDaemon:
         self.ever_ready = False
         self.reason = 'not_started'
         self.log: Any = None
+        self._staging_signature: tuple[int, int] | None = None
 
     def models_ready(self, timeout: float) -> bool:
         connection = http.client.HTTPConnection('127.0.0.1', 8001, timeout=timeout)
@@ -67,6 +68,22 @@ class LLMDaemon:
                 if tail:
                     self.event('llm_startup_log', file=path.name, tail=tail)
 
+    def staging_report(self) -> None:
+        path = self.working / 'diagnostics/model_staging.json'
+        try:
+            stat = path.stat()
+            signature = (stat.st_mtime_ns, stat.st_size)
+            if signature == self._staging_signature:
+                return
+            report = json.loads(path.read_text())
+        except FileNotFoundError:
+            return
+        except (OSError, ValueError) as error:
+            self.event('model_staging_report_error', error=str(error))
+        else:
+            self._staging_signature = signature
+            self.event('model_staging', report=report)
+
     def start(self) -> bool:
         os.environ['ARC3_LLM_READY'] = '0'
         os.environ.pop('ARC3_LLM_FAILURE', None)
@@ -87,6 +104,7 @@ class LLMDaemon:
                     raise RuntimeError('loopback_port_occupied')
             digest = hashlib.sha256(self.launcher.read_bytes()).hexdigest()
             (self.working / 'diagnostics').mkdir(parents=True, exist_ok=True)
+            (self.working / 'diagnostics/model_staging.json').unlink(missing_ok=True)
             self.log = (self.working / 'diagnostics/llm_launcher.log').open('ab', buffering=0)
             environment = dict(os.environ, ARC3_LLM_WORKING=str(self.working),
                                ARC3_LLM_PREFIX=f'/tmp/arc3-pennyroyal-{digest[:16]}',
@@ -97,6 +115,7 @@ class LLMDaemon:
                                             stderr=subprocess.STDOUT, start_new_session=True)
             self.event('llm_started', pid=self.process.pid, launcher_sha256=digest)
             while time.monotonic() < deadline:
+                self.staging_report()
                 if self.process.poll() is not None:
                     raise RuntimeError(f'launcher_exited:{self.process.returncode}')
                 remaining = deadline - time.monotonic()
@@ -120,6 +139,7 @@ class LLMDaemon:
             self.reason = f'{type(error).__name__}: {error}'
             self.stop()
             self.record()
+            self.staging_report()
             self.startup_logs()
             os.environ['ARC3_LLM_FAILURE'] = self.reason
             self.event('llm_fallback', reason=self.reason, mode='exploration')

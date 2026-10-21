@@ -21,9 +21,16 @@ v2.5.3 / SGLang 0.5.19 launcher, serving Qwen 3.8 AutoRound as `flashnext` on
 identifies the same upstream target and draft models used by the baseline. It installs from
 the attached wheelhouse into an isolated venv, leaving the framework interpreter
 unchanged. The retained reference notebook is unchanged.
-The launcher's Cell 7 wheel prewarm and Cell 13 model-prefetch start are retained
-under `ENABLE_BASELINE_PREFETCH=1`; `0` selects the serial-read control. Prefetch
-is best-effort I/O and does not replace any asset integrity/format check.
+`ENABLE_LOCAL_MODEL_STAGING=1` copies every target/draft checkpoint file to
+`/kaggle/temp/arc3-models`, waits for all copy workers to close/fsync their files,
+and verifies checkpoint metadata before SGLang starts. The model, draft weight
+links, tokenizer and template all use the completed local trees. Copy failures
+or insufficient local storage prevent server launch. `0` is the direct-input
+control with the retained background page-cache prefetcher.
+
+`ENABLE_BASELINE_PREFETCH=1` retains the reference's wheel prewarm; `0` disables
+that warmup. The old model prefetch thread is used only in the staging-off
+control. Page-cache warmup does not copy files or replace integrity checks.
 
 Installation, model loading and `/v1/models` readiness share a **2,400-second (40-minute)**
 deadline before the gameplay runner starts. Failure stops the owned process

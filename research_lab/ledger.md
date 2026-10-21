@@ -1,5 +1,43 @@
 # ARC-AGI-3 PhD Research Laboratory Ledger
 
+## [EDIT] Blocking local checkpoint staging — systems ticket, 2026-10-21
+
+Requested skill: `phd-systems`; branch `feat/local-model-staging`. Engineering
+parent is `d509fa2` (the verified Gen-3 + 2,400-second deployment from PR #13),
+with main at `87fbb24`. Preserve the archived
+`research_lab/top_programs/v1_retrodict_world_model_harness.py` and all agent
+policy/security sources. No statistically promoted integrated champion exists.
+The user's deployment instruction authorizes this I/O change and Phase A rerun.
+
+**History / failure triage (Type C).** Gen-3 fixes replay, expectation checking
+and memory retention, but cannot acquire skill without a ready local model.
+Version 5 completed its save after a 2,400-second model-startup timeout: 25/38
+shards loaded, no ready endpoint, no gameplay or measured RHAE. Inspection now
+confirms that the retained `precache()` only reads files into page cache; it
+never copies models. Its thread runs concurrently with SGLang, whose target and
+draft paths still resolve to the FUSE dataset mounts. Earlier timing alone did
+not separate FUSE reads from CPU transformations. The deterministic mutation
+is a real local-copy barrier, not another timeout increase or a policy change.
+
+**[EDIT], `ENABLE_LOCAL_MODEL_STAGING=1` (default).** The builder explicitly
+configures `/kaggle/temp/arc3-models`. Copy all checkpoint/config/tokenizer files
+for both target and selected draft with four bounded-memory I/O workers; wait
+for every copy to finish, close and fsync, then verify local index/config/shard
+metadata before assembling server arguments. Target `--model-path`, draft
+links and tokenizer/template reads must all use the completed local trees.
+Insufficient space, bad paths or copy failures must prevent server launch,
+never silently substitute FUSE input. Staging-off is an explicit reference
+control; the previous page-cache thread is active only in that control. Wheel
+prewarm, startup/global deadlines, serving flags and Gen-3 gates are retained.
+
+**Acceptance.** Real copy fixtures with 38 shards and draft/metadata, blocking
+worker completion, copied symlink materialization, failure cleanup, insufficient
+space, unsafe source paths, actual generated --model-path/draft-view binding,
+and staging-off reference. Run full pytest, required ruff/pyright, containment
+and exact notebook/source checks. Deploy using `make submit`, monitor Phase A,
+and record staging/loader/readiness times separately. A ready endpoint is not
+an inference/cache/RHAE measurement. No Phase B submission is requested.
+
 ## [EDIT] Gen-3 Kaggle deployment — 2,400-second startup, 2026-10-21
 
 The user confirms PR #12 merged into main `87fbb24` and explicitly authorizes
