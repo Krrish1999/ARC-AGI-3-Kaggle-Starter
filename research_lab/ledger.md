@@ -1,5 +1,95 @@
 # ARC-AGI-3 PhD Research Laboratory Ledger
 
+## [EDIT] Clean LLM deployment — manual override, 2026-10-21
+
+The user explicitly accepts S3's `ENABLE_ZERO_ACTION_REPLAN=1` and overrides
+the Gate 2 trajectory prerequisite for this specific baseline-establishing
+deployment. PR #10 is already merged into main at `01f0521`; the deployment
+branch `fix/clean-llm-kaggle-deployment` starts there. The S3 policy is unchanged.
+This supersedes the earlier deployment HOLD for this run only. Containment,
+source checks, exact predictions and runtime limits remain enforced; no
+statistical score promotion follows from the override.
+
+Audited real dataset metadata and file listings. `dataset_sources` now contains
+the Pennyroyal wheelhouse and both weight datasets:
+
+- `dfranzen/pennyroyal-v253` (dataset ID 12273106)
+- `mirzamilanfarabi/intel-qwen3-8-flash-next-w4a16-autoround` (12467750)
+- `mirzamilanfarabi/albucino-qwen3-8-flash-next-drafter` (12467732)
+
+The latter datasets identify the same dfranzen Intel AutoRound target and
+Albucino draft checkpoints used by the reference. Their file listings contain
+actual weight shards, configs and tokenizer/index files even though aggregate
+search sizes are zero. Version 1 was observed; these are not content-pinned
+mounts. The smaller public `phuongncn/arc3-v218-int4model-weights` was excluded:
+its metadata requires different companion assets and a private server patch.
+The selected slugs were verified, not copied from illustrative placeholders.
+
+Removed duplicate model_sources and changed the extracted launcher's explicit
+weight mount paths. The final notebook pulled back from Kaggle exactly matches
+the local cell sources, accepts all three datasets, enables GPU and disables
+internet. Runtime checks validate the target's 38 indexed shards and link the
+draft's two shards; tokenizer/token-map and wheelhouse checks remain enforced.
+The 900-second total startup deadline and 29,700-second global target remain.
+
+For each deployment, ran `python scripts/build_notebook.py` followed immediately
+by `make submit` using the repository's credential-safe Kaggle CLI wrapper.
+All three pushes succeeded to `aanchal009/arc-agi-3-runtime-check`:
+
+| Saved version | Build | Final make status | Startup result |
+|---|---|---|---|
+| 2 | `549687585c1bc0ea` | COMPLETE | 900-second timeout; detailed startup artifacts inaccessible |
+| 3 | `37bf9af0e20cc190` | COMPLETE | 900-second timeout; 8/38 shards loaded |
+| 4 | `afbb26dc6eee1a44` | COMPLETE | 900-second timeout; 21/38 shards loaded |
+
+Direct artifact downloads were rejected by the environment proxy. Automatic
+approval review rejected a separate private log-reader kernel before execution
+because it would emit another private kernel's logs to a separate destination;
+that action was abandoned. Failure diagnostics now emit bounded tails of the
+original run's own launcher/server logs inside that same notebook run log.
+No separate log-reader kernel was created.
+
+Version 3's logs confirmed offline installation, Torch 2.13.0+cu130,
+SGLang 0.5.19+gd00d88efc8d6, CUDA 13.0 and driver 580.178.04 on the RTX PRO 6000
+Blackwell Server Edition. The asset mounts are usable; there was no observed
+fatal CUDA/import/shape exception before termination. Bootstrap consumed roughly
+seven minutes before model loading. Found an omitted dependency in the retained
+reference: Cell 7 prewarms the wheelhouse and defines a model-prefetch thread
+that Cell 13 starts before SGLang. Restored these hash-bound operations under
+`ENABLE_BASELINE_PREFETCH=1`; `0` retains the serial-read control. I/O failures
+are logged; prefetch never replaces mandatory asset validation.
+
+Version 4 prewarmed 211 wheel files (6.70 GB) in 26.24 seconds. Weight loading
+began at 08:45:09 UTC and reached 21/38 shards at 13:03 of checkpoint progress.
+The supervisor stopped it at elapsed 928.937 seconds; `llm_fallback` followed at
+928.956 with `TimeoutError: startup_deadline_900s`. Restored prefetch reduced
+bootstrap overhead, but model loading still did not fit the startup deadline.
+Storage reads, CPU transforms and prefetch contention are not separately timed,
+so this is an observed loading bottleneck, not an isolated IO benchmark.
+
+Final `make status` output, observed COMPLETE at **2026-10-21 08:59:12 UTC**:
+
+```text
+aanchal009/arc-agi-3-runtime-check has status "KernelWorkerStatus.COMPLETE"
+```
+
+**Disposition:** clean dataset deployment verified; LLM readiness **FAIL**.
+This completed Phase A save used exploration fallback. It generated the
+existing zero-row output selector, not gameplay trajectories. No competition
+slot was consumed and no additional fallback-only Phase B run was requested.
+A fresh official submission-list audit still returns six entries with latest
+COMPLETE ref **57449526**, public score **0.12**. That remains the verified
+baseline; the true integrated LLM score, Gate 2 metrics and cache-hit rate remain
+unmeasured. Do not retire 0.12 or claim an LLM baseline from this save.
+
+Local verification passes **187 tests**, ruff on agent/scripts and changed LLM
+tests, pyright with zero errors/warnings, and containment **20/20**. Kaggle's own
+containment command also exited 0 before starting the daemon. Receipt, accepted
+mounts, source hashes, startup measurements and status are recorded in
+`research_lab/traces/clean_llm_deployment.json`. The generated notebook is the
+exact version-4 source submitted above. Further startup work must preserve the
+explicit 900-second setting unless the user authorizes a revised boot budget.
+
 ## Sprint 3 Task Packet — [EDIT] bounded zero-action replanning
 
 Issued 2026-10-21 (Asia/Calcutta); PI: `phd-pi`, Critic: `phd-critic`,

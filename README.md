@@ -15,10 +15,15 @@ editor and a notebook.
 
 The generated notebook now starts the retained 28-point notebook's Pennyroyal
 v2.5.3 / SGLang 0.5.19 launcher, serving Qwen 3.8 AutoRound as `flashnext` on
-`127.0.0.1:8001`. Kernel metadata attaches `dfranzen/pennyroyal-v253` and the
-version-1 Intel AutoRound target and Albucino MTP draft models. It installs from
+`127.0.0.1:8001`. Kernel metadata attaches `dfranzen/pennyroyal-v253` and
+`mirzamilanfarabi/intel-qwen3-8-flash-next-w4a16-autoround` plus
+`mirzamilanfarabi/albucino-qwen3-8-flash-next-drafter` as datasets. Their metadata
+identifies the same upstream target and draft models used by the baseline. It installs from
 the attached wheelhouse into an isolated venv, leaving the framework interpreter
 unchanged. The retained reference notebook is unchanged.
+The launcher's Cell 7 wheel prewarm and Cell 13 model-prefetch start are retained
+under `ENABLE_BASELINE_PREFETCH=1`; `0` selects the serial-read control. Prefetch
+is best-effort I/O and does not replace any asset integrity/format check.
 
 Installation, model loading and `/v1/models` readiness share a **900-second (15-minute)**
 deadline before the gameplay runner starts. Failure stops the owned process
