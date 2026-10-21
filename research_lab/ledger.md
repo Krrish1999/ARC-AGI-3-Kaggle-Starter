@@ -38,7 +38,7 @@ and exact notebook/source checks. Deploy using `make submit`, monitor Phase A,
 and record staging/loader/readiness times separately. A ready endpoint is not
 an inference/cache/RHAE measurement. No Phase B submission is requested.
 
-### Local staging deployment — version 6 COMPLETE, readiness unconfirmed
+### Local staging deployment — version 6 COMPLETE save, local-copy ENOSPC
 
 Local verification passes **237/237 pytest cases**, including 13 new staging
 cases, required ruff/pyright and containment 20/20. The agent sources are
@@ -52,24 +52,59 @@ required with **1,145,972,953,088 bytes** free under
 `make status` first reports **COMPLETE at 2026-10-21 17:38:20 Asia/Calcutta**;
 the preceding poll was RUNNING at 17:37:34. The notebook began at 17:26:59.671,
 so the interval to observed completion is **680.412 seconds**, including all
-preflight/save work. This is **not a measured model-startup time**. The last
-captured console event is copy start; it cannot prove that copying or loading
-finished. Every final pulled cell still matches build **8e291c0a90d1533a**.
+preflight/save work. This is **not a measured model-startup time**. The initial
+live console fragment ended at copy start; the uploaded diagnostics below
+resolve that uncertainty. Every final pulled cell still matches build
+**8e291c0a90d1533a**.
 
-**Measurement blocked.** The normal completed-log endpoint and exact session
-stream return `[]`, including a retry after completion. Saved diagnostics are
-on `www.kaggleusercontent.com`, which the enforced cloud allowlist blocks with
-proxy CONNECT 403. Access to that hostname has been requested. Record actual
-copy duration and SGLang startup duration as **null/unconfirmed**, rather than
-turning the notebook completion interval into a readiness claim. No new
-2400-second timeout, model failure, successful inference, cache hit rate or
-RHAE result can be inferred from the available console fragment.
+**Uploaded diagnostics resolve the outcome: readiness FAIL.** The initial
+completed-log APIs returned `[]` and `kernels output` was blocked at
+`www.kaggleusercontent.com`. The user supplied all 11 version-6 diagnostic
+files. Their build ID and launcher hash match this deployment, and every
+structured event matches the timestamped notebook log. Retain SHA256/size
+receipts for all uploaded files and the complete console events.
+
+Local staging failed after **270.003 seconds** with
+`OSError: [Errno 28] No space left on device`, raised by
+`os.fsync(writer.fileno())` in a copy worker. `models={}`: no checkpoint was
+published. Because the blocking barrier raised before argument assembly,
+**SGLang was never launched**. `llm_status.json` records `ready=false`,
+`ever_ready=false`, `RuntimeError: launcher_exited:1`. The measured
+`llm_startup` attempt lasted **278.679 seconds**, ending at
+**2026-10-21 17:31:59.387 Asia/Calcutta**. This is time to failure, not model
+readiness latency. The notebook subsequently emits `NOT_EVALUATED` at 299.865
+seconds and writes zero gameplay rows. Its later COMPLETE save status does
+not establish a working model.
+
+The target's **38 indexed shards total 181,196,006,784 bytes**; the draft's
+**2 total 4,140,094,152 bytes**. The complete staging requirement including
+ancillary files is **185,400,295,230 bytes (172.67 GiB)**. Only 64.2 MB lies
+outside the indexed shards; required weights dominate the footprint. The
+**1.15 TB reported free** did
+not establish effective writable capacity; the filesystem free-space precheck
+was insufficient. These logs do not identify the actual mount quota, backing
+store limit or inode capacity, so do not assert a specific Kaggle quota or
+assume `/tmp` has more space. Wheel prewarm completed (211 files, 6.70 GB,
+4.16 seconds); dependency installation, containment **20/20**, and framework
+preflight passed. No 2,400-second timeout or CUDA/weight-loading failure was
+reached in this run.
 
 Receipts: `research_lab/traces/local_staging_deployment.json` and the captured
 events/status polls in `research_lab/traces/local_staging_runtime_evidence.json`.
 The 2,400-second deadline and Gen-3 policy remain unchanged. No Phase B
-competition evaluation was submitted. Reconcile the measured startup and copy
-timings when the saved diagnostics become accessible.
+competition evaluation was submitted; no cache, inference or RHAE acceptance
+is claimed. PR #14 remains a draft pending capacity correction, with this
+failure in its description. This closeout changes evidence only, not the tested
+runtime sources.
+
+**Next systems ticket (not yet deployed).** Measure the mount/device, writable
+capacity, inode availability and any exposed quotas for candidate local storage
+locations, then verify allocation for the full checkpoint footprint plus
+serving-environment headroom before committing to another full copy. Preserve
+the blocking barrier and copy-failure cleanup. Changing only the path or
+removing `fsync` would not establish capacity. If no volume can hold the model,
+full-checkpoint local staging needs a different storage/loading design; another
+timeout increase cannot repair this failure.
 
 ## [EDIT] Gen-3 Kaggle deployment — 2,400-second startup, 2026-10-21
 

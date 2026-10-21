@@ -286,6 +286,72 @@
         "workers": 4
       },
       "at_utc": "2026-10-21 11:57:29.216Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 299.707,
+      "event": "model_staging",
+      "report": {
+        "bytes_required": 185400295230,
+        "disk_free_before": 1145972953088,
+        "elapsed_seconds": 270.003,
+        "error": "[Errno 28] No space left on device",
+        "error_type": "OSError",
+        "mode": "local_copy",
+        "models": {},
+        "root": "/kaggle/temp/arc3-models",
+        "status": "failed",
+        "workers": 4
+      },
+      "at_utc": "2026-10-21 12:01:59.378Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 299.715,
+      "event": "llm_stopped",
+      "returncode": 1,
+      "at_utc": "2026-10-21 12:01:59.386Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 299.716,
+      "event": "llm_startup_log",
+      "file": "llm_launcher.log",
+      "tail": "Precaching: Started...\nPrecaching: loaded 211 files (6.70 GB) in 4.16 seconds.\n\nTraceback (most recent call last):\n  File \"/tmp/arc3_llm_launcher.py\", line 314, in <module>\n    staging_report = stage_checkpoints(Path(asset_report[\"target\"][\"path\"]),\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/arc3_llm_launcher.py\", line 285, in stage_checkpoints\n    copied = [future.result() for future in futures]\n              ^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/concurrent/futures/_base.py\", line 456, in result\n    return self.__get_result()\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/concurrent/futures/_base.py\", line 401, in __get_result\n    raise self._exception\n  File \"/usr/lib/python3.12/concurrent/futures/thread.py\", line 59, in run\n    result = self.fn(*self.args, **self.kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/arc3_llm_launcher.py\", line 231, in _stage_file\n    os.fsync(writer.fileno())\nOSError: [Errno 28] No space left on device\n",
+      "at_utc": "2026-10-21 12:01:59.387Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 299.716,
+      "event": "llm_fallback",
+      "mode": "exploration",
+      "reason": "RuntimeError: launcher_exited:1",
+      "at_utc": "2026-10-21 12:01:59.387Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "duration_seconds": 278.679,
+      "elapsed_seconds": 299.716,
+      "event": "stage_completed",
+      "stage": "llm_startup",
+      "at_utc": "2026-10-21 12:01:59.387Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 299.864,
+      "evaluated": false,
+      "event": "submission_bootstrap",
+      "path": "/kaggle/working/submission.parquet",
+      "purpose": "Kaggle code submission output selector",
+      "rows": 0,
+      "at_utc": "2026-10-21 12:01:59.536Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 299.865,
+      "event": "not_evaluated",
+      "message": "Save & Run All does not play hidden games. No gameplay rows were generated. The competition gateway runs during Submit to Competition.",
+      "at_utc": "2026-10-21 12:01:59.536Z"
     }
   ],
   "status_observations": [
@@ -374,14 +440,144 @@
       "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.COMPLETE\""
     }
   ],
-  "logging_limitation": {
+  "model_ready": false,
+  "model_startup_duration_seconds": 278.679,
+  "local_copy_duration_seconds": 270.003,
+  "caution": "COMPLETE is the Kaggle save status. The measured 278.679 seconds is a failed startup attempt, not model readiness or completed weight loading.",
+  "model_startup_result": "failed_before_server_launch",
+  "local_copy_completed": false,
+  "time_to_model_ready_seconds": null,
+  "staging_report": {
+    "status": "failed",
+    "mode": "local_copy",
+    "root": "/kaggle/temp/arc3-models",
+    "workers": 4,
+    "models": {},
+    "bytes_required": 185400295230,
+    "disk_free_before": 1145972953088,
+    "error_type": "OSError",
+    "error": "[Errno 28] No space left on device",
+    "elapsed_seconds": 270.003
+  },
+  "llm_status": {
+    "ready": false,
+    "ever_ready": false,
+    "reason": "RuntimeError: launcher_exited:1",
+    "endpoint": "http://127.0.0.1:8001/v1",
+    "mode": "exploration",
+    "startup_seconds": 2400
+  },
+  "notebook_status": {
+    "status": "NOT_EVALUATED",
+    "elapsed_seconds": 299.865,
+    "build_id": "8e291c0a90d1533a",
+    "competition_rerun": false,
+    "stage": "competition_dispatch",
+    "reason": "Competition rerun flag is not enabled; gameplay gateway is unavailable"
+  },
+  "uploaded_diagnostics": {
+    "provenance": "User-supplied version 6 diagnostic files; build/launcher/event consistency checked against the deployed artifact. File hashes bind these received bytes, not independent remote authenticity.",
+    "raw_local_directory": "work/local-staging/uploaded-v6",
+    "files": {
+      "containment.log": {
+        "sha256": "0c1b1b894cf654b746cbfa79cd3e95149897ef62b168c9f6585681124de31527",
+        "bytes": 4754
+      },
+      "events.jsonl": {
+        "sha256": "d873b26d8bd720b0cccb80066ff5cc1933c953fbfbce621df188573bd6213479",
+        "bytes": 8852
+      },
+      "containment.json": {
+        "sha256": "0c1b1b894cf654b746cbfa79cd3e95149897ef62b168c9f6585681124de31527",
+        "bytes": 4754
+      },
+      "framework_imports.log": {
+        "sha256": "4c1a18c4a3151cb8592549bc1c879b1c6ddd1369aa69302ada9fc6671e7287b1",
+        "bytes": 80
+      },
+      "llm_assets.json": {
+        "sha256": "f2bafdfd5370a0eb14c5162b7293766124178eff6f9a9bb6e6f03bfe30ae5963",
+        "bytes": 30181
+      },
+      "model_staging.json": {
+        "sha256": "6452e8305e586662b99e607ab989eed677c0986a6f3c6916a0f5d279da79b3eb",
+        "bytes": 296
+      },
+      "llm_launcher.log": {
+        "sha256": "05b21a526622d74b5f7986c0f633e17f8c82fc8a10fd94642bdbba7d8f74c49e",
+        "bytes": 1033
+      },
+      "llm_status.json": {
+        "sha256": "044db302ca492f2cdf31f602dbf58a8a692d879de92452c0398d32f364fb2e84",
+        "bytes": 185
+      },
+      "notebook.log": {
+        "sha256": "cef77e21d6cc225a3e18de8e2f5b1492add5411d87130d8b5ab65871edf92600",
+        "bytes": 19906
+      },
+      "pip.log": {
+        "sha256": "f7abca557e1246e2c5177c5ef03e4f14cd886cca6e900ba7a947e2c304341e0a",
+        "bytes": 4949
+      },
+      "status.json": {
+        "sha256": "be3567c9a6d1e1138facc14a0f5632163cdd7eafc92cdac88fc2e7751e5a73a0",
+        "bytes": 247
+      }
+    },
+    "events_match_notebook_log": true,
+    "launcher_matches_build": true
+  },
+  "asset_summary": {
+    "target": {
+      "path": "/kaggle/input/intel-qwen3-8-flash-next-w4a16-autoround",
+      "config_sha256": "0fabfa21fab8bfe69f02234f7ae8df4ed91b785fca2e22011c1230f6a07e5329",
+      "index_sha256": "32732da58649d48911ae5f7efaf9d400d7e573d03a241aa483095f817ba7bd61",
+      "shard_content_hashes": "not independently supplied; Kaggle input provenance is recorded separately",
+      "shard_count": 38,
+      "indexed_shard_bytes": 181196006784
+    },
+    "draft": {
+      "path": "/kaggle/input/albucino-qwen3-8-flash-next-drafter",
+      "config_sha256": "8e3846487f4f0144a968e2a24f5c31efd7d36687b2b112ed51e14e4ab8ab9c58",
+      "index_sha256": "a3e600dae46c7f32e2ff42e6c40f46f75fb71ae7d5b73011b666664e5d54f6a2",
+      "shard_content_hashes": "not independently supplied; Kaggle input provenance is recorded separately",
+      "shard_count": 2,
+      "indexed_shard_bytes": 4140094152
+    }
+  },
+  "containment": {
+    "containment_passed": true,
+    "checks": {
+      "deployed_sources_present": true,
+      "sandbox_present": true,
+      "engine_import_denied": true,
+      "absolute_read": true,
+      "traversal_read": true,
+      "symlink_read": true,
+      "write": true,
+      "symlink_write": true,
+      "directory_list": true,
+      "subprocess_escape": true,
+      "fork_escape": true,
+      "exec_escape": true,
+      "native_open": true,
+      "canary_unchanged": true,
+      "write_not_created": true,
+      "compute_works": true,
+      "memory_capped": true,
+      "planner_failure_visible": true,
+      "loop_terminated": true,
+      "missing_worker_fails": true
+    }
+  },
+  "launcher_log": "Precaching: Started...\nPrecaching: loaded 211 files (6.70 GB) in 4.16 seconds.\n\nTraceback (most recent call last):\n  File \"/tmp/arc3_llm_launcher.py\", line 314, in <module>\n    staging_report = stage_checkpoints(Path(asset_report[\"target\"][\"path\"]),\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/arc3_llm_launcher.py\", line 285, in stage_checkpoints\n    copied = [future.result() for future in futures]\n              ^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/concurrent/futures/_base.py\", line 456, in result\n    return self.__get_result()\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/concurrent/futures/_base.py\", line 401, in __get_result\n    raise self._exception\n  File \"/usr/lib/python3.12/concurrent/futures/thread.py\", line 59, in run\n    result = self.fn(*self.args, **self.kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/arc3_llm_launcher.py\", line 231, in _stage_file\n    os.fsync(writer.fileno())\nOSError: [Errno 28] No space left on device\n",
+  "conclusion": "Local checkpoint staging failed at fsync with ENOSPC after 270.003 seconds. Supervisor startup attempt ended after 278.679 seconds; no checkpoint was published and SGLang was not launched. No ready model or hidden-game evaluation.",
+  "remaining_uncertainty": "The logs do not capture the effective writable capacity, mount type, inode exhaustion or quota/backing-store limit causing ENOSPC despite 1.15 TB reported free.",
+  "initial_logging_limitation": {
     "live_console": "Captured startup, GPU, containment/framework preflight and copying event; subsequent live stream ended.",
     "completed_log_api": "kernels logs and session stream return an empty JSON list despite COMPLETE status; rechecked after source pull.",
     "saved_diagnostics": "Kaggle returns signed output URLs on www.kaggleusercontent.com, blocked by the enforced cloud network allowlist (proxy CONNECT 403). No signed URLs retained.",
     "source_binding": "Every downloaded notebook cell source matches the local artifact; all three expected dataset attachments accepted."
   },
-  "model_ready": null,
-  "model_startup_duration_seconds": null,
-  "local_copy_duration_seconds": null,
-  "caution": "COMPLETE is notebook status, not proof of model readiness. Do not infer server timing, copy completion, inference success or RHAE from it."
+  "logging_resolution": "User uploaded all 11 diagnostic files; startup outcome is now established without access to the blocked output hostname."
 }

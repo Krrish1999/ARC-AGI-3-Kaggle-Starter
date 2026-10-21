@@ -1,5 +1,5 @@
 {
-  "status": "kaggle_v6_complete_model_readiness_unconfirmed",
+  "status": "kaggle_v6_complete_local_staging_enospc",
   "assets": {
     "WHEELHOUSE_DIR": {
       "candidates": [
@@ -112,7 +112,7 @@
     "ENABLE_LOCAL_MODEL_STAGING": "1(default): blocking local target/draft copies;0: direct dataset paths with retained page-cache prefetch control."
   },
   "measured_cache_hit_rate": null,
-  "gpu_acceptance": "Version 6 COMPLETE save: RTX PRO 6000, containment/framework preflight and a real local-copy start observed. Required space 185,400,295,230 bytes; free space 1,145,972,953,088 bytes. Completed console API returns []; saved diagnostics are network-blocked, so copy completion, model readiness and startup time are unconfirmed. No inference/cache/RHAE acceptance.",
+  "gpu_acceptance": "Version 6 COMPLETE save; model readiness FAIL. Uploaded diagnostics confirm local-copy ENOSPC at fsync after 270.003 seconds. Startup attempt failed after 278.679 seconds before SGLang launched. No target/draft checkpoint published; ready=false and ever_ready=false. RTX PRO 6000, containment 20/20 and framework preflight pass. No inference/cache/RHAE acceptance.",
   "bundle_builder_reference": "https://github.com/da-fr/arc-agi-3-solution/tree/10882e332d883af3e61616df8c8a17d03a328a75/serving",
   "local_probe_scope": "present_candidates lists local workspace availability only; the Kaggle run separately verified its attached mounts.",
   "kaggle_runtime_evidence": "research_lab/traces/local_staging_deployment.json",
@@ -123,6 +123,9 @@
     "root": "/kaggle/temp/arc3-models",
     "barrier": "All target/draft checkpoint files copied, closed/fsynced and metadata verified before args/server launch.",
     "failure": "Prevent server launch; no fallback to FUSE input in the enabled path.",
-    "measured_startup": "Unconfirmed for saved version 6: COMPLETE status alone does not measure SGLang readiness; completed logs empty and saved diagnostics network-blocked."
+    "measured_startup": "278.679 seconds to failed startup attempt; copying failed after 270.003 seconds at fsync with ENOSPC. SGLang was never launched and no readiness latency exists.",
+    "storage_requirement_bytes": 185400295230,
+    "reported_disk_free_bytes": 1145972953088,
+    "storage_acceptance": "FAIL: reported free space did not establish writable checkpoint capacity. Exact quota/backing-store limit is not present in diagnostics."
   }
 }
