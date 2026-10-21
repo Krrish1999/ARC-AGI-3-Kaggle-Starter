@@ -103,8 +103,9 @@
     "ENABLE_BASELINE_PREFETCH": "1(default): wheel prewarm16 readers and delayed model prefetch3 readers;0: serial-read control. Asset checks always enforced."
   },
   "measured_cache_hit_rate": null,
-  "gpu_acceptance": "Version 4 COMPLETE: offline dependencies, CUDA and all mounted checkpoint indexes validated on RTX PRO 6000; /v1/models did not become ready by 900 seconds. 21/38 target shards loaded. No inference/cache throughput acceptance.",
+  "gpu_acceptance": "Version 5 COMPLETE: Gen-3 containment/framework preflight and mounted assets pass on RTX PRO 6000. SGLang did not become ready within 2,400 seconds; 25/38 target shards loaded at 36:21 checkpoint progress. Model readiness FAIL; no inference/cache/RHAE acceptance.",
   "bundle_builder_reference": "https://github.com/da-fr/arc-agi-3-solution/tree/10882e332d883af3e61616df8c8a17d03a328a75/serving",
   "local_probe_scope": "present_candidates lists local workspace availability only; the Kaggle run separately verified its attached mounts.",
-  "kaggle_runtime_evidence": "research_lab/traces/clean_llm_deployment.json"
+  "kaggle_runtime_evidence": "research_lab/traces/gen3_deployment_2400.json",
+  "prior_kaggle_runtime_evidence": "research_lab/traces/clean_llm_deployment.json"
 }

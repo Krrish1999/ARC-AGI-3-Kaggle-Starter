@@ -1,7 +1,7 @@
 {
   "mutation": "[EDIT]",
   "phase": "A",
-  "status": "prepared",
+  "status": "COMPLETE",
   "prepared_at_utc": "2026-10-21T10:36:35.724215+00:00",
   "parent_main": "87fbb24",
   "branch": "feat/gen3-kaggle-2400s",
@@ -36,5 +36,65 @@
     "containment.json": "e7a76dbc5b4a6f7f38aad5b4411b1dca8aa449dee5da3bd75444ade3df0dfb2b"
   },
   "phase_b_submitted": false,
-  "hidden_score": null
+  "hidden_score": null,
+  "saved_version": 5,
+  "submitted_source_commit": "10db8e5",
+  "kernel_url": "https://www.kaggle.com/code/aanchal009/arc-agi-3-runtime-check",
+  "saved_sources_match": true,
+  "accepted_dataset_sources": [
+    "mirzamilanfarabi/albucino-qwen3-8-flash-next-drafter",
+    "mirzamilanfarabi/intel-qwen3-8-flash-next-w4a16-autoround",
+    "dfranzen/pennyroyal-v253"
+  ],
+  "status_observations": [
+    {
+      "at_utc": "2026-10-21T10:40:22.519731+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T11:17:45.215564+00:00",
+      "status": "COMPLETE",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.COMPLETE\""
+    }
+  ],
+  "prior_official_result": {
+    "ref": "57474828",
+    "date": "2026-10-21 09:05:10.793000",
+    "description": "",
+    "status": "SubmissionStatus.COMPLETE",
+    "publicScore": "0.14",
+    "privateScore": "",
+    "attribution": "Predates the Gen-3 version-5 deployment; not its score or lift.",
+    "receipt": "research_lab/traces/gen3_submissions_before.csv"
+  },
+  "kaggle_preflight": {
+    "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "gpu_memory_mib": 97887,
+    "containment_passed": true,
+    "framework_runtime_ok": true,
+    "synthetic_actions": 1,
+    "gateway_actions": 0,
+    "llm_started_at_utc": "2026-10-21T10:37:16.537Z"
+  },
+  "observed_past_prior_startup_limit_seconds": 952,
+  "observed_completed_at_utc": "2026-10-21T11:17:45.215564+00:00",
+  "llm_ready": false,
+  "evaluated": false,
+  "model_startup_outcome": "FAIL: startup_deadline_2400s",
+  "model_startup_duration_seconds": 2400.129,
+  "last_checkpoint_progress": {
+    "loaded": 25,
+    "total": 38,
+    "elapsed": "36:21"
+  },
+  "runtime_evidence": "research_lab/traces/gen3_2400_runtime_evidence.json",
+  "runtime_evidence_sha256": "dad9d14b7ec6f241fc7cf85a5f71874f5631e6e4da3658b15bbeef86fb42e8bc",
+  "status_poll_count": 50,
+  "console_log_sha256": "86d6bd8047e832863093fb34cad361b79c477e6865272d8d7a74d81fd41f8b7e",
+  "official_submissions_unchanged": true,
+  "official_submission_entries": 7,
+  "completed_source_commit": "10db8e5"
 }

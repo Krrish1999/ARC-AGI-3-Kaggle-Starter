@@ -28,7 +28,66 @@ full regressions, lint/type checks and containment before `make submit`.
 
 Phase A is a saved notebook/startup validation. Hidden RHAE is measured by a
 separate competition rerun (Phase B); do not report a save as a hidden score.
-Deployment status and the exact saved version/build will be appended below.
+Deployment preparation passed **224/224 pytest cases**, required ruff and
+pyright, exact source/build synchronization, and containment **20/20** with
+`containment_passed=true`. Readiness at 1,800 simulated seconds succeeds; the
+failed-start fixture exhausts exactly 2,400 seconds. The embedded save-preflight
+fixture executes the actual strict Gen-3/framework lifecycle action.
+
+`python scripts/build_notebook.py` packaged build **4086c46befdb2235**;
+`make submit` rebuilt it identically and successfully pushed **saved version 5**
+to `aanchal009/arc-agi-3-runtime-check`. `make status` reports **RUNNING**.
+A normal CLI source/metadata pull matches every local cell source and confirms
+all three accepted datasets, GPU enabled, internet disabled. Version-suffixed
+CLI pull/log requests returned API errors; the supported latest-version paths
+work and are bound to this build by the source comparison. Phase A monitoring is complete; see the final outcome below. Kaggle-side GPU,
+containment and strict framework preflight pass; LLM startup began at
+2026-10-21 16:07:16 Asia/Calcutta. Receipt:
+`research_lab/traces/gen3_deployment_2400.json`. No Phase B score is claimed.
+
+A fresh official submission-list read finds **7 entries**, including an existing
+COMPLETE result **57474828**, dated 2026-10-21 09:05:10.793 UTC, with
+**publicScore=0.14** and no released privateScore. It predates this Gen-3
+version-5 deployment and cannot measure its lift. This updates the account's
+latest-result evidence while retaining the prior 0.12 receipt historically;
+no model-readiness or statistically significant improvement is inferred.
+
+### Version 5 Phase A closeout — COMPLETE save, model readiness FAIL
+
+`make status` now reports `KernelWorkerStatus.COMPLETE`, observed at
+**2026-10-21 16:47:45 Asia/Calcutta**. Final source/metadata pulled from Kaggle
+still matches build **4086c46befdb2235**, with every generated cell source
+identical to the local artifact. The supervisor used the requested 2,400-second
+allowance and cleanup: `llm_startup` lasted **2400.129 seconds** and emitted
+`TimeoutError: startup_deadline_2400s` at 16:47:16 Asia/Calcutta. It never emitted
+`llm_ready`. The owned launcher was stopped with returncode -15.
+
+The RTX PRO 6000 Blackwell (97,887 MiB) and offline dependencies are usable.
+Wheel prewarm read 211 files (6.70 GB) in 67.00 seconds. Server logs identify
+SGLang 0.5.19+gd00d88efc8d6 and Torch 2.13.0+cu130; weight loading began at
+10:39:40 UTC. Only **25/38 target checkpoint shards (66%)** loaded by 36:21 of
+checkpoint progress before timeout. No completed model load, `/v1/models`
+readiness or inference response is established. There is no observed fatal
+CUDA/import/shape exception before termination; reads versus CPU transforms
+have not been timed separately, so the loading bottleneck is not isolated.
+Increasing the allowance to 40 minutes alone did not solve readiness.
+
+The save emits `not_evaluated`, `evaluated=false` and the documented zero-row
+submission selector. It contains no hidden-gameplay results and measures **no
+Gen-3 RHAE lift**. No Phase B request or additional competition slot was used;
+submission-list entries remain unchanged (7 entries, latest pre-existing public
+score 0.14, ref 57474828). Do not attribute that score to this build or promote
+the candidate. Keep the user's explicit 2,400-second setting; do not silently
+extend it or submit a known-unready model for hidden evaluation.
+
+Receipts: `research_lab/traces/gen3_deployment_2400.json`, exact console events
+and launcher/server tails in `research_lab/traces/gen3_2400_runtime_evidence.json`,
+and the pre-deployment submission audit in
+`research_lab/traces/gen3_submissions_before.csv`. The supervisor's historical
+`llm_fallback` label does not imply a Gen-3 random-policy evaluation: this was
+Phase A, and strict Gen-3 halts unverified live dispatch when its backend is
+unavailable. Local 224-test verification and containment 20/20 remain valid;
+this closeout changes only audit/ledger/inventory evidence.
 
 ## Generation 3 Task Packet — [REPLACE] auditable authorization contract
 
