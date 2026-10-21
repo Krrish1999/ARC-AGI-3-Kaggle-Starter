@@ -80,6 +80,10 @@ def _masked(state: dict[str, Any], mask: frozenset[tuple[int, int]]) -> dict[str
                      for y, row in enumerate(grid)], 'level': state['level'], 'state': state['state']}
 
 
+class ProposalValidationError(ValueError):
+    """A model proposal failed a pure schema/action/expect check, not a tool."""
+
+
 class Playbook:
     """Evidence-backed section memory, with append-only turns per context.
 
@@ -263,43 +267,47 @@ class WorldModel:
 
     def _cells(self, value: Any, *, required: bool = True) -> list[dict[str, int]]:
         if isinstance(value, dict):
+            if any(not isinstance(xy, tuple) or len(xy) != 2 for xy in value):
+                raise ProposalValidationError('expect mapping keys must be x/y pairs')
             value = [{'x': xy[0], 'y': xy[1], 'value': color} for xy, color in value.items()]
         if not isinstance(value, list) or (required and not value):
-            raise ValueError('non-empty expected settled non-HUD cells required')
+            raise ProposalValidationError('non-empty expected settled non-HUD cells required')
         grid, mask = self.log.current.grid, self.log.get_hud_mask()
         seen: set[tuple[int, int]] = set()
         for cell in value:
             if not isinstance(cell, dict) or set(cell) != {'x', 'y', 'value'}:
-                raise ValueError('expect needs x, y, value cells')
+                raise ProposalValidationError('expect needs x, y, value cells')
             x, y, color = cell['x'], cell['y'], cell['value']
             if (any(type(n) is not int for n in (x, y, color)) or not 0 <= color < 16
                     or not 0 <= y < len(grid) or not 0 <= x < len(grid[y])
                     or (x, y) in mask or (x, y) in seen):
-                raise ValueError('invalid, duplicate or HUD prediction cell')
+                raise ProposalValidationError('invalid, duplicate or HUD prediction cell')
             seen.add((x, y))
         return _copy(value)
 
     def _plan_item(self, item: dict[str, Any], legal: list[GameAction]) -> dict[str, Any]:
+        if not isinstance(item, dict):
+            raise ProposalValidationError('concrete action object required')
         name = item.get('action')
         if not isinstance(name, str) or name not in GameAction.__members__:
-            raise ValueError('concrete framework action enum required')
+            raise ProposalValidationError('concrete framework action enum required')
         action = GameAction[name]
         if action is GameAction.RESET or action not in legal:
-            raise ValueError('unavailable action or reset in plan')
+            raise ProposalValidationError('unavailable action or reset in plan')
         result: dict[str, Any] = {'action': name}
         if action.is_complex():
             x, y = item.get('x'), item.get('y')
             grid = self.log.current.grid
             if (type(x) is not int or type(y) is not int or not 0 <= y < len(grid)
                     or not 0 <= x < len(grid[y])):
-                raise ValueError('concrete in-board x/y required')
+                raise ProposalValidationError('concrete in-board x/y required')
             result.update(x=x, y=y)
         elif 'x' in item or 'y' in item:
-            raise ValueError('simple action cannot carry coordinates')
+            raise ProposalValidationError('simple action cannot carry coordinates')
         result['expect'] = self._cells(item.get('expect', []), required=enabled('ENABLE_EXPECT_QUEUE'))
         up = item.get('expect_level_up', False if not enabled('ENABLE_EXPECT_QUEUE') else None)
         if type(up) is not bool:
-            raise ValueError('explicit expect_level_up boolean required')
+            raise ProposalValidationError('explicit expect_level_up boolean required')
         result['expect_level_up'] = up
         return result
 
@@ -312,7 +320,7 @@ class WorldModel:
         if self.pending is not None:
             raise ValueError('cannot replace plan awaiting settled observation')
         if not isinstance(actions, list) or not 1 <= len(actions) <= 128:
-            raise ValueError('plan requires 1..128 concrete actions')
+            raise ProposalValidationError('plan requires 1..128 concrete actions')
         plan = [self._plan_item(item, legal) for item in actions]
         self.queue = deque(plan)
         current = self.log.current
@@ -431,13 +439,13 @@ class WorldModel:
         alternative = self._cells(alternative_expect)
         if not item['expect'] or { (c['x'], c['y']) for c in alternative } != {
                 (c['x'], c['y']) for c in item['expect']}:
-            raise ValueError('probe alternatives must predict the same nonempty cells')
+            raise ProposalValidationError('probe alternatives must predict the same nonempty cells')
         predicted = self._predict(source, {k: v for k, v in item.items() if k in ('action', 'x', 'y')})
         if (not all(predicted['grid'][c['y']][c['x']] == c['value'] for c in item['expect'])
                 or (predicted['level'] > self.log.current.level) != item['expect_level_up']):
-            raise ValueError('probe expectation disagrees with mechanic')
+            raise ProposalValidationError('probe expectation disagrees with mechanic')
         if sorted(alternative, key=lambda c: (c['x'], c['y'])) == sorted(item['expect'], key=lambda c: (c['x'], c['y'])):
-            raise ValueError('probe must disambiguate concrete predictions')
+            raise ProposalValidationError('probe must disambiguate concrete predictions')
         self.execute_plan([item], legal)
         self.queue[0]['probe'] = True
         self.queue[0]['mechanic_key'] = key
@@ -519,6 +527,8 @@ class WorldModel:
                                       'transition_count': len(self.log.records)})
             response = self.backend(self.memory.request())
             self.memory.append('assistant', response)
+            if not isinstance(response, dict):
+                raise ProposalValidationError('structured proposal object required')
         if tier_due:
             revision = (self.log.current.level, len(self.log.records))
             if self._tier_attempt != revision:
@@ -530,7 +540,16 @@ class WorldModel:
                 if report['status'] != 'found':
                     self.event('fallback', reason='tier1_' + report['status'])
             return
-        for hypothesis in response.get('hypotheses', []):
+        hypotheses = response.get('hypotheses', [])
+        if not isinstance(hypotheses, list):
+            raise ProposalValidationError('hypotheses must be a list')
+        for hypothesis in hypotheses:
+            if (not isinstance(hypothesis, dict)
+                    or not isinstance(hypothesis.get('source'), str)
+                    or not isinstance(hypothesis.get('probe'), dict)
+                    or 'alternative_expect' not in hypothesis
+                    or hypothesis.get('scope', 'level') not in ('level', 'game')):
+                raise ProposalValidationError('hypothesis requires source, probe, alternative_expect and valid scope')
             self.propose_hypothesis(hypothesis['source'], hypothesis['probe'],
                                     hypothesis['alternative_expect'], legal,
                                     scope=hypothesis.get('scope', 'level'))
@@ -562,6 +581,7 @@ class MyAgent(Agent):
         self._recovery_mode = False
         self._observation: FrameData | None = None
         self._dispatch_approval: tuple[str, tuple[int, int] | None, int] | None = None
+        self._reasoning_deadline: float | None = None
         self.prefix_lock = PrefixLock()
         self.level_budget: LevelBudget | None = None
         assert self.perception.log_path is not None
@@ -582,12 +602,72 @@ class MyAgent(Agent):
         if self.level_budget is not None:
             remaining = min(remaining, self.level_budget.remaining())
             tokens = self.level_budget.generation_tokens(tokens)
+        if self._reasoning_deadline is not None:
+            remaining = min(remaining, self._reasoning_deadline - time.monotonic())
         return tokens, max(0.0, min(30.0, remaining))
+
+    def _reason_with_replanning(self, legal: list[GameAction]) -> None:
+        # Simulator synthesis retains its one-attempt-per-evidence-revision
+        # contract. This mutation repairs ordinary mechanic/action proposals.
+        tier_due = (enabled('ENABLE_TIER1_SIMULATOR') and self.perception.current.level >= 3
+                    and self.world.wasted_moves >= 40)
+        if not enabled('ENABLE_ZERO_ACTION_REPLAN') or self.world.backend is None or tier_due:
+            self.world.reason(legal)
+            return
+        if self.world.pending is not None:
+            raise RuntimeError('cannot replan while awaiting a settled observation')
+        _, allowance = self._inference_limits()
+        self._reasoning_deadline = time.monotonic() + allowance
+        try:
+            for attempt in range(1, 4):
+                tokens, remaining = self._inference_limits()
+                if tokens <= 0 or remaining <= 0:
+                    self.world.flush('replan_budget_exhausted')
+                    self.world.event('replan_exhausted', attempt=attempt-1, reason='budget', live_actions=0)
+                    raise TimeoutError('zero-action replanning budget exhausted')
+                self.world.event('replan_attempt', attempt=attempt, max_attempts=3, live_actions=0)
+                before = len(self.world.events)
+                error: str | None = None
+                try:
+                    self.world.reason(legal)
+                except ProposalValidationError as invalid:
+                    error = str(invalid)
+                events = self.world.events[before:]
+                rejected = [event for event in events if event['type'] == 'hypothesis_rejected']
+                # A later malformed proposal or valid queue cannot reclassify
+                # an earlier worker/limited replay failure as model repair.
+                if any(event['reason'] not in ('counterexample', 'empty') for event in rejected):
+                    self.world.flush('replan_tool_failure')
+                    return
+                if self.world.queue:
+                    tokens, remaining = self._inference_limits()
+                    if tokens <= 0 or remaining <= 0:
+                        self.world.flush('replan_budget_exhausted')
+                        self.world.event('replan_exhausted', attempt=attempt, reason='budget', live_actions=0)
+                        raise TimeoutError('zero-action replanning budget exhausted')
+                    self.world.event('replan_accepted', attempt=attempt, live_actions=0)
+                    return
+                if error is None and not rejected:
+                    return
+                counterexamples = [counterexample for event in events if event['type'] == 'replay'
+                                   for counterexample in event['report'].get('counterexamples', [])]
+                self.world.flush('replan_rejected')
+                self.world.event('replan_rejected', attempt=attempt, reason=error or 'hypotheses_rejected',
+                                 counterexamples=counterexamples[:2], live_actions=0)
+            self.world.event('replan_exhausted', attempt=3, reason='attempt_cap', live_actions=0)
+        finally:
+            self._reasoning_deadline = None
 
     def execute_planner(self, source: str) -> dict[str, Any]:
         root = Path(__file__).resolve().parents[1]
         python = Path(os.getenv("ARC3_SANDBOX_PYTHON", str(root / ".venv_agent_sandbox/bin/python")))
-        result = run_sandbox(source, python=python, cwd=root)
+        timeout = 15.0
+        if self._reasoning_deadline is not None:
+            _, remaining = self._inference_limits()
+            if remaining <= 0:
+                raise TimeoutError('zero-action replanning budget exhausted before worker')
+            timeout = min(timeout, remaining)
+        result = run_sandbox(source, python=python, cwd=root, timeout=timeout)
         if not result["ok"]:
             logging.getLogger(__name__).warning("planner failure: %s", result)
         return result
@@ -634,7 +714,7 @@ class MyAgent(Agent):
                 planned = self.world.next_action(legal)
                 if planned is None:
                     try:
-                        self.world.reason(legal)
+                        self._reason_with_replanning(legal)
                     except Exception as error:
                         self.world.flush('reasoning_failure')
                         self.world.event('reasoning_failure', error=type(error).__name__, detail=str(error))

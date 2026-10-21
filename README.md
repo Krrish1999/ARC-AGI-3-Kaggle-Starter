@@ -35,6 +35,14 @@ prediction gates. Inference requests use the existing level budgets and a
 Cache-hit rates are recorded only when the server supplies cached-token counts.
 The >95% rate is a performance target, not a measured result here.
 
+`ENABLE_ZERO_ACTION_REPLAN=1` allows up to three proposals after a rejected
+mechanic or invalid action plan, using appended counterexamples and validation
+feedback before any live dispatch. The proposals share one reasoning allowance;
+inference and worker timeouts shrink with the remaining allowance. Setting it
+to `0` restores the single-proposal path. Exact replay and `expect` checks stay
+mandatory, and infrastructure failures remain visible. Repair attempts and
+outcomes are recorded in each perception directory's `world_model.jsonl`.
+
 Local regression checks cover startup and adapter failures. Actual GPU loading,
 VRAM, throughput and cache reuse await an offline Kaggle rehearsal with these
 mounts. The 900-second allowance accommodates the reference's roughly

@@ -34,7 +34,7 @@
       "stdout": "DENIED\n",
       "stderr": "",
       "error": null,
-      "elapsed_seconds": 0.032056129000011424
+      "elapsed_seconds": 0.03209928999967815
     },
     "traversal_read": {
       "ok": true,
@@ -44,7 +44,7 @@
       "stdout": "DENIED\n",
       "stderr": "",
       "error": null,
-      "elapsed_seconds": 0.03224442399994132
+      "elapsed_seconds": 0.03241518699996959
     },
     "symlink_read": {
       "ok": true,
@@ -54,7 +54,7 @@
       "stdout": "DENIED\n",
       "stderr": "",
       "error": null,
-      "elapsed_seconds": 0.03204605500002344
+      "elapsed_seconds": 0.03206517799981157
     },
     "write": {
       "ok": true,
@@ -64,7 +64,7 @@
       "stdout": "DENIED\n",
       "stderr": "",
       "error": null,
-      "elapsed_seconds": 0.03215881999994963
+      "elapsed_seconds": 0.03207006500042553
     },
     "symlink_write": {
       "ok": true,
@@ -74,7 +74,7 @@
       "stdout": "DENIED\n",
       "stderr": "",
       "error": null,
-      "elapsed_seconds": 0.03209207800000513
+      "elapsed_seconds": 0.0320726800000557
     },
     "directory_list": {
       "ok": true,
@@ -84,7 +84,7 @@
       "stdout": "DENIED\n",
       "stderr": "",
       "error": null,
-      "elapsed_seconds": 0.032022643999994216
+      "elapsed_seconds": 0.0320833349996974
     },
     "subprocess_escape": {
       "ok": true,
@@ -94,7 +94,7 @@
       "stdout": "DENIED\n",
       "stderr": "",
       "error": null,
-      "elapsed_seconds": 0.03197143199997754
+      "elapsed_seconds": 0.0319720879997476
     },
     "fork_escape": {
       "ok": true,
@@ -104,7 +104,7 @@
       "stdout": "DENIED\n",
       "stderr": "",
       "error": null,
-      "elapsed_seconds": 0.03193413500002862
+      "elapsed_seconds": 0.03220819499983918
     },
     "exec_escape": {
       "ok": true,
@@ -114,7 +114,7 @@
       "stdout": "DENIED\n",
       "stderr": "",
       "error": null,
-      "elapsed_seconds": 0.03195672900005775
+      "elapsed_seconds": 0.03202391600007104
     },
     "native_open": {
       "ok": true,
@@ -124,7 +124,7 @@
       "stdout": "DENIED\n",
       "stderr": "",
       "error": null,
-      "elapsed_seconds": 0.031944090000024516
+      "elapsed_seconds": 0.032256371999665134
     },
     "memory": {
       "ok": true,
@@ -134,7 +134,7 @@
       "stdout": "MEMORY_CAPPED\n",
       "stderr": "",
       "error": null,
-      "elapsed_seconds": 0.03197790100000475
+      "elapsed_seconds": 0.03223624700012806
     },
     "loop": {
       "ok": false,
@@ -144,7 +144,7 @@
       "stdout": "",
       "stderr": "",
       "error": "timeout",
-      "elapsed_seconds": 15.001080536000018
+      "elapsed_seconds": 15.001371855999878
     }
   },
   "resource_limits_enabled": true

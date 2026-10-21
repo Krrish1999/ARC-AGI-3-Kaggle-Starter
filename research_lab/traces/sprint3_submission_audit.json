@@ -1,0 +1,130 @@
+{
+  "recorded_utc": "2026-10-21T07:30:25.731021+00:00",
+  "command": "kaggle competitions submissions -c arc-prize-2026-arc-agi-3 -v",
+  "credential_wrapper": "scripts/kaggle_cli.py",
+  "competition": "arc-prize-2026-arc-agi-3",
+  "receipt": "research_lab/traces/sprint3_submissions.csv",
+  "receipt_sha256": "943f147757dd994ed3013ce48d8978d613e1a1832fdbac971dd426b075cdf5be",
+  "entry_count": 6,
+  "entries": [
+    {
+      "ref": "57449526",
+      "fileName": "submission.parquet",
+      "date": "2026-10-20 18:31:40.460000",
+      "description": "Runtime isolation: verified Kaggle startup and lifecycle",
+      "status": "SubmissionStatus.COMPLETE",
+      "publicScore": "0.12",
+      "privateScore": ""
+    },
+    {
+      "ref": "57448657",
+      "fileName": "submission.parquet",
+      "date": "2026-10-20 17:59:31.567000",
+      "description": "Gateway evaluation with diagnostics",
+      "status": "SubmissionStatus.ERROR",
+      "publicScore": "",
+      "privateScore": ""
+    },
+    {
+      "ref": "57447578",
+      "fileName": "submission.parquet",
+      "date": "2026-10-20 17:25:56.753000",
+      "description": "Gateway evaluation with diagnostics",
+      "status": "SubmissionStatus.ERROR",
+      "publicScore": "",
+      "privateScore": ""
+    },
+    {
+      "ref": "57446766",
+      "fileName": "submission.parquet",
+      "date": "2026-10-20 16:59:12.643000",
+      "description": "Gateway evaluation with diagnostics",
+      "status": "SubmissionStatus.ERROR",
+      "publicScore": "",
+      "privateScore": ""
+    },
+    {
+      "ref": "57435957",
+      "fileName": "submission.parquet",
+      "date": "2026-10-20 11:37:24.910000",
+      "description": "",
+      "status": "SubmissionStatus.ERROR",
+      "publicScore": "",
+      "privateScore": ""
+    },
+    {
+      "ref": "57431664",
+      "fileName": "submission.parquet",
+      "date": "2026-10-20 09:27:31.473000",
+      "description": "Sprint 1",
+      "status": "SubmissionStatus.ERROR",
+      "publicScore": "",
+      "privateScore": ""
+    }
+  ],
+  "newest_complete": {
+    "submission_ref": 57449526,
+    "submitted_utc": "2026-10-20 18:31:40.460000",
+    "official_public_score": "0.12",
+    "official_private_score": null,
+    "description": "Runtime isolation: verified Kaggle startup and lifecycle",
+    "status": "SubmissionStatus.COMPLETE",
+    "notebook": "aanchal009/arc-agi-3-runtime-check",
+    "recorded_submission_script_version_id": 360525150,
+    "recorded_submission_total_bytes": 3471
+  },
+  "latest_pulled_kernel": {
+    "id": "aanchal009/arc-agi-3-runtime-check",
+    "notebook_sha256": "da746805d80566f94a2c4421ce57f39425bb9714f11839d0c8f524e7ba8c20ee",
+    "build_id": "7cf1b632a694c2af",
+    "model_sources": [],
+    "dataset_sources": [],
+    "kernel_status": "COMPLETE"
+  },
+  "integrated_phase_b_result_present": false,
+  "verified_baseline_retired": false,
+  "verified_deployment_baseline_public_score": "0.12",
+  "integrated_engineering_parent_commit": "2fa8c0d",
+  "integrated_engineering_parent_score": null,
+  "diagnostic_scan": {
+    "games_found": 0,
+    "files": []
+  },
+  "critic": {
+    "baseline_decision": "Retain official fallback0.12; no completed replacement exists in this account receipt.",
+    "gate_2": "NOT_MEASURED",
+    "metrics": {
+      "zero_action_retrodiction_rejection": {
+        "numerator": null,
+        "denominator": null,
+        "rate": null
+      },
+      "nonprobing_prediction_coverage": {
+        "numerator": null,
+        "denominator": null,
+        "rate": null
+      },
+      "prediction_match": {
+        "numerator": null,
+        "denominator": null,
+        "rate": null
+      },
+      "simulator_compile_replay_success": {
+        "numerator": null,
+        "denominator": null,
+        "rate": null
+      }
+    },
+    "conditional_make_submit": "HOLD: user requires Gate1 and actual Gate2 pass",
+    "new_competition_submission": false
+  },
+  "limits": [
+    "CLI publicScore is the only released official score; privateScore is absent.",
+    "Historical fallback receipt identifies scriptVersionId; current CLI independently confirms ref, status and score.",
+    "Synthetic inference tests cannot establish current public-game telemetry or hidden RHAE lift.",
+    "No GPU or mounted model weights/wheelhouse is available in the execution workspace."
+  ],
+  "user_identified_alternative_account_or_notebook": false,
+  "original_cli_receipt_sha256": "ce7bc7098bb8727fc87819f8592b6229c7cb36779e2b1255a2dba5095c9bb754",
+  "receipt_normalization": "CRLF changed to LF for repository text; all CSV field values are unchanged."
+}

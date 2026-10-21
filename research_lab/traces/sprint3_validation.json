@@ -1,0 +1,86 @@
+{
+  "recorded_utc": "2026-10-21T07:35:25.368885+00:00",
+  "mutation": "[EDIT]",
+  "branch": "feat/s3-zero-action-replanning",
+  "engineering_parent_commit": "2fa8c0d7edf36ab626630a4acbf019f9018033c3",
+  "selected_archive": "research_lab/top_programs/v1_retrodict_world_model_harness.py",
+  "selected_archive_sha256": "bc5fb63634e716fb9d1be65c4c1f5a401cff6fc64d4e2511a411f025a5951b93",
+  "immutable_reference_sha256": "3c4815ce430b9fc501c077265da11a6b7847c7f7fcf66b7eeda1c77385972cdf",
+  "source_sha256": {
+    "agent/my_agent.py": "a8d4783f773c1b5cbbe3d7541f10ad6d567adbfadf8db6da5afa54eeb6dbfa11",
+    "agent/arclog.py": "3043cf1829bf61621dc717226cc71d2a8cfc2a61039ae25c3fdad79e28a94589",
+    "agent/local_backend.py": "4c006f6b56dfae61ff019724ab90fc07150462f46a43d874bc1d2e3aec5ad1b9",
+    "agent/runtime.py": "2b59095e38911d5c0de52c9104990a601f89b4730e6ba05aa7a3b358c29c342e",
+    "agent/sandbox.py": "59a26176fbd45f3022110a7b7edf0f04b916a074141d1cd585f2882e635b4dfe",
+    "scripts/build_notebook.py": "bf6687d8adf4b12fc1d6c3ba5768666093744c7cb0302791964434c5ece47fd8",
+    "scripts/notebook_runtime.py": "c4fe30106b91ac356fe5486f5a70bb01b5465b8efaee5f3e14428d80c10d66b9",
+    "scripts/llm_daemon.py": "59ac4dec610a9cfd92d9191863b095e05622c3a4dafc45124ebbbbd1eb04a4d0",
+    "notebooks/kernel-metadata.json": "8bdb7524ae3f77e3f4ab1c8b07a888a557647cc841525a500eb9bbce7b694a99",
+    "tests/test_zero_action_replan_s3.py": "564d12995571c69f2354395ea5650407796080920032360138f1628ac45a1fa9"
+  },
+  "notebook_build_id": "634871222b4f7ae7",
+  "notebook_sha256": "b1beebd2f5fbce3ccd7b69a643c309179ddf3a092d06df65270c996b48284986",
+  "official_submission_audit": "research_lab/traces/sprint3_submission_audit.json",
+  "official_submission_audit_sha256": "7ea2d3fd479443913114e6f4bb04a9ae34413605a4cc9ddc67c8f588b376c8ef",
+  "official_baseline_public_score": "0.12",
+  "integrated_harness_score": null,
+  "ablation": {
+    "name": "ENABLE_ZERO_ACTION_REPLAN",
+    "default": "1",
+    "off": "one-proposal reference",
+    "on": "at most 3 proposals; shared remaining reasoning allowance",
+    "inference_token_limit": "per request; elapsed allowance shared",
+    "limitations": "Shared allowance is checked between operations and passed to socket/worker timeouts; not a separately enforced whole-call wall timer."
+  },
+  "checks": {
+    "pytest": {
+      "tests": 187,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "s3_cases": 21,
+      "result": "PASS"
+    },
+    "ruff": "PASS: agent/ scripts/ tests/test_zero_action_replan_s3.py",
+    "pyright": "PASS: agent/; 0 errors and 0 warnings",
+    "containment": {
+      "passed": true,
+      "checks_passed": 20,
+      "report_sha256": "b715dd7e479c4f916f22db76d721ed889aca110231e3fc752c9d5ee1ed77b2a4"
+    },
+    "generated_notebook_roundtrip": true,
+    "required_boot_window_seconds": 900,
+    "synthetic_only": [
+      "real sandbox replay rejects wrong mechanic then accepts corrected one",
+      "invalid plans repaired without relaxing exact predictions",
+      "attempt exhaustion and toggle-off control",
+      "zero live dispatch during repair and append-only requests",
+      "level/global budget exhaustion and shrinking worker/inference allowances",
+      "worker/PrefixLock/transport/IO failure not retried as proposal repair",
+      "mixed failed-worker plus malformed/valid sibling fails visibly",
+      "pending authorization and Tier1 revision guards preserved"
+    ]
+  },
+  "repair_record": {
+    "rounds": 1,
+    "issues_fixed": [
+      "real-sandbox fixture pins interpreter to avoid prior fixture environment leakage",
+      "nonrecoverable replay failure must win over later sibling validation error or queue"
+    ]
+  },
+  "critic": {
+    "functional_review": "ACCEPTED after mixed-failure fix",
+    "gate_1": "PASS",
+    "gate_2": "NOT_MEASURED",
+    "gate_3": "HOLD",
+    "ground_truth": "Retain 0.12; no integrated Phase B result is present.",
+    "new_baseline_promoted": false
+  },
+  "deployment": {
+    "notebook_built_locally": true,
+    "make_submit_executed": false,
+    "new_competition_submission": false,
+    "hold_reason": "User requires Gate 1 and actual Gate 2 pass; no candidate inference trajectories, GPU or mounted weights are available to measure Gate 2.",
+    "next_required_evidence": "Actual integrated PhaseB result and real inference trajectories with coverage/match, replay rejection and simulator attempt denominators."
+  }
+}
