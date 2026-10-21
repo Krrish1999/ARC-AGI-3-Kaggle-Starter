@@ -69,7 +69,7 @@
     "upstream_commit": "d00d88efc8d6281b12be4f4073126aec95038c55",
     "sglang_wheel": "sglang-0.5.19+gd00d88efc8d6-cp312-cp312-linux_x86_64.whl",
     "served_model": "flashnext",
-    "startup_seconds": 180,
+    "startup_seconds": 900,
     "radix_cache": "enabled by server default; schedule-policy=lpm; cache reporting enabled",
     "configuration_edits": {
       "PREFIX = \"/tmp/sgl-intel\"": "PREFIX = os.environ[\"ARC3_LLM_PREFIX\"]",
@@ -88,7 +88,7 @@
   "inference_api": "OpenAI-compatible flashnext at http://127.0.0.1:8001/v1; distinct from gateway:8001",
   "package_verification": "Before installation, validate wheel containers and record SHA256 of every wheel/lock. Exact SGLang release filename is required; these observed hashes are not independently authenticated signatures.",
   "model_verification": "Validate AutoRound/draft metadata, all indexed shard existence/sizes, config/index hashes; draft token map/tokenizer have retained baseline SHA256 assertions. No upstream full weight-shard digests supplied.",
-  "startup": "Single monotonic 180-second install/load/readiness deadline. Require /v1/models to advertise flashnext; failed startup is logged exploration with process-group cleanup.",
+  "startup": "Single monotonic 900-second (15-minute) install/load/readiness deadline. Require /v1/models to advertise flashnext; failed startup is logged exploration with process-group cleanup.",
   "ablations": {
     "ENABLE_OFFLINE_BACKEND": "1 (default): startup/connect; 0: explicit exploration",
     "ENABLE_SPECULATIVE_DRAFT": "1 (default): NEXTN/FR-Spec; 0: same target without draft"

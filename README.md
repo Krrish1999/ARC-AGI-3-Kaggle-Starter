@@ -20,7 +20,7 @@ version-1 Intel AutoRound target and Albucino MTP draft models. It installs from
 the attached wheelhouse into an isolated venv, leaving the framework interpreter
 unchanged. The retained reference notebook is unchanged.
 
-Installation, model loading and `/v1/models` readiness share a **180-second**
+Installation, model loading and `/v1/models` readiness share a **900-second (15-minute)**
 deadline before the gameplay runner starts. Failure stops the owned process
 group and records exploration fallback. `ENABLE_OFFLINE_BACKEND=0` selects that
 control explicitly; `ENABLE_SPECULATIVE_DRAFT=0` serves the same target without
@@ -37,9 +37,10 @@ The >95% rate is a performance target, not a measured result here.
 
 Local regression checks cover startup and adapter failures. Actual GPU loading,
 VRAM, throughput and cache reuse await an offline Kaggle rehearsal with these
-mounts. The reference cold load exceeded 180 seconds, so the requested deadline
-can select exploration even with valid inputs. Asset provenance and validation
-limits are recorded in `research_lab/offline_inventory.json`.
+mounts. The 900-second allowance accommodates the reference's roughly
+619-second cold load; slower or failed startup still selects exploration.
+Asset provenance and validation limits are recorded in
+`research_lab/offline_inventory.json`.
 
 ---
 

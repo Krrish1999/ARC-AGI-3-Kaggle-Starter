@@ -51,7 +51,7 @@ def extract_launcher() -> tuple[str, dict]:
             raise ValueError(f'Baseline launcher fragment changed: {before}')
         serving = serving.replace(before, after)
     # Keep install + server in the supervisor's process group. The parent owns
-    # the single 180-second readiness deadline, termination and reaping.
+    # the single bounded readiness deadline, termination and reaping.
     tail = ('\nprint("SGLang launch:", args, flush=True)\n'
             'with open(LOG, "ab", buffering=0) as logf:\n'
             '    proc = subprocess.Popen(args, env=env, stdout=logf, stderr=subprocess.STDOUT)\n'
@@ -74,7 +74,7 @@ def extract_launcher() -> tuple[str, dict]:
         'pennyroyal_release': 'v2.5.3',
         'upstream_commit': 'd00d88efc8d6281b12be4f4073126aec95038c55',
         'sglang_wheel': 'sglang-0.5.19+gd00d88efc8d6-cp312-cp312-linux_x86_64.whl',
-        'served_model': 'flashnext', 'startup_seconds': 180,
+        'served_model': 'flashnext', 'startup_seconds': 900,
         'radix_cache': 'enabled by server default; schedule-policy=lpm; cache reporting enabled',
         'configuration_edits': edits,
     }

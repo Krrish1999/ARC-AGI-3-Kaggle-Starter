@@ -27,6 +27,7 @@ except ImportError:
 #                burns GPU quota faster — use only when you're confident.
 # ─────────────────────────────────────────────────────────────────────────────
 ACCELERATOR = "rtx6000"
+LLM_STARTUP_SECONDS = 900
 
 # Internal mapping; don't edit unless Kaggle adds new options.
 _ACCELERATORS = {
@@ -137,7 +138,7 @@ def build() -> dict:
             preflight_cell,
             daemon_cell,
             launcher_cell,
-            code_cell('runner.start_llm()\n'),
+            code_cell(f'runner.start_llm(startup_seconds={LLM_STARTUP_SECONDS})\n'),
             run_cell,
         ],
     }

@@ -267,7 +267,7 @@ class NotebookRunner:
                          timeout=120, cwd=self.framework)
         self.event('save_preflight_passed', gateway_contacted=False, gameplay_actions=0)
 
-    def start_llm(self) -> None:
+    def start_llm(self, *, startup_seconds: float = 900.0) -> None:
         with self.stage('llm_startup'):
             spec = importlib.util.spec_from_file_location('arc3_llm_daemon', '/tmp/arc3_llm_daemon.py')
             if spec is None or spec.loader is None:
@@ -278,7 +278,7 @@ class NotebookRunner:
             if remaining <= 0:
                 raise TimeoutError('Run budget exhausted before LLM startup')
             self.llm = module.LLMDaemon(Path('/tmp/arc3_llm_launcher.py'), self.working,
-                                        self.event, startup_seconds=min(180.0, remaining))
+                                        self.event, startup_seconds=min(startup_seconds, remaining))
             self.llm.start()
 
     def stop_llm(self) -> None:

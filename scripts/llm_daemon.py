@@ -16,9 +16,9 @@ from typing import Any
 
 class LLMDaemon:
     def __init__(self, launcher: Path, working: Path, event: Callable[..., Any],
-                 *, startup_seconds: float = 180.0) -> None:
-        if not 0 < startup_seconds <= 180:
-            raise ValueError('LLM startup must fit within 180 seconds')
+                 *, startup_seconds: float = 900.0) -> None:
+        if not 0 < startup_seconds <= 900:
+            raise ValueError('LLM startup must fit within 900 seconds')
         self.launcher, self.working, self.event = launcher, working, event
         self.startup_seconds = startup_seconds
         self.process: subprocess.Popen | None = None
@@ -98,7 +98,7 @@ class LLMDaemon:
                 except (OSError, ValueError, TypeError, AttributeError, http.client.HTTPException):
                     pass
                 time.sleep(min(0.5, max(0.0, deadline - time.monotonic())))
-            raise TimeoutError('startup_deadline_180s')
+            raise TimeoutError(f'startup_deadline_{self.startup_seconds:g}s')
         except (OSError, ValueError, RuntimeError, TypeError, AttributeError,
                 subprocess.SubprocessError, http.client.HTTPException) as error:
             self.reason = f'{type(error).__name__}: {error}'

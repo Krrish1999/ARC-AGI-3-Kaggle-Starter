@@ -57,9 +57,9 @@ def daemon(tmp_path, monkeypatch):
 
 def test_readiness_precedes_backend_enable_and_cleanup_owns_all_children(daemon):
     supervisor = daemon.supervisor
-    supervisor.models_ready = Mock(side_effect=[False, True])
+    supervisor.models_ready = Mock(side_effect=lambda timeout: daemon.clock.now >= 619)
     assert supervisor.start()
-    assert daemon.clock.now == 0.5
+    assert daemon.clock.now == 619
     assert os.environ['ARC3_LLM_READY'] == '1'
     assert daemon.spawn.call_args.kwargs['start_new_session'] is True
     assert daemon.spawn.call_args.kwargs['env']['HF_HUB_OFFLINE'] == '1'
@@ -85,10 +85,10 @@ def test_startup_failure_is_bounded_logged_exploration(daemon, monkeypatch, fail
     elif failure == 'disabled':
         monkeypatch.setenv('ENABLE_OFFLINE_BACKEND', '0')
     assert not supervisor.start()
-    assert daemon.clock.now <= 180
+    assert daemon.clock.now <= 900
     if failure == 'deadline':
-        assert daemon.clock.now == 180
-        assert 'startup_deadline' in supervisor.reason
+        assert daemon.clock.now == 900
+        assert 'startup_deadline_900s' in supervisor.reason
     assert os.environ['ARC3_LLM_READY'] == '0'
     status = json.loads((supervisor.working / 'diagnostics/llm_status.json').read_text())
     assert status['mode'] == 'exploration' and not status['ever_ready']
@@ -121,7 +121,7 @@ def test_health_checks_served_identity_on_loopback(tmp_path, monkeypatch, body, 
 
 
 def test_no_unbounded_startup_configuration(tmp_path):
-    for timeout in (0, -1, 181):
+    for timeout in (0, -1, 901):
         with pytest.raises(ValueError):
             llm_daemon.LLMDaemon(tmp_path / 'launcher', tmp_path, Mock(), startup_seconds=timeout)
 
@@ -278,7 +278,8 @@ def test_backend_connection_obeys_ablation_and_readiness(tmp_path, monkeypatch, 
 def test_notebook_waits_for_daemon_before_gateway_and_always_cleans_up(tmp_path):
     notebook = build()
     cells = [cell['source'] for cell in notebook['cells'] if cell['cell_type'] == 'code']
-    assert cells.index('runner.start_llm()\n') < cells.index('runner.run()\n')
+    assert cells.index('runner.start_llm(startup_seconds=900)\n') < cells.index('runner.run()\n')
+    assert notebook['metadata']['arc3']['llm_bundle']['startup_seconds'] == 900
     run = NotebookRunner('fixture', working=tmp_path)
     run.llm = Mock()
     run._run = Mock(side_effect=RuntimeError('gateway failed'))

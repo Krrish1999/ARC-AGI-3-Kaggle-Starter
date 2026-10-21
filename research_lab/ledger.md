@@ -986,3 +986,22 @@ valid assets may therefore fall back to exploration until warm-start timing is
 measured on Kaggle. No new competition slot was used and no candidate was
 promoted to top_programs. This PR delivers the implementation for review;
 hardware/performance acceptance remains pending.
+
+
+### [EDIT] 2026-10-21 — Extend model readiness to 15 minutes
+
+Per user direction, supersede the initial 180-second startup allowance with
+900 seconds. `scripts/build_notebook.py` now explicitly configures that value
+in the generated startup cell. The supervisor default/maximum, runtime entry
+point, bundle manifest and current asset inventory agree on 900 seconds.
+Installation, target/draft loading and /v1/models readiness still share one
+monotonic deadline before gameplay, capped by the remaining global run budget.
+Timeout diagnostics report the actual allowed duration; failure still records
+exploration and cleans up owned processes.
+
+Updated the existing readiness fixture to accept a server becoming ready at
+619 seconds; the timeout fixture now exhausts exactly 900 simulated seconds.
+Regenerated the notebook and validation hashes. All 166 tests pass, required
+ruff and pyright pass, and behavioral containment passes all 20 checks.
+The reference cold load now fits within the configured allowance; actual GPU
+loading/cache performance remains unmeasured. No competition slot was used.
