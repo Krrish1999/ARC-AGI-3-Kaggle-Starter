@@ -47,6 +47,41 @@ path accepted the final version-7 diagnostic writes after the `/tmp` error;
 this supports trying it first but does not establish model-sized capacity.
 Receipt: `research_lab/traces/working_staging_deployment.json`.
 
+### Version 8 rehearsal — COMPLETE save, working volume too small
+
+`make submit` saved **version 8**, build **122eab780b108df8**, from `a9b0578`.
+Initial and final Kaggle pulls match every cell source and all three datasets;
+RTX PRO 6000, GPU-on/internet-off, containment/framework preflight pass.
+`make status` first reports COMPLETE at **2026-10-21 19:55:57.526
+Asia/Calcutta**. The notebook-start-to-observed-completion interval is
+**1334.022 seconds**, including save/platform overhead;
+it is not model readiness latency.
+
+The working candidate is a distinct writable **ext4** mount, device 1794,
+but reports only **20,937,515,008 bytes (20.94 GB)** free. It correctly rejects
+**185,400,295,230 bytes** of checkpoint plus **17,179,869,184 bytes** of
+headroom before copying. Fallback `/tmp/models/arc3` is the root overlay,
+device 64; it preallocates 202,580,451,328 bytes and the last observed progress
+is **20 synced files / 73,581,282,253 bytes**, still within the target copy.
+No checkpoint-complete, server-launch, readiness or final failure event was
+captured. The stream ends there and the completed-log API again returns `[]`.
+Version-8 diagnostics are not yet present on main; keep its final copy/startup
+outcome **unconfirmed**, separate from the established version-7 failure.
+
+Evidence: `research_lab/traces/working_staging_runtime_evidence.json` and the
+hash-bound deployment receipt. The repaired loop/progress tests pass locally;
+the available console establishes correct rejection of the undersized working
+volume, not a ready model. PR #14 remains draft. No Phase B evaluation was
+requested or submitted.
+
+**Constraint decision pending.** The user requires all 38 shards copied before
+launch. The working volume demonstrably cannot hold them, and the previous
+/tmp rehearsal failed actual writes. Asked whether to preserve that requirement
+or permit bounded shard staging with identical Qwen weights if the fallback
+fails. Do not implement or deploy an incremental-loading contract without the
+answer; do not change checkpoints, bypass the full-copy barrier, or extend the
+startup deadline. Reconcile version-8 diagnostics before another GPU rehearsal.
+
 ## [EDIT] Capacity-backed local checkpoint boot — 2026-10-21
 
 Requested skill: `phd-systems`; continue `feat/local-model-staging` / PR #14.

@@ -1,5 +1,5 @@
 {
-  "status": "prepared",
+  "status": "COMPLETE",
   "phase": "A",
   "prepared_at_utc": "2026-10-21T14:03:29.413304+00:00",
   "branch": "feat/local-model-staging",
@@ -53,5 +53,67 @@
     "notebooks/submission.ipynb": "abf88bf40bc9352e1fb453dd0ca28018d7bce4e2110001df445bc021fa0847c6",
     "notebooks/kernel-metadata.json": "05bf130a005c885153cf248065b7a73fad5d01d1afd8e5212427263c48cdffb7",
     "containment.json": "3a2368d9f13a8c36c845f581f908572db01cd9047c8c15a5377806b24f7c9054"
-  }
+  },
+  "saved_version": 8,
+  "submitted_source_commit": "a9b0578",
+  "saved_sources_match": true,
+  "runtime_started_at_utc": "2026-10-21 14:03:43.504Z",
+  "llm_supervisor_started_at_utc": "2026-10-21 14:04:04.758Z",
+  "latest_staging_observation": {
+    "bytes_required": 185400295230,
+    "capacity_reservation": true,
+    "disk_free_before": 1145972936704,
+    "headroom_bytes": 17179869184,
+    "mode": "local_copy",
+    "models": {},
+    "root": "/tmp/models/arc3",
+    "status": "copying",
+    "storage_attempts": [
+      {
+        "block_size": 4096,
+        "device": 1794,
+        "disk_free_before": 20937515008,
+        "errno": 28,
+        "error": "[Errno 28] insufficient local model storage: need 185400295230 bytes plus headroom",
+        "error_type": "OSError",
+        "filesystem": "ext4",
+        "free_inodes": 1310522,
+        "mount": "/kaggle/working",
+        "read_only": false,
+        "root": "/kaggle/working/.arc3-models",
+        "status": "failed",
+        "total_inodes": 1310720
+      },
+      {
+        "allocated_bytes": 202580451328,
+        "block_size": 4096,
+        "copied_bytes": 73581282253,
+        "copied_files": 20,
+        "copying_kind": "target",
+        "device": 64,
+        "disk_free_before": 1145972936704,
+        "filesystem": "overlay",
+        "free_inodes": 442956464,
+        "mount": "/",
+        "read_only": false,
+        "reservation_seconds": 0.416,
+        "reserved_files": 62,
+        "root": "/tmp/models/arc3",
+        "status": "reserved",
+        "total_inodes": 543162368
+      }
+    ],
+    "transaction": "/tmp/models/arc3/run-hfnkj12w",
+    "workers": 4
+  },
+  "observed_completed_at_utc": "2026-10-21T14:25:57.525927+00:00",
+  "last_observed_running_at_utc": "2026-10-21T14:25:11.739997+00:00",
+  "completion_source_check": true,
+  "model_readiness": "unconfirmed_pending_version_8_diagnostics",
+  "local_copy_completed": null,
+  "server_launch_reached": null,
+  "runtime_evidence": "research_lab/traces/working_staging_runtime_evidence.json",
+  "runtime_evidence_sha256": "8f59de92d2db8cc95b931a1510b86797a7d58d299b2bdbf1e1cd82f2575d3de3",
+  "notebook_start_to_observed_complete_seconds": 1334.022,
+  "constraint_decision": "Question pending: retain all-shards-before-launch requirement or allow bounded shard staging with unchanged Qwen weights. Do not implement the changed loading contract without an answer."
 }

@@ -1,5 +1,5 @@
 {
-  "status": "kaggle_v7_complete_staging_enospc_cleanup_erofs",
+  "status": "kaggle_v8_complete_working_volume_insufficient_final_diagnostics_pending",
   "assets": {
     "WHEELHOUSE_DIR": {
       "candidates": [
@@ -121,21 +121,21 @@
     "ENABLE_STAGING_CAPACITY_RESERVATION": "1(default): allocate full checkpoint files plus 16 GiB headroom, select capable local candidate;0: preferred-root free-space-only reference."
   },
   "measured_cache_hit_rate": null,
-  "gpu_acceptance": "Version 7 COMPLETE save; readiness FAIL. Committed diagnostics show staging ENOSPC at fsync after 860.627 seconds despite allocated extents, then EROFS during cleanup prevented fallback. Startup attempt failed after 935.044 seconds; SGLang never launched. Containment 20/20 and framework preflight passed. No inference/cache/RHAE acceptance.",
+  "gpu_acceptance": "Version 8 COMPLETE save; final model outcome unconfirmed. Working ext4 volume reports only 20,937,515,008 free bytes and correctly rejects the 185,400,295,230-byte checkpoint plus headroom. Fallback /tmp overlay last reports 20 synced files / 73,581,282,253 bytes. Live logs end there, completed logs return []; final diagnostics needed. No inference/cache/RHAE acceptance.",
   "bundle_builder_reference": "https://github.com/da-fr/arc-agi-3-solution/tree/10882e332d883af3e61616df8c8a17d03a328a75/serving",
   "local_probe_scope": "present_candidates lists local workspace availability only; the Kaggle run separately verified its attached mounts.",
-  "kaggle_runtime_evidence": "research_lab/traces/capacity_staging_deployment.json",
-  "prior_kaggle_runtime_evidence": "research_lab/traces/local_staging_deployment.json",
+  "kaggle_runtime_evidence": "research_lab/traces/working_staging_deployment.json",
+  "prior_kaggle_runtime_evidence": "research_lab/traces/capacity_staging_deployment.json",
   "local_model_staging": {
     "default": "1",
     "toggle": "ENABLE_LOCAL_MODEL_STAGING",
     "root": "/kaggle/working/.arc3-models",
     "barrier": "All target/draft checkpoint files copied, closed/fsynced and metadata verified before args/server launch.",
     "failure": "Prevent server launch; no fallback to FUSE input in the enabled path.",
-    "measured_startup": "935.044 seconds to failed startup attempt; staging failed after 860.627 seconds; no model readiness latency.",
+    "measured_startup": "Version 8 startup duration/readiness unconfirmed pending diagnostics; version 7 measured 935.044 seconds to failure.",
     "storage_requirement_bytes": 185400295230,
     "reported_disk_free_bytes": 1145972940800,
-    "storage_acceptance": "FAIL: ENOSPC while syncing copied bytes, then EROFS while removing the owned transaction. Fallback candidates were not attempted.",
+    "storage_acceptance": "Working volume FAIL: 20.94 GB free versus 185.4 GB checkpoint. /tmp partial copy observed; version 7 full-copy writes failed despite reservation.",
     "fallback_roots": [
       "/tmp/models/arc3",
       "/kaggle/temp/arc3-models"
@@ -145,6 +145,7 @@
     "headroom_bytes": 17179869184,
     "capacity_candidate": "Reservation succeeded but actual writes failed; posix_fallocate/fsync/st_blocks do not establish complete writable capacity on this Kaggle overlay.",
     "output_cleanup": "Remove only nonce-owned working-directory transactions after stopping the server process group.",
-    "pending_candidate": "Working volume first; isolate cleanup errors, retain owned orphans and report synced file/byte progress. Pending Phase A rehearsal."
+    "pending_candidate": "Working-volume rehearsal completed its save; final fallback result pending diagnostics and future loading-contract decision.",
+    "working_volume_free_bytes": 20937515008
   }
 }

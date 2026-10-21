@@ -1,0 +1,873 @@
+{
+  "kernel_id": "aanchal009/arc-agi-3-runtime-check",
+  "saved_version": 8,
+  "build_id": "122eab780b108df8",
+  "scope": "Phase A save/startup only",
+  "events": [
+    {
+      "build_id": "122eab780b108df8",
+      "elapsed_seconds": 0.0,
+      "event": "stage_started",
+      "stage": "startup",
+      "at_utc": "2026-10-21 14:03:43.504Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "diagnostics": "/kaggle/working/diagnostics",
+      "elapsed_seconds": 0.002,
+      "event": "execution_mode",
+      "existing_submission": false,
+      "kernel_run_type": "Batch",
+      "mode": "SAVE_OR_INTERACTIVE",
+      "python": "3.12.13",
+      "rerun_flag": "",
+      "submission_policy": "gateway-only",
+      "at_utc": "2026-10-21 14:03:43.506Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "elapsed_seconds": 0.015,
+      "event": "gpu_probe",
+      "output": "NVIDIA RTX PRO 6000 Blackwell Server Edition, 97887 MiB\n",
+      "returncode": 0,
+      "at_utc": "2026-10-21 14:03:43.519Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "duration_seconds": 0.015,
+      "elapsed_seconds": 0.016,
+      "event": "stage_completed",
+      "stage": "startup",
+      "at_utc": "2026-10-21 14:03:43.520Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "elapsed_seconds": 0.027,
+      "event": "stage_started",
+      "stage": "offline_dependencies",
+      "at_utc": "2026-10-21 14:03:43.531Z"
+    },
+    {
+      "args": [
+        "/usr/bin/python3",
+        "-m",
+        "pip",
+        "install",
+        "--no-index",
+        "--find-links",
+        "/kaggle/input/competitions/arc-prize-2026-arc-agi-3/arc_agi_3_wheels",
+        "arc-agi",
+        "python-dotenv"
+      ],
+      "build_id": "122eab780b108df8",
+      "command": "pip",
+      "elapsed_seconds": 0.027,
+      "event": "command_started",
+      "log": "/kaggle/working/diagnostics/pip.log",
+      "at_utc": "2026-10-21 14:03:43.531Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "command": "pip",
+      "elapsed_seconds": 2.794,
+      "event": "command_completed",
+      "returncode": 0,
+      "at_utc": "2026-10-21 14:03:46.298Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "elapsed_seconds": 2.8,
+      "event": "dependency_versions",
+      "versions": {
+        "arc-agi": "0.9.8",
+        "arcengine": "0.9.3",
+        "python-dotenv": "1.2.2"
+      },
+      "at_utc": "2026-10-21 14:03:46.304Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "duration_seconds": 2.774,
+      "elapsed_seconds": 2.8,
+      "event": "stage_completed",
+      "stage": "offline_dependencies",
+      "at_utc": "2026-10-21 14:03:46.304Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "elapsed_seconds": 3.052,
+      "event": "stage_started",
+      "stage": "bundle_verification",
+      "at_utc": "2026-10-21 14:03:46.556Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "elapsed_seconds": 3.077,
+      "event": "bundle_verified",
+      "modules": 18,
+      "at_utc": "2026-10-21 14:03:46.581Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "duration_seconds": 0.025,
+      "elapsed_seconds": 3.077,
+      "event": "stage_completed",
+      "stage": "bundle_verification",
+      "at_utc": "2026-10-21 14:03:46.581Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "elapsed_seconds": 3.102,
+      "event": "stage_started",
+      "stage": "framework_setup",
+      "at_utc": "2026-10-21 14:03:46.606Z"
+    },
+    {
+      "args": [
+        "/usr/bin/python3",
+        "-m",
+        "venv",
+        "--without-pip",
+        "/kaggle/working/.venv_agent_sandbox"
+      ],
+      "build_id": "122eab780b108df8",
+      "command": "sandbox_setup",
+      "elapsed_seconds": 4.02,
+      "event": "command_started",
+      "log": "/kaggle/working/diagnostics/sandbox_setup.log",
+      "at_utc": "2026-10-21 14:03:47.524Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "command": "sandbox_setup",
+      "elapsed_seconds": 4.102,
+      "event": "command_completed",
+      "returncode": 0,
+      "at_utc": "2026-10-21 14:03:47.606Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "duration_seconds": 1.0,
+      "elapsed_seconds": 4.102,
+      "event": "stage_completed",
+      "stage": "framework_setup",
+      "at_utc": "2026-10-21 14:03:47.606Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "elapsed_seconds": 4.102,
+      "event": "stage_started",
+      "stage": "containment_audit",
+      "at_utc": "2026-10-21 14:03:47.606Z"
+    },
+    {
+      "args": [
+        "/usr/bin/python3",
+        "/tmp/submission_audit.py"
+      ],
+      "build_id": "122eab780b108df8",
+      "command": "containment",
+      "elapsed_seconds": 4.103,
+      "event": "command_started",
+      "log": "/kaggle/working/diagnostics/containment.log",
+      "at_utc": "2026-10-21 14:03:47.607Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "command": "containment",
+      "elapsed_seconds": 19.636,
+      "event": "command_completed",
+      "returncode": 0,
+      "at_utc": "2026-10-21 14:04:03.140Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "duration_seconds": 15.535,
+      "elapsed_seconds": 19.637,
+      "event": "stage_completed",
+      "stage": "containment_audit",
+      "at_utc": "2026-10-21 14:04:03.141Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "elapsed_seconds": 19.638,
+      "event": "stage_started",
+      "stage": "agent_registration",
+      "at_utc": "2026-10-21 14:04:03.142Z"
+    },
+    {
+      "action_log": "/kaggle/working/scratch",
+      "agent": "myagent",
+      "backend": "exploration",
+      "build_id": "122eab780b108df8",
+      "elapsed_seconds": 19.638,
+      "event": "agent_registered",
+      "operation_mode": "competition",
+      "at_utc": "2026-10-21 14:04:03.142Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "duration_seconds": 0.001,
+      "elapsed_seconds": 19.638,
+      "event": "stage_completed",
+      "stage": "agent_registration",
+      "at_utc": "2026-10-21 14:04:03.142Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "elapsed_seconds": 19.638,
+      "event": "stage_started",
+      "stage": "framework_imports",
+      "at_utc": "2026-10-21 14:04:03.142Z"
+    },
+    {
+      "args": [
+        "/usr/bin/python3",
+        "-c",
+        "import os\nos.environ['ENABLE_OFFLINE_BACKEND'] = '0'\nfrom pathlib import Path\nimport numpy as np\nfrom agents import AVAILABLE_AGENTS\nfrom agents.agent import Agent\nfrom arcengine import FrameDataRaw, GameAction, GameState\nagent_class = AVAILABLE_AGENTS['myagent']\nassert issubclass(agent_class, Agent)\nprint('FRAMEWORK_IMPORTS_OK', flush=True)\n# Synthetic public API data only; never instantiate an\n# Arcade or read environment source during this check.\nclass Fixture:\n    def __init__(self):\n        self.observation_space = FrameDataRaw(\n            game_id='runtime-fixture', frame=[np.zeros((4, 4), dtype=np.int8)],\n            state=GameState.NOT_PLAYED, win_levels=1, available_actions=[1])\n    def step(self, action, data=None, reasoning=None):\n        assert action is GameAction.RESET\n        self.observation_space.state = GameState.WIN\n        self.observation_space.levels_completed = 1\n        return self.observation_space\nos.environ['ARC3_LOG_DIR'] = str(Path.cwd().parent / 'diagnostics/synthetic-agent')\nagent = agent_class(card_id='fixture', game_id='runtime-fixture',\n                    agent_name='fixture', ROOT_URL='', record=False,\n                    arc_env=Fixture())\nagent.main()\nassert agent.action_counter == 1 and not agent._recovery_mode\nprint('FRAMEWORK_RUNTIME_OK synthetic_actions=1 gateway_actions=0', flush=True)\n"
+      ],
+      "build_id": "122eab780b108df8",
+      "command": "framework_imports",
+      "elapsed_seconds": 19.639,
+      "event": "command_started",
+      "log": "/kaggle/working/diagnostics/framework_imports.log",
+      "at_utc": "2026-10-21 14:04:03.143Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "command": "framework_imports",
+      "elapsed_seconds": 21.205,
+      "event": "command_completed",
+      "returncode": 0,
+      "at_utc": "2026-10-21 14:04:04.709Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "duration_seconds": 1.567,
+      "elapsed_seconds": 21.206,
+      "event": "stage_completed",
+      "stage": "framework_imports",
+      "at_utc": "2026-10-21 14:04:04.709Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "elapsed_seconds": 21.206,
+      "event": "save_preflight_passed",
+      "gameplay_actions": 0,
+      "gateway_contacted": false,
+      "at_utc": "2026-10-21 14:04:04.710Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "elapsed_seconds": 21.252,
+      "event": "stage_started",
+      "stage": "llm_startup",
+      "at_utc": "2026-10-21 14:04:04.756Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "elapsed_seconds": 21.254,
+      "event": "llm_started",
+      "launcher_sha256": "923cfb29ce44a16b54aa6c8f4351aa2e99c255d0a35c0cf6f0ad8f73672eec9e",
+      "pid": 248,
+      "at_utc": "2026-10-21 14:04:04.758Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "elapsed_seconds": 95.788,
+      "event": "model_staging",
+      "report": {
+        "bytes_required": 185400295230,
+        "capacity_reservation": true,
+        "disk_free_before": 1145972936704,
+        "headroom_bytes": 17179869184,
+        "mode": "local_copy",
+        "models": {},
+        "root": "/tmp/models/arc3",
+        "status": "reserving",
+        "storage_attempts": [
+          {
+            "block_size": 4096,
+            "device": 1794,
+            "disk_free_before": 20937515008,
+            "errno": 28,
+            "error": "[Errno 28] insufficient local model storage: need 185400295230 bytes plus headroom",
+            "error_type": "OSError",
+            "filesystem": "ext4",
+            "free_inodes": 1310522,
+            "mount": "/kaggle/working",
+            "read_only": false,
+            "root": "/kaggle/working/.arc3-models",
+            "status": "failed",
+            "total_inodes": 1310720
+          },
+          {
+            "allocated_bytes": 0,
+            "block_size": 4096,
+            "device": 64,
+            "disk_free_before": 1145972936704,
+            "filesystem": "overlay",
+            "free_inodes": 442956464,
+            "mount": "/",
+            "read_only": false,
+            "reserved_files": 0,
+            "root": "/tmp/models/arc3",
+            "status": "reserving",
+            "total_inodes": 543162368
+          }
+        ],
+        "transaction": "/tmp/models/arc3/run-hfnkj12w",
+        "workers": 4
+      },
+      "at_utc": "2026-10-21 14:05:19.292Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "elapsed_seconds": 96.289,
+      "event": "model_staging",
+      "report": {
+        "bytes_required": 185400295230,
+        "capacity_reservation": true,
+        "disk_free_before": 1145972936704,
+        "headroom_bytes": 17179869184,
+        "mode": "local_copy",
+        "models": {},
+        "root": "/tmp/models/arc3",
+        "status": "copying",
+        "storage_attempts": [
+          {
+            "block_size": 4096,
+            "device": 1794,
+            "disk_free_before": 20937515008,
+            "errno": 28,
+            "error": "[Errno 28] insufficient local model storage: need 185400295230 bytes plus headroom",
+            "error_type": "OSError",
+            "filesystem": "ext4",
+            "free_inodes": 1310522,
+            "mount": "/kaggle/working",
+            "read_only": false,
+            "root": "/kaggle/working/.arc3-models",
+            "status": "failed",
+            "total_inodes": 1310720
+          },
+          {
+            "allocated_bytes": 202580451328,
+            "block_size": 4096,
+            "device": 64,
+            "disk_free_before": 1145972936704,
+            "filesystem": "overlay",
+            "free_inodes": 442956464,
+            "mount": "/",
+            "read_only": false,
+            "reservation_seconds": 0.416,
+            "reserved_files": 62,
+            "root": "/tmp/models/arc3",
+            "status": "reserved",
+            "total_inodes": 543162368
+          }
+        ],
+        "transaction": "/tmp/models/arc3/run-hfnkj12w",
+        "workers": 4
+      },
+      "at_utc": "2026-10-21 14:05:19.793Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "elapsed_seconds": 96.79,
+      "event": "model_staging",
+      "report": {
+        "bytes_required": 185400295230,
+        "capacity_reservation": true,
+        "disk_free_before": 1145972936704,
+        "headroom_bytes": 17179869184,
+        "mode": "local_copy",
+        "models": {},
+        "root": "/tmp/models/arc3",
+        "status": "copying",
+        "storage_attempts": [
+          {
+            "block_size": 4096,
+            "device": 1794,
+            "disk_free_before": 20937515008,
+            "errno": 28,
+            "error": "[Errno 28] insufficient local model storage: need 185400295230 bytes plus headroom",
+            "error_type": "OSError",
+            "filesystem": "ext4",
+            "free_inodes": 1310522,
+            "mount": "/kaggle/working",
+            "read_only": false,
+            "root": "/kaggle/working/.arc3-models",
+            "status": "failed",
+            "total_inodes": 1310720
+          },
+          {
+            "allocated_bytes": 202580451328,
+            "block_size": 4096,
+            "copied_bytes": 279431,
+            "copied_files": 4,
+            "copying_kind": "target",
+            "device": 64,
+            "disk_free_before": 1145972936704,
+            "filesystem": "overlay",
+            "free_inodes": 442956464,
+            "mount": "/",
+            "read_only": false,
+            "reservation_seconds": 0.416,
+            "reserved_files": 62,
+            "root": "/tmp/models/arc3",
+            "status": "reserved",
+            "total_inodes": 543162368
+          }
+        ],
+        "transaction": "/tmp/models/arc3/run-hfnkj12w",
+        "workers": 4
+      },
+      "at_utc": "2026-10-21 14:05:20.294Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "elapsed_seconds": 274.846,
+      "event": "model_staging",
+      "report": {
+        "bytes_required": 185400295230,
+        "capacity_reservation": true,
+        "disk_free_before": 1145972936704,
+        "headroom_bytes": 17179869184,
+        "mode": "local_copy",
+        "models": {},
+        "root": "/tmp/models/arc3",
+        "status": "copying",
+        "storage_attempts": [
+          {
+            "block_size": 4096,
+            "device": 1794,
+            "disk_free_before": 20937515008,
+            "errno": 28,
+            "error": "[Errno 28] insufficient local model storage: need 185400295230 bytes plus headroom",
+            "error_type": "OSError",
+            "filesystem": "ext4",
+            "free_inodes": 1310522,
+            "mount": "/kaggle/working",
+            "read_only": false,
+            "root": "/kaggle/working/.arc3-models",
+            "status": "failed",
+            "total_inodes": 1310720
+          },
+          {
+            "allocated_bytes": 202580451328,
+            "block_size": 4096,
+            "copied_bytes": 13640642549,
+            "copied_files": 8,
+            "copying_kind": "target",
+            "device": 64,
+            "disk_free_before": 1145972936704,
+            "filesystem": "overlay",
+            "free_inodes": 442956464,
+            "mount": "/",
+            "read_only": false,
+            "reservation_seconds": 0.416,
+            "reserved_files": 62,
+            "root": "/tmp/models/arc3",
+            "status": "reserved",
+            "total_inodes": 543162368
+          }
+        ],
+        "transaction": "/tmp/models/arc3/run-hfnkj12w",
+        "workers": 4
+      },
+      "at_utc": "2026-10-21 14:08:18.350Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "elapsed_seconds": 454.401,
+      "event": "model_staging",
+      "report": {
+        "bytes_required": 185400295230,
+        "capacity_reservation": true,
+        "disk_free_before": 1145972936704,
+        "headroom_bytes": 17179869184,
+        "mode": "local_copy",
+        "models": {},
+        "root": "/tmp/models/arc3",
+        "status": "copying",
+        "storage_attempts": [
+          {
+            "block_size": 4096,
+            "device": 1794,
+            "disk_free_before": 20937515008,
+            "errno": 28,
+            "error": "[Errno 28] insufficient local model storage: need 185400295230 bytes plus headroom",
+            "error_type": "OSError",
+            "filesystem": "ext4",
+            "free_inodes": 1310522,
+            "mount": "/kaggle/working",
+            "read_only": false,
+            "root": "/kaggle/working/.arc3-models",
+            "status": "failed",
+            "total_inodes": 1310720
+          },
+          {
+            "allocated_bytes": 202580451328,
+            "block_size": 4096,
+            "copied_bytes": 35096196925,
+            "copied_files": 12,
+            "copying_kind": "target",
+            "device": 64,
+            "disk_free_before": 1145972936704,
+            "filesystem": "overlay",
+            "free_inodes": 442956464,
+            "mount": "/",
+            "read_only": false,
+            "reservation_seconds": 0.416,
+            "reserved_files": 62,
+            "root": "/tmp/models/arc3",
+            "status": "reserved",
+            "total_inodes": 543162368
+          }
+        ],
+        "transaction": "/tmp/models/arc3/run-hfnkj12w",
+        "workers": 4
+      },
+      "at_utc": "2026-10-21 14:11:17.905Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "elapsed_seconds": 628.456,
+      "event": "model_staging",
+      "report": {
+        "bytes_required": 185400295230,
+        "capacity_reservation": true,
+        "disk_free_before": 1145972936704,
+        "headroom_bytes": 17179869184,
+        "mode": "local_copy",
+        "models": {},
+        "root": "/tmp/models/arc3",
+        "status": "copying",
+        "storage_attempts": [
+          {
+            "block_size": 4096,
+            "device": 1794,
+            "disk_free_before": 20937515008,
+            "errno": 28,
+            "error": "[Errno 28] insufficient local model storage: need 185400295230 bytes plus headroom",
+            "error_type": "OSError",
+            "filesystem": "ext4",
+            "free_inodes": 1310522,
+            "mount": "/kaggle/working",
+            "read_only": false,
+            "root": "/kaggle/working/.arc3-models",
+            "status": "failed",
+            "total_inodes": 1310720
+          },
+          {
+            "allocated_bytes": 202580451328,
+            "block_size": 4096,
+            "copied_bytes": 56532663765,
+            "copied_files": 16,
+            "copying_kind": "target",
+            "device": 64,
+            "disk_free_before": 1145972936704,
+            "filesystem": "overlay",
+            "free_inodes": 442956464,
+            "mount": "/",
+            "read_only": false,
+            "reservation_seconds": 0.416,
+            "reserved_files": 62,
+            "root": "/tmp/models/arc3",
+            "status": "reserved",
+            "total_inodes": 543162368
+          }
+        ],
+        "transaction": "/tmp/models/arc3/run-hfnkj12w",
+        "workers": 4
+      },
+      "at_utc": "2026-10-21 14:14:11.960Z"
+    },
+    {
+      "build_id": "122eab780b108df8",
+      "elapsed_seconds": 787.512,
+      "event": "model_staging",
+      "report": {
+        "bytes_required": 185400295230,
+        "capacity_reservation": true,
+        "disk_free_before": 1145972936704,
+        "headroom_bytes": 17179869184,
+        "mode": "local_copy",
+        "models": {},
+        "root": "/tmp/models/arc3",
+        "status": "copying",
+        "storage_attempts": [
+          {
+            "block_size": 4096,
+            "device": 1794,
+            "disk_free_before": 20937515008,
+            "errno": 28,
+            "error": "[Errno 28] insufficient local model storage: need 185400295230 bytes plus headroom",
+            "error_type": "OSError",
+            "filesystem": "ext4",
+            "free_inodes": 1310522,
+            "mount": "/kaggle/working",
+            "read_only": false,
+            "root": "/kaggle/working/.arc3-models",
+            "status": "failed",
+            "total_inodes": 1310720
+          },
+          {
+            "allocated_bytes": 202580451328,
+            "block_size": 4096,
+            "copied_bytes": 73581282253,
+            "copied_files": 20,
+            "copying_kind": "target",
+            "device": 64,
+            "disk_free_before": 1145972936704,
+            "filesystem": "overlay",
+            "free_inodes": 442956464,
+            "mount": "/",
+            "read_only": false,
+            "reservation_seconds": 0.416,
+            "reserved_files": 62,
+            "root": "/tmp/models/arc3",
+            "status": "reserved",
+            "total_inodes": 543162368
+          }
+        ],
+        "transaction": "/tmp/models/arc3/run-hfnkj12w",
+        "workers": 4
+      },
+      "at_utc": "2026-10-21 14:16:51.016Z"
+    }
+  ],
+  "status_observations": [
+    {
+      "at_utc": "2026-10-21T14:04:33.474695+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:05:19.199070+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:06:04.841717+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:06:50.560925+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:07:36.423029+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:08:22.354307+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:09:07.998421+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:09:53.972823+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:10:39.643802+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:11:25.504479+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:12:11.267295+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:12:57.143169+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:13:42.966482+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:14:28.683686+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:15:14.479119+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:16:00.373489+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:16:46.140497+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:17:31.842865+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:18:17.859459+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:19:03.582026+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:19:49.333054+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:20:35.038978+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:21:20.809038+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:22:06.750697+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:22:52.463111+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:23:38.328360+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:24:24.187254+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:25:11.739997+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T14:25:57.525927+00:00",
+      "status": "COMPLETE",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.COMPLETE\""
+    }
+  ],
+  "last_staging_report": {
+    "bytes_required": 185400295230,
+    "capacity_reservation": true,
+    "disk_free_before": 1145972936704,
+    "headroom_bytes": 17179869184,
+    "mode": "local_copy",
+    "models": {},
+    "root": "/tmp/models/arc3",
+    "status": "copying",
+    "storage_attempts": [
+      {
+        "block_size": 4096,
+        "device": 1794,
+        "disk_free_before": 20937515008,
+        "errno": 28,
+        "error": "[Errno 28] insufficient local model storage: need 185400295230 bytes plus headroom",
+        "error_type": "OSError",
+        "filesystem": "ext4",
+        "free_inodes": 1310522,
+        "mount": "/kaggle/working",
+        "read_only": false,
+        "root": "/kaggle/working/.arc3-models",
+        "status": "failed",
+        "total_inodes": 1310720
+      },
+      {
+        "allocated_bytes": 202580451328,
+        "block_size": 4096,
+        "copied_bytes": 73581282253,
+        "copied_files": 20,
+        "copying_kind": "target",
+        "device": 64,
+        "disk_free_before": 1145972936704,
+        "filesystem": "overlay",
+        "free_inodes": 442956464,
+        "mount": "/",
+        "read_only": false,
+        "reservation_seconds": 0.416,
+        "reserved_files": 62,
+        "root": "/tmp/models/arc3",
+        "status": "reserved",
+        "total_inodes": 543162368
+      }
+    ],
+    "transaction": "/tmp/models/arc3/run-hfnkj12w",
+    "workers": 4
+  },
+  "working_volume_capacity_bytes": 20937515008,
+  "checkpoint_requirement_bytes": 185400295230,
+  "headroom_bytes": 17179869184,
+  "last_observed_synced_files": 20,
+  "last_observed_synced_bytes": 73581282253,
+  "model_ready": null,
+  "model_startup_duration_seconds": null,
+  "time_to_model_ready_seconds": null,
+  "logging_limitation": "The live stream ended after partial copying and completed logs return []. No version-8 diagnostic directory has been committed on main yet. Final sources match this build.",
+  "caution": "COMPLETE save status is not model readiness. The working volume is too small for the full checkpoint; 73.58 GB of synced fallback files is partial copy evidence only."
+}
