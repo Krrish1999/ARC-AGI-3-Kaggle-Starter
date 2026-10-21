@@ -1,0 +1,36 @@
+Precaching: Started...
+Precaching: loaded 211 files (6.70 GB) in 66.41 seconds.
+
+Traceback (most recent call last):
+  File "/tmp/arc3_llm_launcher.py", line 354, in stage_checkpoints
+    copied = [future.result() for future in futures]
+              ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 456, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.12/concurrent/futures/thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/arc3_llm_launcher.py", line 236, in _stage_file
+    os.fsync(writer.fileno())
+OSError: [Errno 28] No space left on device
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/arc3_llm_launcher.py", line 398, in <module>
+    staging_report = stage_checkpoints(Path(asset_report["target"]["path"]),
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/arc3_llm_launcher.py", line 379, in stage_checkpoints
+    shutil.rmtree(transaction)
+  File "/usr/lib/python3.12/shutil.py", line 759, in rmtree
+    _rmtree_safe_fd(stack, onexc)
+  File "/usr/lib/python3.12/shutil.py", line 703, in _rmtree_safe_fd
+    onexc(func, path, err)
+  File "/usr/lib/python3.12/shutil.py", line 700, in _rmtree_safe_fd
+    onexc(os.unlink, fullname, err)
+  File "/usr/lib/python3.12/shutil.py", line 698, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+OSError: [Errno 30] Read-only file system: PosixPath('/tmp/models/arc3/run-5vzlrisp')

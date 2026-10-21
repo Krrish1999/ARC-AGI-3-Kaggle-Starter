@@ -1,0 +1,8 @@
+{
+  "ready": false,
+  "ever_ready": false,
+  "reason": "RuntimeError: launcher_exited:1",
+  "endpoint": "http://127.0.0.1:8001/v1",
+  "mode": "exploration",
+  "startup_seconds": 2400
+}

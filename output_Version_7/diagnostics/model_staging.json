@@ -1,0 +1,33 @@
+{
+  "status": "failed",
+  "mode": "local_copy",
+  "root": "/tmp/models/arc3",
+  "workers": 4,
+  "models": {},
+  "capacity_reservation": true,
+  "storage_attempts": [
+    {
+      "root": "/tmp/models/arc3",
+      "status": "failed",
+      "device": 64,
+      "free_inodes": 442956464,
+      "total_inodes": 543162368,
+      "block_size": 4096,
+      "disk_free_before": 1145972940800,
+      "mount": "/",
+      "filesystem": "overlay",
+      "allocated_bytes": 202580451328,
+      "reserved_files": 62,
+      "reservation_seconds": 0.413,
+      "error_type": "OSError",
+      "error": "[Errno 28] No space left on device",
+      "errno": 28
+    }
+  ],
+  "headroom_bytes": 17179869184,
+  "bytes_required": 185400295230,
+  "disk_free_before": 1145972940800,
+  "error_type": "OSError",
+  "error": "[Errno 30] Read-only file system: PosixPath('/tmp/models/arc3/run-5vzlrisp')",
+  "elapsed_seconds": 860.627
+}
