@@ -15,7 +15,8 @@
     "pytest -q": {
       "passed": true,
       "cases": 223,
-      "new_generation3_cases": 36
+      "new_generation3_cases": 36,
+      "combined_main_revalidated": true
     },
     "ruff check agent/ scripts/ tests/test_auditable_world_model.py": {
       "passed": true
@@ -104,11 +105,12 @@
     "agent/my_agent.py": "5e6a76bc2376407c045fed7f4a7eed0e254e658009955b0c304c89b281826bc9",
     "agent/arclog.py": "0c119b81ad71aa39e84069dbbbabba7562aa462c94f5f19e5a2177a957c0375e",
     "tests/test_auditable_world_model.py": "d921c712419452b042dee808e7f0b6ffc864a6beb4a21f4c72bbd0a8ddba12bb",
-    "notebooks/submission.ipynb": "f60fac567e7b11800b6368658a11150a1f087e3571d17182edeb92173b94a8ff",
-    "containment.json": "01de39e5814d7f5951d78e005e1b297600db38812698a429d4b57be4f36df48c"
+    "notebooks/submission.ipynb": "08aba3d62198477d972d6a9e338832ee880b6121c6b837ce7e7f22eb6b26c430",
+    "containment.json": "22e3f06338e8296f5ad3aabbab78aef0c7c78d54201fd441b359ada362c0e07c"
   },
   "approval_review": {
     "initial_additional_smokes": "review usage limit; not executed then",
     "resolution": "normal approval review subsequently available; both smokes passed without bypass"
-  }
+  },
+  "merged_main": "bfdff7e9677146a0ce3b4682ab28cf96acf32e47"
 }

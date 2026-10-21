@@ -51,6 +51,22 @@ class LLMDaemon:
                                   'mode': 'llm' if self.ready else 'exploration',
                                   'startup_seconds': self.startup_seconds}, indent=2) + '\n')
 
+    def startup_logs(self) -> None:
+        """Keep this run's own startup failures visible in its notebook log."""
+        for path in (self.working / 'diagnostics/llm_launcher.log', self.working / 'serve.log'):
+            if not path.is_file():
+                continue
+            try:
+                with path.open('rb') as stream:
+                    stream.seek(0, 2)
+                    stream.seek(max(0, stream.tell() - 16_384))
+                    tail = stream.read(16_384).decode(errors='replace')
+            except OSError as error:
+                self.event('llm_startup_log_unavailable', file=path.name, error=str(error))
+            else:
+                if tail:
+                    self.event('llm_startup_log', file=path.name, tail=tail)
+
     def start(self) -> bool:
         os.environ['ARC3_LLM_READY'] = '0'
         os.environ.pop('ARC3_LLM_FAILURE', None)
@@ -104,6 +120,7 @@ class LLMDaemon:
             self.reason = f'{type(error).__name__}: {error}'
             self.stop()
             self.record()
+            self.startup_logs()
             os.environ['ARC3_LLM_FAILURE'] = self.reason
             self.event('llm_fallback', reason=self.reason, mode='exploration')
             return False
