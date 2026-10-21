@@ -31,7 +31,7 @@ def checkpoint_report(path: Path) -> dict:
         shards[name] = shard.stat().st_size
     return {'path': str(path), 'config_sha256': asset_digest(path / 'config.json'),
             'index_sha256': asset_digest(index_path), 'shard_sizes': shards,
-            'shard_content_hashes': 'not independently supplied; pinned Kaggle model version is the trust anchor'}
+            'shard_content_hashes': 'not independently supplied; Kaggle input provenance is recorded separately'}
 
 
 def verify_offline_assets(wheelhouse: Path, target: Path, draft: Path | None) -> dict:

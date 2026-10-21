@@ -299,15 +299,22 @@ def test_launcher_reuses_reviewed_cells_and_supported_flags():
                  '--no-index', '--only-binary'):
         assert flag in source
     assert '--disable-radix-cache' not in source
-    assert 'precache_model_thread' not in source
+    assert 'precache_model_thread.start()' in source
+    assert source.index('precache(WHEELHOUSE_DIR)') < source.index('asset_report = verify_offline_assets(')
+    assert source.index('precache_model_thread.start()') < source.index('subprocess.Popen(args')
+    assert 'ENABLE_BASELINE_PREFETCH' in source
+    assert set(manifest['baseline_cells']) == {'5', '7', '13'}
     assert 'start_new_session=True' not in source  # Parent owns the whole process group.
     assert 'pickle' not in source
     assert 'SPEC=os.getenv("ENABLE_SPECULATIVE_DRAFT", "1") == "1"' in source
     metadata = json.loads((ROOT / 'notebooks/kernel-metadata.json').read_text())
-    assert metadata['dataset_sources'] == ['dfranzen/pennyroyal-v253']
-    assert metadata['model_sources'] == [
-        'dfranzen/intel-qwen3.8-flash-next-w4a16-autoround/Transformers/default/1',
-        'dfranzen/albucino-qwen3-8-flash-next-drafter/Transformers/default/1']
+    assert metadata['dataset_sources'] == [
+        'dfranzen/pennyroyal-v253',
+        'mirzamilanfarabi/intel-qwen3-8-flash-next-w4a16-autoround',
+        'mirzamilanfarabi/albucino-qwen3-8-flash-next-drafter']
+    assert metadata['model_sources'] == []
+    assert '/kaggle/input/intel-qwen3-8-flash-next-w4a16-autoround' in source
+    assert '/kaggle/input/albucino-qwen3-8-flash-next-drafter' in source
     assert metadata['enable_internet'] is False
 
 
@@ -374,6 +381,9 @@ def test_real_failed_launcher_is_reaped_without_blocking_exploration(tmp_path, m
     assert supervisor.process is None and supervisor.log is None
     assert 'launcher_exited' in supervisor.reason
     assert 'synthetic missing wheel' in (tmp_path / 'diagnostics/llm_launcher.log').read_text()
+    failures = [call.kwargs for call in supervisor.event.call_args_list
+                if call.args[0] == 'llm_startup_log']
+    assert any('synthetic missing wheel' in failure['tail'] for failure in failures)
 
 
 def test_cleanup_escalates_for_unresponsive_owned_process(daemon):

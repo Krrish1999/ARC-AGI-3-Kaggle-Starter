@@ -1,0 +1,185 @@
+{
+  "recorded_utc": "2026-10-21T08:03:20.163144+00:00",
+  "mutation": "[EDIT] dataset deployment paths; accepted S3 policy unchanged",
+  "branch": "fix/clean-llm-kaggle-deployment",
+  "accepted_s3": {
+    "pull_request": 10,
+    "merged_main_commit": "01f052197b29543910214e0825e64a819ec55da6",
+    "toggle": "ENABLE_ZERO_ACTION_REPLAN",
+    "default": "1"
+  },
+  "authorization": {
+    "source": "Explicit user manual override in this chat",
+    "gate_2_requirement": "temporarily waived for this clean baseline deployment only",
+    "containment_and_evidence_checks": "remain enforced"
+  },
+  "kernel": {
+    "id": "aanchal009/arc-agi-3-runtime-check",
+    "saved_version": 4,
+    "build_id": "afbb26dc6eee1a44",
+    "dataset_sources": [
+      "dfranzen/pennyroyal-v253",
+      "mirzamilanfarabi/intel-qwen3-8-flash-next-w4a16-autoround",
+      "mirzamilanfarabi/albucino-qwen3-8-flash-next-drafter"
+    ],
+    "model_sources": [],
+    "accepted_dataset_sources": [
+      "mirzamilanfarabi/albucino-qwen3-8-flash-next-drafter",
+      "mirzamilanfarabi/intel-qwen3-8-flash-next-w4a16-autoround",
+      "dfranzen/pennyroyal-v253"
+    ],
+    "enable_gpu": true,
+    "enable_internet": false,
+    "startup_seconds": 900,
+    "status": "COMPLETE",
+    "baseline_prefetch": {
+      "default": "1",
+      "ablation": "ENABLE_BASELINE_PREFETCH",
+      "wheel_readers": 16,
+      "model_readers": 3,
+      "model_delay_seconds": 60,
+      "source_cells": [
+        5,
+        7,
+        13
+      ],
+      "integrity_checks": "always enforced"
+    },
+    "completed_observed_utc": "2026-10-21T08:59:12.085612+00:00"
+  },
+  "assets": {
+    "wheelhouse": {
+      "dataset": "dfranzen/pennyroyal-v253",
+      "dataset_id": 12273106,
+      "release": "Pennyroyal v2.5.3 / SGLang 0.5.19 custom fork"
+    },
+    "target": {
+      "dataset": "mirzamilanfarabi/intel-qwen3-8-flash-next-w4a16-autoround",
+      "dataset_id": 12467750,
+      "declared_origin": "dfranzen/intel-qwen3.8-flash-next-w4a16-autoround",
+      "license_from_description": "Qwen Community License 1.0",
+      "dataset_version_observed": 1
+    },
+    "draft": {
+      "dataset": "mirzamilanfarabi/albucino-qwen3-8-flash-next-drafter",
+      "dataset_id": 12467732,
+      "declared_origin": "dfranzen/albucino-qwen3-8-flash-next-drafter",
+      "license_from_description": "Qwen Community License 1.0",
+      "dataset_version_observed": 1
+    },
+    "verification_scope": "Kaggle metadata/file listings and accepted kernel sources verified; complete index/format checks execute in the GPU launcher.",
+    "search_size_caveat": "Mirrors report aggregate size0 in search; actual file listings contain nonempty weight shards."
+  },
+  "verification": {
+    "pytest": {
+      "passed": 187,
+      "failed": 0
+    },
+    "ruff": "PASS: agent/scripts/test_llm_s2",
+    "pyright": "PASS: agent/; 0 errors and 0 warnings",
+    "containment": {
+      "passed": true,
+      "checks_passed": 20,
+      "sha256": "39250051fee3fad51a4a83e72dd74fa91b9b02aa0437dd1a9a313084f4d65186"
+    },
+    "accepted_kernel_build_matches": true,
+    "accepted_mounts_match": true,
+    "accepted_kernel_source_exact_match": true,
+    "gpu_containment": "PASS: notebook containment command exited 0 before launcher start"
+  },
+  "source_sha256": {
+    "agent/my_agent.py": "a8d4783f773c1b5cbbe3d7541f10ad6d567adbfadf8db6da5afa54eeb6dbfa11",
+    "scripts/extract_llm_launcher.py": "6d59a139f2921f0df8a42dd4a4666b3a50a8428322ea5d46403e3e2cb7600768",
+    "scripts/llm_assets.py": "8bed8a03d6fd554e595567444afd60784d168bb9d23f4d1ce9814dc677ba79f8",
+    "notebooks/kernel-metadata.json": "05bf130a005c885153cf248065b7a73fad5d01d1afd8e5212427263c48cdffb7",
+    "notebooks/submission.ipynb": "e860242baf7d9bbc010c8c55ce680934b37f38e31669a1dc727032e646ab29f4",
+    "tests/test_llm_s2.py": "3cab76a8fff405d1f4602edee94c0bbcf0364935f0249d0d407c206c33ed6508",
+    "scripts/llm_daemon.py": "8371394ef7ee97215649684b28f5ba946c96dbe098c068e386868daae1d2f759"
+  },
+  "submit_receipt": ".venv/bin/python scripts/build_notebook.py\n[build_notebook] Wrote notebooks/submission.ipynb  (accelerator: rtx6000)\n.venv/bin/python scripts/kaggle_cli.py kernels push -p notebooks/\nKernel version 4 successfully pushed.  Please check progress at https://www.kaggle.com/code/aanchal009/arc-agi-3-runtime-check\n\nPushed. Track it with:  make status",
+  "initial_make_status": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\"",
+  "last_verified_official_score": "0.12",
+  "llm_ready": false,
+  "phase_b_submission": null,
+  "limits": [
+    "Saved version 4 completed Phase A with exploration fallback; it is not a verified LLM baseline.",
+    "The user-overridden Gate 2 remains unmeasured. No performance promotion or cache-hit claim.",
+    "900-second total startup limit retained. Current loader progress does not fit it.",
+    "No competition slot used for these saves; no additional fallback-only Phase B evaluation requested."
+  ],
+  "run_history": [
+    {
+      "saved_version": 2,
+      "build_id": "549687585c1bc0ea",
+      "status": "COMPLETE",
+      "llm_ready": false,
+      "failure": "TimeoutError: startup_deadline_900s",
+      "llm_start_elapsed_seconds": 21.2,
+      "fallback_elapsed_seconds": 921.211,
+      "terminal_make_status": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.COMPLETE\""
+    },
+    {
+      "saved_version": 3,
+      "build_id": "37bf9af0e20cc190",
+      "status": "COMPLETE",
+      "llm_ready": false,
+      "failure": "TimeoutError: startup_deadline_900s",
+      "weight_shards_loaded_at_stop": 8,
+      "weight_shards_total": 38,
+      "confirmed_runtime": {
+        "torch": "2.13.0+cu130",
+        "sglang": "0.5.19+gd00d88efc8d6",
+        "cuda": "13.0",
+        "driver": "580.178.04",
+        "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+      },
+      "terminal_make_status": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.COMPLETE\""
+    }
+  ],
+  "diagnostics": {
+    "startup_failure_tails": "bounded tails of this run\u2019s own launcher/server logs in the original notebook run log",
+    "separate_log_reader": "not executed; automatic approval review rejected private-log egress to another remote kernel",
+    "direct_output_download": "environment proxy rejected the CLI artifact download"
+  },
+  "finalized_utc": "2026-10-21T09:02:45.078484+00:00",
+  "terminal_make_status": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.COMPLETE\"",
+  "llm_failure": "TimeoutError: startup_deadline_900s",
+  "llm_start_elapsed_seconds": 28.81,
+  "fallback_elapsed_seconds": 928.956,
+  "weight_shards_loaded_at_stop": 21,
+  "weight_shards_total": 38,
+  "weight_loading_progress_elapsed_seconds": 783,
+  "confirmed_runtime": {
+    "torch": "2.13.0+cu130",
+    "sglang": "0.5.19+gd00d88efc8d6",
+    "cuda": "13.0",
+    "driver": "580.178.04",
+    "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition"
+  },
+  "wheel_prewarm": {
+    "files": 211,
+    "gigabytes": 6.7,
+    "seconds": 26.24
+  },
+  "startup_observations": {
+    "target_validated_shards": 38,
+    "draft_linked_shards": 2,
+    "weight_loading_begin_utc": "2026-10-21T08:45:09Z",
+    "checkpoint_progress_begin_utc": "2026-10-21T08:45:20Z",
+    "last_progress": "21/38 shards at 13:03; no fatal CUDA/import/shape error observed before supervisor termination",
+    "limitation": "Log progress is not an isolated storage benchmark; IO, CPU transforms and contention are not separately timed."
+  },
+  "evidence_sha256": {
+    "kernel.log": "7be239b4067650b72894827a8e6c8dcaa542feef68213b582070d01d8ab2c4c4",
+    "notebook-events.json": "f7d7acd030c49ba3be60faad02d896a5357f4d801955f291cf38c1a78f44a691",
+    "status-history.jsonl": "3d82284490ec87d8174564b32de6c7bb93ee572f435fc8f3c7bb6020ff2b742c",
+    "status-final.log": "1dbe3ffc8d69ed1e09f61817d1f965aa8076f9e8f442efa5e71ac8d57c9ca605",
+    "submissions-final.csv": "ce7bc7098bb8727fc87819f8592b6229c7cb36779e2b1255a2dba5095c9bb754"
+  },
+  "last_official_audit": {
+    "submission_count": 6,
+    "latest_complete_ref": "57449526",
+    "publicScore": "0.12",
+    "privateScore": null
+  }
+}
