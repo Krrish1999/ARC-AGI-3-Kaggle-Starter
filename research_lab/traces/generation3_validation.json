@@ -14,8 +14,8 @@
   "checks": {
     "pytest -q": {
       "passed": true,
-      "cases": 222,
-      "new_generation3_cases": 35
+      "cases": 223,
+      "new_generation3_cases": 36
     },
     "ruff check agent/ scripts/ tests/test_auditable_world_model.py": {
       "passed": true
@@ -101,11 +101,11 @@
     "Legacy fallback-specific fixtures explicitly select the reference ablation."
   ],
   "sha256": {
-    "agent/my_agent.py": "c0679f932581559bd3f739be8b315875242a8a67df75542f876ee39768040faa",
+    "agent/my_agent.py": "5e6a76bc2376407c045fed7f4a7eed0e254e658009955b0c304c89b281826bc9",
     "agent/arclog.py": "0c119b81ad71aa39e84069dbbbabba7562aa462c94f5f19e5a2177a957c0375e",
-    "tests/test_auditable_world_model.py": "93b63803b280fbfe71768620907b64da67f4fac9234f03c0b90451ea12a39154",
-    "notebooks/submission.ipynb": "04d0837b6a1d3c4abaf8f578f950cb538358f8d6316d9839394182f806a43764",
-    "containment.json": "839b843680b7bffaaa8c8043fe8a5811571079c0a4ece9fe9692e8f180217dd6"
+    "tests/test_auditable_world_model.py": "d921c712419452b042dee808e7f0b6ffc864a6beb4a21f4c72bbd0a8ddba12bb",
+    "notebooks/submission.ipynb": "f60fac567e7b11800b6368658a11150a1f087e3571d17182edeb92173b94a8ff",
+    "containment.json": "01de39e5814d7f5951d78e005e1b297600db38812698a429d4b57be4f36df48c"
   },
   "approval_review": {
     "initial_additional_smokes": "review usage limit; not executed then",

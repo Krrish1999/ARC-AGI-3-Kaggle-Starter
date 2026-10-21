@@ -300,8 +300,11 @@ def test_total_actions_trigger_even_when_every_action_changes_board(tmp_path):
     assert world.next_action(LEGAL) is None and not world.queue
 
 
-def test_one_self_reset_triggers_and_cannot_erase_escalation(tmp_path):
+@pytest.mark.parametrize('before_state', ['NOT_FINISHED', 'GAME_OVER'])
+def test_one_self_reset_triggers_and_cannot_erase_escalation(tmp_path, before_state):
     world = model(tmp_path, level=3)
+    if before_state == 'GAME_OVER':
+        world.log.synchronize([board(1)], level=3, state=before_state)
     world.log.record('RESET', None, [board()], level=3)
     assert world.tier_due()
     world.observe(world.log.records[-1])

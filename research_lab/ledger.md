@@ -68,7 +68,8 @@ token resets, and clears on level advance. Immutable numbered snapshots and the
 journal preserve prior evidence. Both strict and reference paths remove FIFO
 message eviction. Prefixes append unchanged until an explicit context reset.
 
-At Level >=3, 40 total non-reset actions or one self-reset triggers mandatory
+At Level >=3, 40 total non-reset actions or one self-reset (including a restart
+after GAME_OVER, excluding initial NOT_PLAYED startup) triggers mandatory
 simulator synthesis, regardless of zero-diff counts. Tier 1 searches simple,
 observed and object-target actions; failed synthesis/search feeds evidence into
 Tier 2, which expands complex targets to every non-HUD cell. Both compile and
@@ -81,7 +82,7 @@ zero-action repair attempts share the existing reasoning allowance; failure
 never substitutes random moves. The integrated toggle 0 retains prior action
 policy for explicit controls; existing independent subsystem ablations remain.
 
-Final verification: **222/222 pytest cases pass**, including **35 new strict
+Final verification: **223/223 pytest cases pass**, including **36 new strict
 Generation 3 cases**. Required ruff and pyright checks pass with zero type errors
 or warnings. Behavioral containment passes **20/20**, with
 `containment_passed=true`. The offline RTX 6000 notebook was regenerated and its

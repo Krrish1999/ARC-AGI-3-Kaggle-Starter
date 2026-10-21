@@ -249,7 +249,7 @@ class WorldModel:
             return self.wasted_moves >= 40
         history = [t for t in self.log.records if t.before.level == self.log.current.level]
         return (sum(not t.reset for t in history) >= 40
-                or any(t.reset and t.before.state == 'NOT_FINISHED' for t in history))
+                or any(t.reset and t.before.state != 'NOT_PLAYED' for t in history))
 
     def event(self, kind: str, **payload: Any) -> None:
         entry = {'type': kind, 'step': self.log.current.step, 'live_action': False, **payload}
