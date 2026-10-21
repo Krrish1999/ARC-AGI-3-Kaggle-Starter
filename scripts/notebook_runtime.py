@@ -241,7 +241,7 @@ class NotebookRunner:
                          import numpy as np
                          from agents import AVAILABLE_AGENTS
                          from agents.agent import Agent
-                         from arcengine import FrameDataRaw, GameState
+                         from arcengine import FrameDataRaw, GameAction, GameState
                          agent_class = AVAILABLE_AGENTS['myagent']
                          assert issubclass(agent_class, Agent)
                          print('FRAMEWORK_IMPORTS_OK', flush=True)
@@ -251,8 +251,9 @@ class NotebookRunner:
                              def __init__(self):
                                  self.observation_space = FrameDataRaw(
                                      game_id='runtime-fixture', frame=[np.zeros((4, 4), dtype=np.int8)],
-                                     state=GameState.NOT_FINISHED, win_levels=1, available_actions=[1])
+                                     state=GameState.NOT_PLAYED, win_levels=1, available_actions=[1])
                              def step(self, action, data=None, reasoning=None):
+                                 assert action is GameAction.RESET
                                  self.observation_space.state = GameState.WIN
                                  self.observation_space.levels_completed = 1
                                  return self.observation_space
@@ -267,7 +268,7 @@ class NotebookRunner:
                          timeout=120, cwd=self.framework)
         self.event('save_preflight_passed', gateway_contacted=False, gameplay_actions=0)
 
-    def start_llm(self, *, startup_seconds: float = 900.0) -> None:
+    def start_llm(self, *, startup_seconds: float = 2400.0) -> None:
         with self.stage('llm_startup'):
             spec = importlib.util.spec_from_file_location('arc3_llm_daemon', '/tmp/arc3_llm_daemon.py')
             if spec is None or spec.loader is None:

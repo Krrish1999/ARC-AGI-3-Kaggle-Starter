@@ -25,7 +25,7 @@ The launcher's Cell 7 wheel prewarm and Cell 13 model-prefetch start are retaine
 under `ENABLE_BASELINE_PREFETCH=1`; `0` selects the serial-read control. Prefetch
 is best-effort I/O and does not replace any asset integrity/format check.
 
-Installation, model loading and `/v1/models` readiness share a **900-second (15-minute)**
+Installation, model loading and `/v1/models` readiness share a **2,400-second (40-minute)**
 deadline before the gameplay runner starts. Failure stops the owned process
 group and records exploration fallback. `ENABLE_OFFLINE_BACKEND=0` selects that
 control explicitly; `ENABLE_SPECULATIVE_DRAFT=0` serves the same target without
@@ -50,8 +50,9 @@ outcomes are recorded in each perception directory's `world_model.jsonl`.
 
 Local regression checks cover startup and adapter failures. Actual GPU loading,
 VRAM, throughput and cache reuse await an offline Kaggle rehearsal with these
-mounts. The 900-second allowance accommodates the reference's roughly
-619-second cold load; slower or failed startup still selects exploration.
+mounts. The 2,400-second allowance supersedes the earlier 900-second timeout
+observed on Kaggle. Failed startup remains visible, and the Gen-3 agent halts
+before unverified gameplay when the model is unavailable.
 Asset provenance and validation limits are recorded in
 `research_lab/offline_inventory.json`.
 

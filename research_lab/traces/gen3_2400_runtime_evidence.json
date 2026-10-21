@@ -1,0 +1,218 @@
+{
+  "build_id": "4086c46befdb2235",
+  "saved_version": 5,
+  "events": [
+    {
+      "build_id": "4086c46befdb2235",
+      "elapsed_seconds": 0.016,
+      "event": "gpu_probe",
+      "output": "NVIDIA RTX PRO 6000 Blackwell Server Edition, 97887 MiB\n",
+      "returncode": 0,
+      "at_utc": "2026-10-21 10:36:55.424Z"
+    },
+    {
+      "build_id": "4086c46befdb2235",
+      "elapsed_seconds": 21.082,
+      "event": "save_preflight_passed",
+      "gameplay_actions": 0,
+      "gateway_contacted": false,
+      "at_utc": "2026-10-21 10:37:16.490Z"
+    },
+    {
+      "build_id": "4086c46befdb2235",
+      "elapsed_seconds": 21.129,
+      "event": "llm_started",
+      "launcher_sha256": "b7331bda4320e39f840ac20c0b69f927cb9c9c11f2110157dc0fa45327f34084",
+      "pid": 248,
+      "at_utc": "2026-10-21 10:37:16.537Z"
+    },
+    {
+      "build_id": "4086c46befdb2235",
+      "elapsed_seconds": 2421.204,
+      "event": "llm_stopped",
+      "returncode": -15,
+      "at_utc": "2026-10-21 11:17:16.620Z"
+    },
+    {
+      "build_id": "4086c46befdb2235",
+      "elapsed_seconds": 2421.251,
+      "event": "llm_startup_log",
+      "file": "llm_launcher.log",
+      "tail": "Precaching: Started...\nPrecaching: loaded 211 files (6.70 GB) in 67.00 seconds.\n\n=== installing Pennyroyal (offline) ===\n$ /tmp/arc3-pennyroyal-b7331bda4320e39f/bin/uv venv --python /usr/bin/python3 /tmp/arc3-pennyroyal-b7331bda4320e39f/venv\n$ /tmp/arc3-pennyroyal-b7331bda4320e39f/bin/uv pip install --python /tmp/arc3-pennyroyal-b7331bda4320e39f/venv/bin/python --no-index --only-binary :all: --find-links /kaggle/input/pennyroyal-v253/wheels -r /kaggle/input/pennyroyal-v253/requirements.lock\n$ /tmp/arc3-pennyroyal-b7331bda4320e39f/bin/uv pip install --python /tmp/arc3-pennyroyal-b7331bda4320e39f/venv/bin/python --no-index --only-binary :all: --find-links /kaggle/input/pennyroyal-v253/wheels --reinstall --no-deps /kaggle/input/pennyroyal-v253/wheels/sglang-0.5.19+gd00d88efc8d6-cp312-cp312-linux_x86_64.whl\nHost GPU driver libcuda: /usr/local/nvidia/lib64/libcuda.so.580.178.04 (from 3 candidates: ['/usr/local/nvidia/lib64/libcuda.so.580.178.04', '/usr/local/nvidia/lib64/libcuda.so.1', '/usr/local/nvidia/lib64/libcuda.so'])\nSymlinked /tmp/arc3-pennyroyal-b7331bda4320e39f/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcuda.so -> /usr/local/nvidia/lib64/libcuda.so.580.178.04\nSymlinked /tmp/arc3-pennyroyal-b7331bda4320e39f/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcuda.so.1 -> /usr/local/nvidia/lib64/libcuda.so.580.178.04\n$ /tmp/arc3-pennyroyal-b7331bda4320e39f/venv/lib/python3.12/site-packages/nvidia/cu13/bin/nvcc --version\nnvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\nHost compiler: g++-11\n$ /tmp/arc3-pennyroyal-b7331bda4320e39f/venv/bin/python -c 'import os, pathlib, sglang, subprocess, torch\nprint(\"sglang\", sglang.__version__, \"| torch\", torch.__version__)\nprint(\"CUDA_VISIBLE_DEVICES:\", os.environ.get(\"CUDA_VISIBLE_DEVICES\"))\nprint(\"LD_LIBRARY_PATH:\", os.environ.get(\"LD_LIBRARY_PATH\"))\ntry:\n    res = subprocess.run([\"nvidia-smi\"], capture_output=True, text=True, check=False)\n    if res.stdout:\n        print(\"nvidia-smi:\")\n        print(res.stdout)\n    if res.stderr:\n        print(\"nvidia-smi stderr:\")\n        print(res.stderr)\nexcept Exception as e:\n    print(\"nvidia-smi exec error:\", e)\n\ntry:\n    torch.cuda.init()\n    print(\"torch.cuda.init() succeeded! Device count:\", torch.cuda.device_count())\nexcept Exception as e:\n    print(\"torch.cuda.init() error:\", repr(e))\n\nif not torch.cuda.is_available():\n    raise RuntimeError(f\"CUDA is unavailable! Device count={torch.cuda.device_count()}\")\nprint(\"GPU:\", torch.cuda.get_device_name(0), \"capability:\", torch.cuda.get_device_capability(0))\n'\nsglang 0.5.19+gd00d88efc8d6 | torch 2.13.0+cu130\nCUDA_VISIBLE_DEVICES: None\nLD_LIBRARY_PATH: /tmp/arc3-pennyroyal-b7331bda4320e39f/venv/lib/python3.12/site-packages/nvidia/cu13/lib64:/tmp/arc3-pennyroyal-b7331bda4320e39f/venv/lib/python3.12/site-packages/nvidia/cu13/lib:/usr/local/nvidia/lib64:/usr/lib/x86_64-linux-gnu:/usr/local/nvidia/lib64:/usr/local/cuda/lib64:/usr/local/cuda/lib64\nnvidia-smi:\nWed Oct 21 10:39:07 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA RTX PRO 6000 Blac...    Off |   00000000:05:00.0 Off |                    0 |\n| N/A   33C    P0             46W /  600W |       3MiB /  97887MiB |      0%      Default |\n|                                         |                        |             Disabled |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+\n\ntorch.cuda.init() succeeded! Device count: 1\nGPU: NVIDIA RTX PRO 6000 Blackwell Server Edition capability: (12, 0)\nTarget: /kaggle/input/intel-qwen3-8-flash-next-w4a16-autoround | shards: 38 | PLE dtype: checkpoint default (typically BF16)\nDraft source: /kaggle/input/albucino-qwen3-8-flash-next-drafter\nSGLang draft view: /tmp/arc3-pennyroyal-b7331bda4320e39f/draft-view-52da1ef0d1e8d75a (2 linked weight shards)\nSGLang launch: ['/tmp/arc3-pennyroyal-b7331bda4320e39f/venv/bin/sglang', 'serve', '--model-path', '/kaggle/input/intel-qwen3-8-flash-next-w4a16-autoround', '--load-format', 'safetensors', '--model-loader-extra-config', '{\"enable_multithread_load\":false}', '--served-model-name', 'flashnext', '--host', '127.0.0.1', '--port', '8001', '--tensor-parallel-size', '1', '--dtype', 'bfloat16', '--quantization', 'auto-round', '--kv-cache-dtype', 'fp8_e4m3', '--mem-fraction-static', '0.88', '--context-length', '65536', '--page-size', '64', '--max-running-requests', '4', '--chunked-prefill-size', '8192', '--max-prefill-tokens', '16384', '--cuda-graph-max-bs-decode', '4', '--cuda-graph-bs-decode', '1', '2', '4', '--mamba-ssm-dtype', 'bfloat16', '--max-mamba-cache-size', '16', '--mamba-radix-cache-strategy', 'extra_buffer', '--mamba-track-interval', '64', '--mamba-backend', 'flashinfer', '--linear-attn-decode-backend', 'flashinfer', '--linear-attn-prefill-backend', 'flashinfer', '--moe-runner-backend', 'auto', '--ple-offload-embedding', '--trust-remote-code', '--mm-feature-transport', 'cpu', '--image-processor-backend', 'pil', '--reasoning-parser', 'qwen3', '--tool-call-parser', 'qwen3_coder', '--default-chat-template-kwargs', '{\"preserve_thinking\":true}', '--watchdog-timeout', '1800', '--schedule-policy', 'lpm', '--warmups', 'structured_output', '--enable-cache-report', '--enable-metrics', '--enable-request-time-stats-logging', '--weight-loader-prefetch-checkpoints', '--weight-loader-drop-cache-after-load', '--chat-template', '/kaggle/input/intel-qwen3-8-flash-next-w4a16-autoround/chat_template.jinja', '--gdn-mtp-cache-mode', 'none', '--speculative-algorithm', 'NEXTN', '--speculative-num-steps', '3', '--speculative-eagle-topk', '1', '--speculative-num-draft-tokens', '4', '--speculative-draft-model-path', '/tmp/arc3-pennyroyal-b7331bda4320e39f/draft-view-52da1ef0d1e8d75a', '--speculative-draft-model-quantization', 'compressed-tensors', '--speculative-moe-runner-backend', 'auto', '--speculative-draft-kv-cache-dtype', 'fp8_e4m3', '--speculative-accept-threshold-single', '1.0', '--speculative-accept-threshold-acc', '1.0', '--speculative-token-map', '/kaggle/input/pennyroyal-v253/hot_tokens_64k.pt']\nPrecaching: Started...\n",
+      "at_utc": "2026-10-21 11:17:16.659Z"
+    },
+    {
+      "build_id": "4086c46befdb2235",
+      "elapsed_seconds": 2421.254,
+      "event": "llm_startup_log",
+      "file": "serve.log",
+      "tail": "one, 'constrained_json_disable_any_whitespace': False, 'attention_backend': 'flashinfer', 'decode_attention_backend': None, 'prefill_attention_backend': None, 'sampling_backend': 'flashinfer', 'grammar_backend': 'xgrammar', 'radix_cache_backend': None, 'mm_attention_backend': None, 'fp8_gemm_runner_backend': 'auto', 'fp4_gemm_runner_backend': 'auto', 'bf16_gemm_backend': 'auto', 'dsa_prefill_backend': None, 'dsv4_prefill_backend': 'auto', 'dsa_decode_backend': None, 'dsa_paged_mqa_logits_backend': 'auto', 'dsa_topk_backend': 'sgl-kernel', 'disable_flashinfer_autotune': False, 'flashinfer_autotune_skip_ops': None, 'mamba_backend': 'flashinfer', 'cuda_graph_config': {'decode': {'backend': 'full', 'max_bs': 4, 'bs': [1, 2, 4], 'tc_compiler': 'eager', 'full_prefill_max_req': None, 'full_prefill_prefix_chunk_tokens': None}, 'prefill': {'backend': 'disabled', 'max_bs': 8192, 'bs': [4, 8, 12, 16, 20, 24, 28, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 288, 320, 352, 384, 416, 448, 480, 512, 576, 640, 704, 768, 832, 896, 960, 1024, 1280, 1536, 1792, 2048, 2304, 2560, 2816, 3072, 3328, 3584, 3840, 4096, 4608, 5120, 5632, 6144, 6656, 7168, 7680, 8192], 'tc_compiler': 'eager', 'full_prefill_max_req': None, 'full_prefill_prefix_chunk_tokens': None}}, 'cuda_graph_backend_decode': None, 'cuda_graph_backend_prefill': None, 'cuda_graph_max_bs_decode': 4, 'cuda_graph_max_bs_prefill': None, 'cuda_graph_bs_decode': [1, 2, 4], 'cuda_graph_bs_prefill': None, 'cuda_graph_tc_compiler': None, 'disable_prefill_cuda_graph': False, 'disable_decode_cuda_graph': False, 'disable_cuda_graph': False, 'disable_cuda_graph_padding': False, 'enable_profile_cuda_graph': False, 'enable_cudagraph_gc': False, 'debug_cuda_graph': False, 'enable_layerwise_nvtx_marker': False, 'enable_nccl_nvls': False, 'enable_symm_mem': False, 'triton_attention_reduce_in_fp32': False, 'triton_attention_num_kv_splits': 8, 'triton_attention_split_tile_size': None, 'flashinfer_mla_disable_ragged': False, 'enable_fused_qk_norm_rope': False, 'enable_precise_embedding_interpolation': False, 'enable_fused_moe_sum_all_reduce': False, 'enable_deepseek_v4_fp4_indexer': False, 'disable_custom_all_reduce': False, 'enable_mscclpp': False, 'enable_torch_symm_mem': False, 'enable_scattered_sconv': False, 'pre_warm_nccl': False, 'enable_quant_communications': False, 'enable_flashinfer_allreduce_fusion': False, 'enforce_disable_flashinfer_allreduce_fusion': False, 'flashinfer_allreduce_fusion_backend': None, 'enable_aiter_allreduce_fusion': False, 'enable_torch_compile': False, 'enable_torch_compile_debug_mode': False, 'torch_compile_max_bs': 32, 'speculative_algorithm': 'EAGLE', 'speculative_draft_model_path': '/tmp/arc3-pennyroyal-b7331bda4320e39f/draft-view-52da1ef0d1e8d75a', 'speculative_draft_model_revision': 'main', 'speculative_draft_model_override_args': None, 'speculative_draft_load_format': None, 'speculative_num_steps': 3, 'speculative_eagle_topk': 1, 'speculative_num_draft_tokens': 4, 'speculative_dflash_block_size': None, 'speculative_dspark_block_size': None, 'speculative_dspark_sps_table_path': None, 'speculative_dspark_confidence_sts_path': None, 'speculative_dspark_align_verify_tokens_to_graph_tier': False, 'speculative_accept_threshold_single': 1.0, 'speculative_accept_threshold_acc': 1.0, 'speculative_use_rejection_sampling': False, 'speculative_token_map': '/kaggle/input/pennyroyal-v253/hot_tokens_64k.pt', 'speculative_attention_mode': 'prefill', 'speculative_draft_attention_backend': None, 'speculative_dsa_topk_backend': 'sgl-kernel', 'speculative_draft_kv_cache_dtype': 'fp8_e4m3', 'speculative_draft_window_size': None, 'speculative_moe_runner_backend': 'auto', 'speculative_moe_a2a_backend': None, 'speculative_draft_model_quantization': 'compressed-tensors', '_speculative_draft_quantization_explicitly_set': True, 'speculative_skip_dp_mlp_sync': False, 'enable_multi_layer_eagle': False, 'speculative_adaptive': False, 'speculative_adaptive_config': None, 'decoupled_spec_bind_endpoint': None, 'decoupled_spec_connect_endpoints': None, 'decoupled_spec_rank': None, 'decoupled_spec_role': 'null', 'spec_trace_dir': None, 'speculative_ngram_min_bfs_breadth': 1, 'speculative_ngram_max_bfs_breadth': 10, 'speculative_ngram_match_type': 'BFS', 'speculative_ngram_max_trie_depth': 18, 'speculative_ngram_capacity': 10000000, 'speculative_ngram_external_corpus_path': None, 'speculative_ngram_external_sam_budget': 0, 'speculative_ngram_external_corpus_max_tokens': 10000000, 'ep_size': 1, 'moe_a2a_backend': 'none', 'enable_w4a4_mxfp4_megamoe': False, 'moe_runner_backend': 'auto', 'flashinfer_mxfp4_moe_precision': 'default', 'deepep_mode': 'auto', 'fuseep_mode': 2, 'deepep_dispatcher_output_dtype': 'auto', 'ep_num_redundant_experts': 0, 'ep_dispatch_algorithm': None, 'init_expert_location': 'trivial', 'enable_eplb': False, 'eplb_algorithm': 'auto', 'eplb_rebalance_num_iterations': 1000, 'eplb_rebalance_layers_per_chunk': None, 'eplb_min_rebalancing_utilization_threshold': 1.0, 'expert_distribution_recorder_mode': None, 'expert_distribution_recorder_buffer_size': 1000, 'expert_balancedness_report_mode': 'off', 'deepep_config': None, 'moe_dense_tp_size': None, 'elastic_ep_backend': None, 'enable_elastic_expert_backup': False, 'mooncake_ib_device': None, 'enable_waterfill': False, 'ep_join_mode': None, 'ep_join_rank_offset': 0, 'elastic_ep_initial_size': None, 'max_ep_size': None, 'elastic_ep_scale_timeout': 600, 'elastic_ep_rejoin': False, 'disable_flashinfer_cutlass_moe_fp4_allgather': False, 'disable_shared_experts_fusion': False, 'enforce_shared_experts_fusion': False, 'max_mamba_cache_size': 16, 'mamba_ssm_dtype': 'bfloat16', 'mamba_max_states_per_path': -1, 'enable_mamba_cache_stochastic_rounding': False, 'mamba_cache_philox_rounds': 0, 'mamba_full_memory_ratio': 0.9, 'mamba_radix_cache_strategy': 'extra_buffer', 'uses_mamba_radix_cache': True, 'mamba_track_interval': 64, 'gdn_mtp_cache_mode': 'none', 'enable_int8_mamba_checkpoint': False, 'int8_mamba_ckpt_size': None, 'linear_attn_backend': 'triton', 'linear_attn_decode_backend': 'flashinfer', 'linear_attn_prefill_backend': 'flashinfer', 'ple_offload_embedding': True, 'linear_attn_verify_backend': None, 'enable_linear_replayssm': False, 'linear_replayssm_cache_len': 16, 'enable_linear_replayssm_spec': False, 'enable_hierarchical_cache': False, 'hicache_host_memory_mode': 'cache', 'hicache_ratio': 2.0, 'hicache_size': 0, 'hicache_write_policy': 'write_through', 'hicache_io_backend': 'kernel', 'hicache_mem_layout': 'page_first', 'hicache_storage_backend': None, 'hicache_storage_prefetch_policy': 'timeout', 'hicache_storage_backend_extra_config': None, 'enable_hisparse': False, 'hisparse_config': None, 'enable_broadcast_mm_inputs_process': False, 'enable_prefix_mm_cache': False, 'mm_enable_dp_encoder': False, 'mm_process_config': {}, 'mm_processor_worker_num': 0, 'mm_io_worker_num': 0, 'allowed_media_domains': [], 'media_url_max_file_size_mb': 64, 'mm_preprocess_cache_size_mb': None, 'trust_mm_content_hashes': False, 'limit_mm_data_per_request': None, 'enable_mm_global_cache': False, 'image_processor_backend': 'pil', 'mm_global_cache_backend': 'mooncake', 'disable_fast_image_processor': False, 'mm_feature_transport': 'cpu', 'keep_mm_feature_on_device': False, 'enable_lora': None, 'enable_lora_overlap_loading': None, 'max_lora_rank': None, 'lora_target_modules': None, 'lora_paths': None, 'max_loaded_loras': None, 'max_loras_per_batch': 8, 'lora_eviction_policy': 'lru', 'lora_backend': 'csgmv', 'max_lora_chunk_size': 16, 'experts_shared_outer_loras': None, 'lora_use_virtual_experts': False, 'lora_strict_loading': False, 'lora_drain_wait_threshold': 0.0, 'enable_two_batch_overlap': False, 'enable_single_batch_overlap': False, 'tbo_token_distribution_threshold': 0.48, 'cpu_offload_gb': 0, 'offload_group_size': -1, 'offload_num_in_group': 1, 'offload_prefetch_step': 1, 'offload_mode': 'cpu', 'enable_lmcache': False, 'lmcache_config_file': None, 'enable_flexkv': False, 'flexkv_config_file': None, 'kt_weight_path': None, 'kt_method': 'AMXINT4', 'kt_cpuinfer': None, 'kt_threadpool_count': 2, 'kt_num_gpu_experts': None, 'kt_max_deferred_experts_per_token': None, 'dllm_algorithm': None, 'dllm_algorithm_config': None, 'dllm_fdfo': True, 'disaggregation_mode': 'null', 'disaggregation_transfer_backend': 'mooncake', 'disaggregation_bootstrap_port': 8998, 'disaggregation_ib_device': None, 'disaggregation_decode_enable_radix_cache': False, 'disaggregation_decode_enable_offload_kvcache': False, 'disaggregation_decode_retraction_backup': None, 'num_reserved_decode_tokens': 512, 'disaggregation_decode_extra_slots': None, 'disaggregation_decode_polling_interval': 1, 'optimistic_prefill_attempts': 0, 'encoder_only': False, 'language_only': False, 'language_model_only': False, 'encoder_transfer_backend': 'zmq_to_scheduler', 'encoder_urls': [], 'encoder_bootstrap_port': 8997, 'encoder_register_urls': [], 'enable_adaptive_dispatch_to_encoder': False, 'enable_pdmux': False, 'pdmux_config_path': None, 'sm_group_num': 8, 'startup_weight_load_mode': 'serial', 'custom_weight_loader': [], 'weight_loader_disable_mmap': False, 'weight_loader_prefetch_checkpoints': True, 'weight_loader_prefetch_num_threads': 4, 'weight_loader_drop_cache_after_load': True, 'remote_instance_weight_loader_seed_instance_ip': None, 'remote_instance_weight_loader_seed_instance_service_port': None, 'remote_instance_weight_loader_send_weights_group_ports': None, 'remote_instance_weight_loader_backend': 'nccl', 'remote_instance_weight_loader_start_seed_via_transfer_engine': False, 'engine_info_bootstrap_port': 6789, 'modelexpress_config': None, 'download_dir': None, 'model_checksum': None, 'delete_ckpt_after_loading': False, 'decrypted_config_file': None, 'decrypted_draft_config_file': None, 'checkpoint_engine_wait_weights_before_ready': False, 'enable_prefill_delayer': False, 'prefill_delayer_max_delay_passes': 30, 'prefill_delayer_token_usage_low_watermark': None, 'prefill_delayer_forward_passes_buckets': None, 'prefill_delayer_wait_seconds_buckets': None, 'prefill_delayer_queue_min_ratio': None, 'prefill_delayer_max_delay_ms': None, 'min_free_slots_delay': None, 'enable_deterministic_inference': False, 'rl_on_policy_target': None, 'kv_canary': 'none', 'kv_canary_real_data': 'none', 'kv_canary_sweep_interval': 0, 'enable_dynamic_batch_tokenizer': False, 'dynamic_batch_tokenizer_batch_size': 32, 'dynamic_batch_tokenizer_batch_timeout': 0.002, 'enable_tokenizer_batch_encode': False, 'disable_tokenizer_batch_decode': False, 'debug_tensor_dump_output_folder': None, 'debug_tensor_dump_layers': None, 'debug_tensor_dump_input_file': None, 'enable_memory_saver': False, 'enable_weights_cpu_backup': False, 'enable_draft_weights_cpu_backup': False, 'enable_custom_logit_processor': False, 'enable_return_hidden_states': False, 'return_hidden_states_mode': None, 'enable_return_routed_experts': False, 'enable_return_indexer_topk': False, 'disable_outlines_disk_cache': False, 'enable_mis': False, 'weight_cache_mode': 'off', 'weight_cache_socket': None, 'weight_cache_timeout': 1800, 'forward_hooks': None, 'msprobe_dump_config': None}\n[transformers] Unrecognized keys in `rope_parameters` for 'rope_type'='default': {'mrope_interleaved', 'mrope_section'}\n[transformers] Unrecognized keys in `rope_parameters` for 'rope_type'='default': {'mrope_interleaved', 'mrope_section'}\n[transformers] Unrecognized keys in `rope_parameters` for 'rope_type'='default': {'mrope_interleaved', 'mrope_section'}\n[transformers] Unrecognized keys in `rope_parameters` for 'rope_type'='default': {'mrope_interleaved', 'mrope_section'}\n[transformers] Unrecognized keys in `rope_parameters` for 'rope_type'='default': {'mrope_section', 'mrope_interleaved'}\n[2026-10-21 10:39:31] Multimodal data loading enabled with 16 worker threads (auto).\n[transformers] Unrecognized keys in `rope_parameters` for 'rope_type'='default': {'mrope_interleaved', 'mrope_section'}\n[2026-10-21 10:39:31] SM120 low-M BF16 GEMM path enabled\n[transformers] Unrecognized keys in `rope_parameters` for 'rope_type'='default': {'mrope_interleaved', 'mrope_section'}\n[transformers] Unrecognized keys in `rope_parameters` for 'rope_type'='default': {'mrope_interleaved', 'mrope_section'}\n[transformers] Unrecognized keys in `rope_parameters` for 'rope_type'='default': {'mrope_interleaved', 'mrope_section'}\n[2026-10-21 10:39:32] Init torch distributed begin.\n[2026-10-21 10:39:33] Multimodal data loading enabled with 16 worker threads (auto).\n[2026-10-21 10:39:34] Multimodal processor concurrency enabled with 2 isolated worker threads (auto).\n[2026-10-21 10:39:34] Loading chat template from argument: /kaggle/input/intel-qwen3-8-flash-next-w4a16-autoround/chat_template.jinja\n[2026-10-21 10:39:34] Detected user specified Jinja chat template with content format: openai\n[2026-10-21 10:39:35] Auto-detected template features: reasoning_config=ReasoningToggleConfig(toggle_param='enable_thinking', default_enabled=True, special_case=None, effort_kwarg=None), reasoning_parser=qwen3, tool_call_parser=qwen3_coder\n[W1021 10:39:40.495204828 socket.cpp:207] [c10d] The hostname of the client socket cannot be retrieved. err=-3\n[2026-10-21 10:39:40] Init torch distributed ends. elapsed=8.06 s, mem usage=0.09 GB\n[2026-10-21 10:39:40] Load weight begin. avail mem=94.17 GB\n[2026-10-21 10:39:40] Multimodal attention backend not set. Use triton_attn.\n[2026-10-21 10:39:40] Using triton_attn as multimodal attention backend.\n[2026-10-21 10:39:40] AutoRound GPTQ config does not specify lm_head_quantized, desc_act, dynamic, checkpoint_format, true_sequential, static_groups; using SGLang defaults {'lm_head_quantized': False, 'desc_act': False, 'dynamic': {}, 'checkpoint_format': '', 'true_sequential': False, 'static_groups': False}.\n[2026-10-21 10:39:40] FlashInfer TRTLLM MoE deferred finalize is disabled (moe_runner_backend=auto, quant_method=GPTQMarlinMoEMethod).\n[2026-10-21 10:39:50] using attn output gate!\n\rLoading safetensors checkpoint shards:   0% Completed | 0/38 [00:00<?, ?it/s][2026-10-21 10:39:51] Checkpoint prefetch: one-shard lookahead in loader order (38 shards, up to 4 range-reader threads per shard)\n\rLoading safetensors checkpoint shards:   3% Completed | 1/38 [00:41<25:44, 41.74s/it]\rLoading safetensors checkpoint shards:   5% Completed | 2/38 [02:22<46:02, 76.74s/it]\rLoading safetensors checkpoint shards:   8% Completed | 3/38 [03:54<48:35, 83.29s/it]\rLoading safetensors checkpoint shards:  11% Completed | 4/38 [05:23<48:30, 85.61s/it]\rLoading safetensors checkpoint shards:  13% Completed | 5/38 [06:54<48:14, 87.70s/it]\rLoading safetensors checkpoint shards:  16% Completed | 6/38 [08:46<51:12, 96.02s/it]\rLoading safetensors checkpoint shards:  18% Completed | 7/38 [10:16<48:33, 93.99s/it]\rLoading safetensors checkpoint shards:  21% Completed | 8/38 [11:53<47:25, 94.84s/it]\rLoading safetensors checkpoint shards:  24% Completed | 9/38 [13:31<46:22, 95.94s/it]\rLoading safetensors checkpoint shards:  26% Completed | 10/38 [15:06<44:40, 95.72s/it]\rLoading safetensors checkpoint shards:  29% Completed | 11/38 [16:52<44:30, 98.89s/it]\rLoading safetensors checkpoint shards:  32% Completed | 12/38 [18:19<41:14, 95.17s/it]\rLoading safetensors checkpoint shards:  34% Completed | 13/38 [20:14<42:10, 101.23s/it]\rLoading safetensors checkpoint shards:  37% Completed | 14/38 [21:42<38:49, 97.06s/it] \rLoading safetensors checkpoint shards:  39% Completed | 15/38 [22:30<31:31, 82.26s/it]\rLoading safetensors checkpoint shards:  42% Completed | 16/38 [23:50<29:58, 81.74s/it]\rLoading safetensors checkpoint shards:  45% Completed | 17/38 [25:26<30:03, 85.89s/it]\rLoading safetensors checkpoint shards:  47% Completed | 18/38 [26:39<27:20, 82.04s/it]\rLoading safetensors checkpoint shards:  50% Completed | 19/38 [28:06<26:29, 83.66s/it]\rLoading safetensors checkpoint shards:  53% Completed | 20/38 [29:19<24:05, 80.33s/it]\rLoading safetensors checkpoint shards:  55% Completed | 21/38 [30:42<22:59, 81.14s/it]\rLoading safetensors checkpoint shards:  58% Completed | 22/38 [32:23<23:13, 87.08s/it]\rLoading safetensors checkpoint shards:  61% Completed | 23/38 [33:25<19:55, 79.67s/it]\rLoading safetensors checkpoint shards:  63% Completed | 24/38 [35:13<20:34, 88.15s/it]\rLoading safetensors checkpoint shards:  66% Completed | 25/38 [36:21<17:48, 82.16s/it]",
+      "at_utc": "2026-10-21 11:17:16.662Z"
+    },
+    {
+      "build_id": "4086c46befdb2235",
+      "elapsed_seconds": 2421.255,
+      "event": "llm_fallback",
+      "mode": "exploration",
+      "reason": "TimeoutError: startup_deadline_2400s",
+      "at_utc": "2026-10-21 11:17:16.663Z"
+    },
+    {
+      "build_id": "4086c46befdb2235",
+      "elapsed_seconds": 2422.031,
+      "evaluated": false,
+      "event": "submission_bootstrap",
+      "path": "/kaggle/working/submission.parquet",
+      "purpose": "Kaggle code submission output selector",
+      "rows": 0,
+      "at_utc": "2026-10-21 11:17:17.439Z"
+    },
+    {
+      "build_id": "4086c46befdb2235",
+      "elapsed_seconds": 2422.032,
+      "event": "not_evaluated",
+      "message": "Save & Run All does not play hidden games. No gameplay rows were generated. The competition gateway runs during Submit to Competition.",
+      "at_utc": "2026-10-21 11:17:17.440Z"
+    },
+    {
+      "build_id": "4086c46befdb2235",
+      "duration_seconds": 2400.129,
+      "elapsed_seconds": 2421.255,
+      "event": "stage_completed",
+      "stage": "llm_startup",
+      "at_utc": "2026-10-21 11:17:16.663Z"
+    }
+  ],
+  "checkpoint_progress": [
+    {
+      "loaded": 0,
+      "total": 38,
+      "elapsed": "00:00"
+    },
+    {
+      "loaded": 1,
+      "total": 38,
+      "elapsed": "00:41"
+    },
+    {
+      "loaded": 2,
+      "total": 38,
+      "elapsed": "02:22"
+    },
+    {
+      "loaded": 3,
+      "total": 38,
+      "elapsed": "03:54"
+    },
+    {
+      "loaded": 4,
+      "total": 38,
+      "elapsed": "05:23"
+    },
+    {
+      "loaded": 5,
+      "total": 38,
+      "elapsed": "06:54"
+    },
+    {
+      "loaded": 6,
+      "total": 38,
+      "elapsed": "08:46"
+    },
+    {
+      "loaded": 7,
+      "total": 38,
+      "elapsed": "10:16"
+    },
+    {
+      "loaded": 8,
+      "total": 38,
+      "elapsed": "11:53"
+    },
+    {
+      "loaded": 9,
+      "total": 38,
+      "elapsed": "13:31"
+    },
+    {
+      "loaded": 10,
+      "total": 38,
+      "elapsed": "15:06"
+    },
+    {
+      "loaded": 11,
+      "total": 38,
+      "elapsed": "16:52"
+    },
+    {
+      "loaded": 12,
+      "total": 38,
+      "elapsed": "18:19"
+    },
+    {
+      "loaded": 13,
+      "total": 38,
+      "elapsed": "20:14"
+    },
+    {
+      "loaded": 14,
+      "total": 38,
+      "elapsed": "21:42"
+    },
+    {
+      "loaded": 15,
+      "total": 38,
+      "elapsed": "22:30"
+    },
+    {
+      "loaded": 16,
+      "total": 38,
+      "elapsed": "23:50"
+    },
+    {
+      "loaded": 17,
+      "total": 38,
+      "elapsed": "25:26"
+    },
+    {
+      "loaded": 18,
+      "total": 38,
+      "elapsed": "26:39"
+    },
+    {
+      "loaded": 19,
+      "total": 38,
+      "elapsed": "28:06"
+    },
+    {
+      "loaded": 20,
+      "total": 38,
+      "elapsed": "29:19"
+    },
+    {
+      "loaded": 21,
+      "total": 38,
+      "elapsed": "30:42"
+    },
+    {
+      "loaded": 22,
+      "total": 38,
+      "elapsed": "32:23"
+    },
+    {
+      "loaded": 23,
+      "total": 38,
+      "elapsed": "33:25"
+    },
+    {
+      "loaded": 24,
+      "total": 38,
+      "elapsed": "35:13"
+    },
+    {
+      "loaded": 25,
+      "total": 38,
+      "elapsed": "36:21"
+    }
+  ]
+}

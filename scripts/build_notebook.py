@@ -27,7 +27,7 @@ except ImportError:
 #                burns GPU quota faster — use only when you're confident.
 # ─────────────────────────────────────────────────────────────────────────────
 ACCELERATOR = "rtx6000"
-LLM_STARTUP_SECONDS = 900
+LLM_STARTUP_SECONDS = 2400
 
 # Internal mapping; don't edit unless Kaggle adds new options.
 _ACCELERATORS = {
