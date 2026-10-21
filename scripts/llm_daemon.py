@@ -158,16 +158,25 @@ class LLMDaemon:
         """Never save model copies as outputs; remove only our stopped run."""
         try:
             report = json.loads((self.working / 'diagnostics/model_staging.json').read_text())
-            transaction = Path(report['transaction'])
+            paths = report.get('orphaned_transactions', [])
+            if 'transaction' in report:
+                paths = [report['transaction'], *paths]
             root = (self.working / '.arc3-models').resolve()
-            if (transaction.is_symlink() or transaction.parent.resolve() != root
-                    or not transaction.name.startswith('run-')):
-                return
-            marker = transaction / '.arc3-owner'
-            if marker.is_symlink() or marker.read_text() != self._staging_owner:
-                return
-            shutil.rmtree(transaction)
-            self.event('model_staging_cleaned', transaction=str(transaction))
+            for path in paths:
+                try:
+                    transaction = Path(path)
+                    if (transaction.is_symlink() or transaction.parent.resolve() != root
+                            or not transaction.name.startswith('run-')):
+                        continue
+                    marker = transaction / '.arc3-owner'
+                    if marker.is_symlink() or marker.read_text() != self._staging_owner:
+                        continue
+                    shutil.rmtree(transaction)
+                    self.event('model_staging_cleaned', transaction=str(transaction))
+                except FileNotFoundError:
+                    continue
+                except (OSError, ValueError, TypeError) as error:
+                    self.event('model_staging_cleanup_error', error=str(error))
         except (FileNotFoundError, KeyError):
             pass
         except (OSError, ValueError, TypeError) as error:

@@ -443,3 +443,91 @@ def test_staging_cleanup_cannot_delete_unowned_paths(tmp_path, unsafe):
     (diagnostics / 'model_staging.json').write_text(json.dumps({'transaction': str(transaction)}))
     daemon.stop()
     assert (protected / 'keep').read_text() == 'keep'
+
+
+def test_copy_enospc_and_cleanup_erofs_do_not_abort_fallback(checkpoints, tmp_path, monkeypatch, local_storage):
+    bad, good = tmp_path / 'bad', tmp_path / 'good'
+    copy, remove = model_staging._stage_file, model_staging.shutil.rmtree
+    def copier(item, destination):
+        if destination.is_relative_to(bad) and item[1].name == 'model-37.safetensors':
+            raise OSError(errno.ENOSPC, 'copy sync failed')
+        return copy(item, destination)
+    def cleanup(path, *args, **kwargs):
+        if Path(path).is_relative_to(bad):
+            raise OSError(errno.EROFS, 'cleanup cannot unlink')
+        return remove(path, *args, **kwargs)
+    monkeypatch.setattr(model_staging, '_stage_file', copier)
+    monkeypatch.setattr(model_staging.shutil, 'rmtree', cleanup)
+    report = stage_checkpoints(*checkpoints, bad, tmp_path / 'report.json', reserve=True,
+                               fallback_roots=(good,), headroom_bytes=4096)
+    attempt = report['storage_attempts'][0]
+    assert attempt['errno'] == errno.ENOSPC and attempt['cleanup_error']['errno'] == errno.EROFS
+    assert len(report['storage_attempts']) == 2 and report['root'] == str(good)
+    assert report['status'] == 'complete' and report['models']['target']['shard_count'] == 38
+    assert Path(report['orphaned_transactions'][0]).is_relative_to(bad)
+    assert Path(report['orphaned_transactions'][0]).exists()
+
+
+def test_final_copy_error_is_not_replaced_by_cleanup_error(checkpoints, tmp_path, monkeypatch, local_storage):
+    def failed_copy(item, destination):
+        raise OSError(errno.ENOSPC, 'copy sync failed')
+    def failed_cleanup(path, *args, **kwargs):
+        raise OSError(errno.EROFS, 'cleanup cannot unlink')
+    monkeypatch.setattr(model_staging, '_stage_file', failed_copy)
+    monkeypatch.setattr(model_staging.shutil, 'rmtree', failed_cleanup)
+    with pytest.raises(OSError, match='no local storage candidate') as error:
+        stage_checkpoints(*checkpoints, tmp_path / 'bad', tmp_path / 'report.json',
+                          reserve=True, headroom_bytes=4096)
+    assert error.value.errno == errno.ENOSPC
+    report = json.loads((tmp_path / 'report.json').read_text())
+    assert report['status'] == 'failed' and report['storage_attempts'][0]['errno'] == errno.ENOSPC
+    assert report['storage_attempts'][0]['cleanup_error']['errno'] == errno.EROFS
+
+
+def test_synced_copy_progress_is_reported_before_checkpoint_publication(checkpoints, tmp_path, monkeypatch, local_storage):
+    original = model_staging._stage_file
+    seen = []
+    def copier(item, destination):
+        if item[1].name == 'model-37.safetensors':
+            # Other workers can finish files while the last shard is held.
+            import time
+            until = time.monotonic()+5
+            while time.monotonic() < until:
+                report = json.loads((tmp_path / 'report.json').read_text())
+                attempt = report['storage_attempts'][0]
+                if attempt.get('copied_bytes', 0) > 0:
+                    assert report['status'] == 'copying' and not report['models']
+                    assert not (destination.parent / 'target').exists()
+                    seen.append(attempt['copied_bytes'])
+                    break
+                time.sleep(0.01)
+            assert seen
+        return original(item, destination)
+    monkeypatch.setattr(model_staging, '_stage_file', copier)
+    report = stage_checkpoints(*checkpoints, tmp_path / 'local', tmp_path / 'report.json',
+                               reserve=True, headroom_bytes=4096)
+    assert seen and report['status'] == 'complete'
+
+
+def test_read_only_candidate_is_rejected_before_allocating(checkpoints, tmp_path, monkeypatch):
+    monkeypatch.setattr(model_staging, '_storage_profile', lambda root: {
+        'disk_free_before': 10**12, 'free_inodes': 1000, 'filesystem': 'ext4', 'read_only': True})
+    allocator = Mock(); monkeypatch.setattr(model_staging, '_reserve_file', allocator)
+    with pytest.raises(OSError, match='no local storage candidate'):
+        stage_checkpoints(*checkpoints, tmp_path / 'local', tmp_path / 'report.json',
+                          reserve=True, headroom_bytes=4096)
+    allocator.assert_not_called()
+    assert json.loads((tmp_path / 'report.json').read_text())['storage_attempts'][0]['errno'] == errno.EROFS
+
+
+def test_post_stop_cleanup_retries_owned_orphans_after_missing_entry(tmp_path):
+    daemon = LLMDaemon(tmp_path / 'launcher', tmp_path, Mock())
+    root = tmp_path / '.arc3-models'; root.mkdir()
+    owned = root / 'run-owned'; owned.mkdir()
+    (owned / '.arc3-owner').write_text(daemon._staging_owner)
+    (owned / 'weights').write_text('synthetic model')
+    diagnostics = tmp_path / 'diagnostics'; diagnostics.mkdir()
+    (diagnostics / 'model_staging.json').write_text(json.dumps({
+        'orphaned_transactions': [str(root / 'run-missing'), str(owned)]}))
+    daemon.stop()
+    assert not owned.exists()

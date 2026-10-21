@@ -338,6 +338,93 @@
         "workers": 4
       },
       "at_utc": "2026-10-21 12:49:52.497Z"
+    },
+    {
+      "build_id": "a56668207f023cce",
+      "elapsed_seconds": 956.763,
+      "event": "model_staging",
+      "report": {
+        "bytes_required": 185400295230,
+        "capacity_reservation": true,
+        "disk_free_before": 1145972940800,
+        "elapsed_seconds": 860.627,
+        "error": "[Errno 30] Read-only file system: PosixPath('/tmp/models/arc3/run-5vzlrisp')",
+        "error_type": "OSError",
+        "headroom_bytes": 17179869184,
+        "mode": "local_copy",
+        "models": {},
+        "root": "/tmp/models/arc3",
+        "status": "failed",
+        "storage_attempts": [
+          {
+            "allocated_bytes": 202580451328,
+            "block_size": 4096,
+            "device": 64,
+            "disk_free_before": 1145972940800,
+            "errno": 28,
+            "error": "[Errno 28] No space left on device",
+            "error_type": "OSError",
+            "filesystem": "overlay",
+            "free_inodes": 442956464,
+            "mount": "/",
+            "reservation_seconds": 0.413,
+            "reserved_files": 62,
+            "root": "/tmp/models/arc3",
+            "status": "failed",
+            "total_inodes": 543162368
+          }
+        ],
+        "workers": 4
+      },
+      "at_utc": "2026-10-21 13:04:12.494Z"
+    },
+    {
+      "build_id": "a56668207f023cce",
+      "elapsed_seconds": 956.771,
+      "event": "llm_stopped",
+      "returncode": 1,
+      "at_utc": "2026-10-21 13:04:12.502Z"
+    },
+    {
+      "build_id": "a56668207f023cce",
+      "elapsed_seconds": 956.771,
+      "event": "llm_startup_log",
+      "file": "llm_launcher.log",
+      "tail": "Precaching: Started...\nPrecaching: loaded 211 files (6.70 GB) in 66.41 seconds.\n\nTraceback (most recent call last):\n  File \"/tmp/arc3_llm_launcher.py\", line 354, in stage_checkpoints\n    copied = [future.result() for future in futures]\n              ^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/concurrent/futures/_base.py\", line 456, in result\n    return self.__get_result()\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/concurrent/futures/_base.py\", line 401, in __get_result\n    raise self._exception\n  File \"/usr/lib/python3.12/concurrent/futures/thread.py\", line 59, in run\n    result = self.fn(*self.args, **self.kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/arc3_llm_launcher.py\", line 236, in _stage_file\n    os.fsync(writer.fileno())\nOSError: [Errno 28] No space left on device\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/tmp/arc3_llm_launcher.py\", line 398, in <module>\n    staging_report = stage_checkpoints(Path(asset_report[\"target\"][\"path\"]),\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/arc3_llm_launcher.py\", line 379, in stage_checkpoints\n    shutil.rmtree(transaction)\n  File \"/usr/lib/python3.12/shutil.py\", line 759, in rmtree\n    _rmtree_safe_fd(stack, onexc)\n  File \"/usr/lib/python3.12/shutil.py\", line 703, in _rmtree_safe_fd\n    onexc(func, path, err)\n  File \"/usr/lib/python3.12/shutil.py\", line 700, in _rmtree_safe_fd\n    onexc(os.unlink, fullname, err)\n  File \"/usr/lib/python3.12/shutil.py\", line 698, in _rmtree_safe_fd\n    os.unlink(entry.name, dir_fd=topfd)\nOSError: [Errno 30] Read-only file system: PosixPath('/tmp/models/arc3/run-5vzlrisp')\n",
+      "at_utc": "2026-10-21 13:04:12.503Z"
+    },
+    {
+      "build_id": "a56668207f023cce",
+      "elapsed_seconds": 956.772,
+      "event": "llm_fallback",
+      "mode": "exploration",
+      "reason": "RuntimeError: launcher_exited:1",
+      "at_utc": "2026-10-21 13:04:12.503Z"
+    },
+    {
+      "build_id": "a56668207f023cce",
+      "duration_seconds": 935.044,
+      "elapsed_seconds": 956.772,
+      "event": "stage_completed",
+      "stage": "llm_startup",
+      "at_utc": "2026-10-21 13:04:12.503Z"
+    },
+    {
+      "build_id": "a56668207f023cce",
+      "elapsed_seconds": 956.98,
+      "evaluated": false,
+      "event": "submission_bootstrap",
+      "path": "/kaggle/working/submission.parquet",
+      "purpose": "Kaggle code submission output selector",
+      "rows": 0,
+      "at_utc": "2026-10-21 13:04:12.712Z"
+    },
+    {
+      "build_id": "a56668207f023cce",
+      "elapsed_seconds": 956.981,
+      "event": "not_evaluated",
+      "message": "Save & Run All does not play hidden games. No gameplay rows were generated. The competition gateway runs during Submit to Competition.",
+      "at_utc": "2026-10-21 13:04:12.712Z"
     }
   ],
   "status_observations": [
@@ -523,6 +610,182 @@
     }
   ],
   "last_staging_report": {
+    "status": "failed",
+    "mode": "local_copy",
+    "root": "/tmp/models/arc3",
+    "workers": 4,
+    "models": {},
+    "capacity_reservation": true,
+    "storage_attempts": [
+      {
+        "root": "/tmp/models/arc3",
+        "status": "failed",
+        "device": 64,
+        "free_inodes": 442956464,
+        "total_inodes": 543162368,
+        "block_size": 4096,
+        "disk_free_before": 1145972940800,
+        "mount": "/",
+        "filesystem": "overlay",
+        "allocated_bytes": 202580451328,
+        "reserved_files": 62,
+        "reservation_seconds": 0.413,
+        "error_type": "OSError",
+        "error": "[Errno 28] No space left on device",
+        "errno": 28
+      }
+    ],
+    "headroom_bytes": 17179869184,
+    "bytes_required": 185400295230,
+    "disk_free_before": 1145972940800,
+    "error_type": "OSError",
+    "error": "[Errno 30] Read-only file system: PosixPath('/tmp/models/arc3/run-5vzlrisp')",
+    "elapsed_seconds": 860.627
+  },
+  "console_log_sha256": "11963347eb7bada53b7afdfb98ce6406281abc622d803ae640128642296ee123",
+  "model_ready": false,
+  "time_to_model_ready_seconds": null,
+  "model_startup_duration_seconds": 935.044,
+  "caution": "The measured 935.044 seconds is time to startup failure, not readiness. Reservation passed but writes failed; no target checkpoint was published and SGLang never launched.",
+  "initial_logging_limitation": "Live CLI reported connection losses and captured only startup/reservation/copy-start events. Completed log API returns []; user has chosen to upload the diagnostic folder again. The final source pull matches the deployed artifact.",
+  "staging_attempt_seconds": 860.627,
+  "local_copy_completed": false,
+  "server_launch_reached": false,
+  "primary_failure": "ENOSPC at _stage_file os.fsync",
+  "secondary_failure": "EROFS in cleanup shutil.rmtree; interrupted fallback selection",
+  "staging_report": {
+    "status": "failed",
+    "mode": "local_copy",
+    "root": "/tmp/models/arc3",
+    "workers": 4,
+    "models": {},
+    "capacity_reservation": true,
+    "storage_attempts": [
+      {
+        "root": "/tmp/models/arc3",
+        "status": "failed",
+        "device": 64,
+        "free_inodes": 442956464,
+        "total_inodes": 543162368,
+        "block_size": 4096,
+        "disk_free_before": 1145972940800,
+        "mount": "/",
+        "filesystem": "overlay",
+        "allocated_bytes": 202580451328,
+        "reserved_files": 62,
+        "reservation_seconds": 0.413,
+        "error_type": "OSError",
+        "error": "[Errno 28] No space left on device",
+        "errno": 28
+      }
+    ],
+    "headroom_bytes": 17179869184,
+    "bytes_required": 185400295230,
+    "disk_free_before": 1145972940800,
+    "error_type": "OSError",
+    "error": "[Errno 30] Read-only file system: PosixPath('/tmp/models/arc3/run-5vzlrisp')",
+    "elapsed_seconds": 860.627
+  },
+  "llm_status": {
+    "ready": false,
+    "ever_ready": false,
+    "reason": "RuntimeError: launcher_exited:1",
+    "endpoint": "http://127.0.0.1:8001/v1",
+    "mode": "exploration",
+    "startup_seconds": 2400
+  },
+  "notebook_status": {
+    "status": "NOT_EVALUATED",
+    "elapsed_seconds": 956.981,
+    "build_id": "a56668207f023cce",
+    "competition_rerun": false,
+    "stage": "competition_dispatch",
+    "reason": "Competition rerun flag is not enabled; gameplay gateway is unavailable"
+  },
+  "launcher_log": "Precaching: Started...\nPrecaching: loaded 211 files (6.70 GB) in 66.41 seconds.\n\nTraceback (most recent call last):\n  File \"/tmp/arc3_llm_launcher.py\", line 354, in stage_checkpoints\n    copied = [future.result() for future in futures]\n              ^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/concurrent/futures/_base.py\", line 456, in result\n    return self.__get_result()\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/concurrent/futures/_base.py\", line 401, in __get_result\n    raise self._exception\n  File \"/usr/lib/python3.12/concurrent/futures/thread.py\", line 59, in run\n    result = self.fn(*self.args, **self.kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/arc3_llm_launcher.py\", line 236, in _stage_file\n    os.fsync(writer.fileno())\nOSError: [Errno 28] No space left on device\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/tmp/arc3_llm_launcher.py\", line 398, in <module>\n    staging_report = stage_checkpoints(Path(asset_report[\"target\"][\"path\"]),\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/arc3_llm_launcher.py\", line 379, in stage_checkpoints\n    shutil.rmtree(transaction)\n  File \"/usr/lib/python3.12/shutil.py\", line 759, in rmtree\n    _rmtree_safe_fd(stack, onexc)\n  File \"/usr/lib/python3.12/shutil.py\", line 703, in _rmtree_safe_fd\n    onexc(func, path, err)\n  File \"/usr/lib/python3.12/shutil.py\", line 700, in _rmtree_safe_fd\n    onexc(os.unlink, fullname, err)\n  File \"/usr/lib/python3.12/shutil.py\", line 698, in _rmtree_safe_fd\n    os.unlink(entry.name, dir_fd=topfd)\nOSError: [Errno 30] Read-only file system: PosixPath('/tmp/models/arc3/run-5vzlrisp')\n",
+  "diagnostics": {
+    "source_directory": "output_Version_7/diagnostics",
+    "source_commit": "8908646",
+    "files": {
+      "framework_imports.log": {
+        "sha256": "4c1a18c4a3151cb8592549bc1c879b1c6ddd1369aa69302ada9fc6671e7287b1",
+        "bytes": 80
+      },
+      "events.jsonl": {
+        "sha256": "8941b5e66ad29ffc5c3c1a5bf423c3870def14978be536e35e3cddfd7f29ae85",
+        "bytes": 11143
+      },
+      "llm_status.json": {
+        "sha256": "044db302ca492f2cdf31f602dbf58a8a692d879de92452c0398d32f364fb2e84",
+        "bytes": 185
+      },
+      "status.json": {
+        "sha256": "fa1397354e66f0293661e978db63c488fcbb46d608235e2c75a9b6837dbc79b4",
+        "bytes": 247
+      },
+      "containment.log": {
+        "sha256": "71b6df552c137b742ee7b0c74b91ae6d0f6b2286676ccbef5728cdabcb5e783c",
+        "bytes": 4755
+      },
+      "llm_assets.json": {
+        "sha256": "f2bafdfd5370a0eb14c5162b7293766124178eff6f9a9bb6e6f03bfe30ae5963",
+        "bytes": 30181
+      },
+      "notebook.log": {
+        "sha256": "e03fd4c70051579e2edb9876200e9b4b459888ef48c89b742692f51ad938b91c",
+        "bytes": 22227
+      },
+      "model_staging.json": {
+        "sha256": "e345bbff629466e9e2c2be897c3ddd2882d271424b7d0f4320502ea43d68b8b5",
+        "bytes": 904
+      },
+      "pip.log": {
+        "sha256": "f7abca557e1246e2c5177c5ef03e4f14cd886cca6e900ba7a947e2c304341e0a",
+        "bytes": 4949
+      },
+      "sandbox_setup.log": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "llm_launcher.log": {
+        "sha256": "35d7d44fdf52199cb3ee77c5cde1c363ef66acaac213cfc7452e6abf9f1b4e01",
+        "bytes": 1727
+      },
+      "containment.json": {
+        "sha256": "71b6df552c137b742ee7b0c74b91ae6d0f6b2286676ccbef5728cdabcb5e783c",
+        "bytes": 4755
+      }
+    },
+    "console_events_match": true,
+    "launcher_matches_deployment": true
+  },
+  "containment": {
+    "containment_passed": true,
+    "checks": {
+      "deployed_sources_present": true,
+      "sandbox_present": true,
+      "engine_import_denied": true,
+      "absolute_read": true,
+      "traversal_read": true,
+      "symlink_read": true,
+      "write": true,
+      "symlink_write": true,
+      "directory_list": true,
+      "subprocess_escape": true,
+      "fork_escape": true,
+      "exec_escape": true,
+      "native_open": true,
+      "canary_unchanged": true,
+      "write_not_created": true,
+      "compute_works": true,
+      "memory_capped": true,
+      "planner_failure_visible": true,
+      "loop_terminated": true,
+      "missing_worker_fails": true
+    }
+  },
+  "logging_resolution": "User committed the full diagnostics on main; source/build/timestamp/hash consistency checks pass.",
+  "initial_staging_report": {
     "bytes_required": 185400295230,
     "capacity_reservation": true,
     "disk_free_before": 1145972940800,
@@ -549,11 +812,5 @@
     ],
     "transaction": "/tmp/models/arc3/run-5vzlrisp",
     "workers": 4
-  },
-  "console_log_sha256": "11963347eb7bada53b7afdfb98ce6406281abc622d803ae640128642296ee123",
-  "model_ready": null,
-  "time_to_model_ready_seconds": null,
-  "model_startup_duration_seconds": null,
-  "logging_limitation": "Live CLI reported connection losses and captured only startup/reservation/copy-start events. Completed log API returns []; user has chosen to upload the diagnostic folder again. The final source pull matches the deployed artifact.",
-  "caution": "Allocation passed on the selected overlay, but copy completion, SGLang launch and readiness are not established by this partial log or by COMPLETE save status."
+  }
 }

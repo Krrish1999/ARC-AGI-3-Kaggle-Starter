@@ -1,0 +1,57 @@
+{
+  "status": "prepared",
+  "phase": "A",
+  "prepared_at_utc": "2026-10-21T14:03:29.413304+00:00",
+  "branch": "feat/local-model-staging",
+  "mutation": "[EDIT]",
+  "kernel_id": "aanchal009/arc-agi-3-runtime-check",
+  "build_id": "122eab780b108df8",
+  "startup_seconds": 2400,
+  "previous_runtime_diagnostics_commit": "8908646",
+  "local_model_staging": {
+    "root": "/kaggle/working/.arc3-models",
+    "toggle": "ENABLE_LOCAL_MODEL_STAGING",
+    "default": "1",
+    "workers": 4,
+    "copy_barrier": "all files closed/fsynced; target and draft validated before args/Popen",
+    "capacity_toggle": "ENABLE_STAGING_CAPACITY_RESERVATION",
+    "capacity_default": "1",
+    "fallback_roots": [
+      "/tmp/models/arc3",
+      "/kaggle/temp/arc3-models"
+    ],
+    "headroom_bytes": 17179869184,
+    "reservation": "posix_fallocate and fsync every destination file plus headroom before FUSE reads; retain extents during copy"
+  },
+  "dataset_sources": [
+    "dfranzen/pennyroyal-v253",
+    "mirzamilanfarabi/intel-qwen3-8-flash-next-w4a16-autoround",
+    "mirzamilanfarabi/albucino-qwen3-8-flash-next-drafter"
+  ],
+  "checks": {
+    "pytest_cases": 261,
+    "new_cleanup_cases": 5,
+    "ruff_passed": true,
+    "pyright_errors": 0,
+    "containment_passed": true,
+    "containment_checks": 20,
+    "source_build_sync": true
+  },
+  "model_ready": null,
+  "model_startup_duration_seconds": null,
+  "time_to_model_ready_seconds": null,
+  "phase_b_submitted": false,
+  "hidden_score": null,
+  "sha256": {
+    "scripts/build_notebook.py": "94529bf31da32f0587b381ad040d7dbbcd6e9a5842c4f9db1c2d091d7f36b1e5",
+    "scripts/extract_llm_launcher.py": "d439506f227e53fc25f57e607ae88519e5c1c703054bf3e9894c69393d559976",
+    "scripts/model_staging.py": "4dcbfb36293e84dc66917e76f3f898e475ae296cf9d080976ce30284be3f9682",
+    "scripts/llm_daemon.py": "5b0edb631e15751baa4d375d1e5b35aaa29e52ac2a822b95738722b3c0d9ec27",
+    "scripts/notebook_runtime.py": "dcae1dab49683d05c875d575d4b15926432ed096e2bfac004ef0bb1c7dbb586f",
+    "agent/my_agent.py": "5e6a76bc2376407c045fed7f4a7eed0e254e658009955b0c304c89b281826bc9",
+    "agent/arclog.py": "0c119b81ad71aa39e84069dbbbabba7562aa462c94f5f19e5a2177a957c0375e",
+    "notebooks/submission.ipynb": "abf88bf40bc9352e1fb453dd0ca28018d7bce4e2110001df445bc021fa0847c6",
+    "notebooks/kernel-metadata.json": "05bf130a005c885153cf248065b7a73fad5d01d1afd8e5212427263c48cdffb7",
+    "containment.json": "3a2368d9f13a8c36c845f581f908572db01cd9047c8c15a5377806b24f7c9054"
+  }
+}

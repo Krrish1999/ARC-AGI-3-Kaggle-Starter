@@ -13,7 +13,7 @@ import os
 import shutil
 import tempfile
 import time
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 
@@ -68,6 +68,7 @@ def _storage_profile(root: Path) -> dict:
     """Record the actual mount and inode view, not only host-wide free bytes."""
     stats = os.statvfs(root)
     profile = {'device': root.stat().st_dev, 'free_inodes': stats.f_favail, 'total_inodes': stats.f_files,
+               'read_only': bool(stats.f_flag & os.ST_RDONLY),
                'block_size': stats.f_frsize, 'disk_free_before': shutil.disk_usage(root).free}
     mountinfo = Path('/proc/self/mountinfo')
     if mountinfo.is_file():
@@ -127,6 +128,15 @@ def stage_checkpoints(target: Path, draft: Path | None, root: Path,
         temporary.write_text(json.dumps(report, indent=2)+'\n')
         temporary.replace(report_path)
 
+    def cleanup(path: Path, attempt: dict) -> None:
+        try:
+            shutil.rmtree(path)
+        except OSError as error:
+            # Preserve the copy error and allow independent mounts to be tried.
+            # A read-only mount cannot be repaired by retrying deletion here.
+            attempt['cleanup_error'] = {'errno': error.errno, 'error': str(error)}
+            report.setdefault('orphaned_transactions', []).append(str(path))
+
     transaction: Path | None = None
     save()
     try:
@@ -143,6 +153,8 @@ def stage_checkpoints(target: Path, draft: Path | None, root: Path,
                 attempt.update(_storage_profile(candidate))
                 report['disk_free_before'] = attempt['disk_free_before']
                 filesystem = attempt.get('filesystem', '')
+                if attempt.get('read_only'):
+                    raise OSError(errno.EROFS, 'checkpoint candidate is read-only')
                 if reserve and (filesystem.startswith('fuse') or filesystem in ('tmpfs', 'ramfs', 'nfs', 'nfs4', 'cifs', '9p')):
                     raise OSError(errno.ENOTSUP, f'checkpoint storage is not local disk: {filesystem}')
                 if attempt['disk_free_before'] < required + report['headroom_bytes']:
@@ -171,16 +183,25 @@ def stage_checkpoints(target: Path, draft: Path | None, root: Path,
                 save()
                 for kind, (files, shards) in inventories.items():
                     started = time.monotonic()
+                    attempt.update(copying_kind=kind, copied_files=0, copied_bytes=0)
                     partial = transaction / (kind+'.copying')
                     # Resolve every future and join all workers before publishing.
                     with ThreadPoolExecutor(max_workers=workers) as pool:
                         futures = [pool.submit(_stage_file, item, partial) for item in files]
                         try:
-                            copied = [future.result() for future in futures]
+                            copied = []
+                            for future in as_completed(futures):
+                                file = future.result()
+                                copied.append(file)
+                                attempt['copied_files'] += 1
+                                attempt['copied_bytes'] += file['bytes']
+                                if len(copied) % 4 == 0 or len(copied) == len(files):
+                                    save()
                         except BaseException:
                             for future in futures:
                                 future.cancel()
                             raise
+                    copied.sort(key=lambda file: file['name'])
                     final = transaction / kind
                     partial.rename(final)
                     manifest = transaction / (kind+'.manifest.json')
@@ -201,7 +222,7 @@ def stage_checkpoints(target: Path, draft: Path | None, root: Path,
             except OSError as error:
                 attempt.update(status='failed', error_type=type(error).__name__, error=str(error), errno=error.errno)
                 if transaction is not None:
-                    shutil.rmtree(transaction)
+                    cleanup(transaction, attempt)
                     transaction = None
                 report.pop('transaction', None)
                 report['models'] = {}
@@ -211,7 +232,7 @@ def stage_checkpoints(target: Path, draft: Path | None, root: Path,
         raise OSError(errno.ENOSPC, 'no local storage candidate could stage the complete checkpoint set')
     except BaseException as error:
         if transaction is not None:
-            shutil.rmtree(transaction, ignore_errors=True)
+            cleanup(transaction, attempt)
         report.pop('transaction', None)
         report.update(status='failed', models={}, error_type=type(error).__name__, error=str(error),
                       elapsed_seconds=round(time.monotonic()-began, 3))

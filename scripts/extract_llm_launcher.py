@@ -13,7 +13,7 @@ WEIGHT_DATASETS = {
 }
 
 
-def extract_launcher(*, local_model_root: str = '/tmp/models/arc3',
+def extract_launcher(*, local_model_root: str = '/kaggle/working/.arc3-models',
                      local_model_fallback_roots: tuple[str, ...] = (),
                      local_model_headroom_bytes: int = 16 * 1024**3) -> tuple[str, dict]:
     path = ROOT / 'research_lab/top_programs/baseline_28_score.ipynb'

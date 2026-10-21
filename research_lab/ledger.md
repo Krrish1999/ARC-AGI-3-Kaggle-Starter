@@ -1,5 +1,52 @@
 # ARC-AGI-3 PhD Research Laboratory Ledger
 
+## [EDIT] Working-volume staging and cleanup-error isolation — 2026-10-21
+
+Requested skill: `phd-systems`; continue PR #14 / `feat/local-model-staging`.
+Engineering parent `31ffd70`, merged with the user's main commit `8908646`
+containing `output_Version_7/`. Retain the archived parent and unchanged agent
+policy. The user supplied this directory to finish the authorized startup
+verification; the original I/O deployment remains unvalidated.
+
+**Version 7 diagnosis.** All 39 events match the timestamped notebook log and
+build **a56668207f023cce** / launcher hash. Staging failed after **860.627
+seconds** with ENOSPC at `_stage_file` fsync, despite the 202.58 GB extent
+allocation. Cleanup then raised EROFS from `shutil.rmtree`, replacing the main
+exception and aborting the candidate loop. Only `/tmp/models/arc3` was tried;
+no checkpoint was published and SGLang never launched. Startup ended after
+**935.044 seconds** (time to failure), with `ready=false`, `ever_ready=false`.
+`NOT_EVALUATED` at 956.981 seconds and containment/framework 20/20 remain valid.
+The actual writable limit and successful copied-byte count were not recorded.
+Allocation counters do not prove Kaggle will accept subsequent writes.
+
+**[EDIT] deterministic repair.** Keep `ENABLE_STAGING_CAPACITY_RESERVATION=1`
+and `ENABLE_LOCAL_MODEL_STAGING=1` controls. Prefer the previously untried
+`/kaggle/working/.arc3-models` candidate, then the prior `/tmp` and temp
+candidates. Capture deletion failures separately from ENOSPC, retain owned
+orphan paths for guarded post-stop cleanup, and continue candidate selection.
+Record read-only mount flags and successful copied-file/byte progress while
+still withholding MODEL_DIR binding until both complete checkpoints validate.
+The owned output cleanup, startup limit 2,400 seconds, global budgets and
+strict Gen-3 policy remain unchanged. No claim of sufficient writable working
+storage is made before the next full-copy rehearsal.
+
+**Acceptance.** Inject ENOSPC at copy plus EROFS at cleanup and require actual
+copy success on an independent fallback, preserving both errors and unrelated
+files. Verify orphan cleanup ownership and continuation, read-only rejection
+and progress before publication. Run full regression, ruff/pyright, containment,
+rebuild and one bounded Phase A rehearsal. If full copying still fails, record
+that storage failure rather than enlarging the timeout or claiming readiness.
+
+### Working-volume candidate verification
+
+**261/261 pytest cases** pass, including five new cleanup/progress/read-only
+regressions, with required ruff, pyright and containment **20/20**. The notebook
+matches its sources and the Gen-3 entry-module hashes remain unchanged. Build
+**122eab780b108df8** keeps the shared 2,400-second startup limit. The working
+path accepted the final version-7 diagnostic writes after the `/tmp` error;
+this supports trying it first but does not establish model-sized capacity.
+Receipt: `research_lab/traces/working_staging_deployment.json`.
+
 ## [EDIT] Capacity-backed local checkpoint boot — 2026-10-21
 
 Requested skill: `phd-systems`; continue `feat/local-model-staging` / PR #14.
@@ -58,7 +105,7 @@ The user will upload the new diagnostic folder again if the Kaggle log API
 remains empty. Monitor Phase A to a terminal status; do not claim model
 readiness from COMPLETE alone or reuse version-6 failure timings for this build.
 
-### Version 7 Phase A closeout — COMPLETE save, final diagnostics pending
+### Version 7 Phase A closeout — COMPLETE save, staging failure confirmed
 
 `make status` first reports **COMPLETE at 2026-10-21 18:41:08.815
 Asia/Calcutta** (preceding RUNNING poll 18:40:22.791). A final source/metadata
@@ -67,20 +114,25 @@ internet disabled and NvidiaRtxPro6000. The interval from notebook start to
 observed completion is **1373.083 seconds**;
 this includes save/platform overhead and is not a measured model-startup time.
 
-The captured allocation/copy-start evidence is positive, but the live CLI
-reports connection losses and the completed log API returns `[]`. There is no
-captured copy-complete, SGLang-launch, `llm_ready`, fallback or final timing
-event for version 7. Keep **model readiness, copy duration and startup duration
-unconfirmed/null** until the user-offered diagnostic upload arrives. Do not
-substitute version 6's timings or call this completed save successful inference.
-No Phase B evaluation or RHAE/cache claim is made. PR #14 remains draft pending
-the runtime evidence, with its description updated to the capacity-backed boot.
+The initial live log ended during copying and the completed log API returned
+`[]`. The user's main commit `8908646` supplies the complete diagnostics in
+`output_Version_7/diagnostics`. All 39 events agree with the timestamped console
+and deployed build/launcher. The staging attempt failed after **860.627 seconds**:
+ENOSPC at copy fsync, followed by EROFS during deletion. Cleanup aborted the
+fallback loop after only one candidate. The startup attempt failed after
+**935.044 seconds**, ending at **2026-10-21 18:34:12.504 Asia/Calcutta**.
+`ready=false`, `ever_ready=false`; no checkpoint was published and SGLang
+never launched. NOT_EVALUATED follows at 956.981 seconds. Containment and
+framework preflight passed. These are measured failure durations, not model
+readiness latency. No Phase B evaluation or RHAE/cache claim is made; PR #14
+remains draft while the working-volume repair is evaluated.
 
 Evidence: `research_lab/traces/capacity_staging_runtime_evidence.json` contains
-this run's captured events, allocation result and status polls; the deployment
-receipt binds those bytes and every deployed source/artifact hash. The final
-closeout changes documentation/evidence only; 256-test, lint/type and containment
-verification remain valid for the unchanged deployed runtime.
+this run's complete events, final staging/launcher/status reports, diagnostic
+file hashes and status polls; the deployment receipt binds them to source
+commit `5699882`. That candidate passed 256 local tests, lint/type and
+containment; the GPU rehearsal falsified its storage/candidate-loop acceptance.
+The separate repair ticket above is not yet measured on Kaggle.
 
 ## [EDIT] Blocking local checkpoint staging — systems ticket, 2026-10-21
 

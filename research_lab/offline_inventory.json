@@ -1,5 +1,5 @@
 {
-  "status": "kaggle_v7_complete_readiness_pending_diagnostics",
+  "status": "kaggle_v7_complete_staging_enospc_cleanup_erofs",
   "assets": {
     "WHEELHOUSE_DIR": {
       "candidates": [
@@ -65,7 +65,7 @@
       "7": "7ef53c4c2f0a6c2e636be00056ac7ce2a6813c8d6d2ced8e65937e1d6465641a",
       "13": "0261d61f296b6f85f5c99e9299eb0bb7134e5ee39dd86d33765efb596da3d22e"
     },
-    "launcher_sha256": "5cfb9ea235ec560c24c8f1455003581c2122e26d25c1aac694d2fe074029f45a",
+    "launcher_sha256": "923cfb29ce44a16b54aa6c8f4351aa2e99c255d0a35c0cf6f0ad8f73672eec9e",
     "wheelhouse": "dfranzen/pennyroyal-v253",
     "dataset_version_observed": 1,
     "weight_datasets": {
@@ -79,7 +79,7 @@
     "startup_seconds": 2400,
     "prefetch": "Cell 7 wheel prewarm (16 readers); models copied with a blocking 4-worker barrier before installation/launch. Original model page-cache prefetch is an explicit staging-off control only.",
     "local_model_staging": {
-      "root": "/tmp/models/arc3",
+      "root": "/kaggle/working/.arc3-models",
       "toggle": "ENABLE_LOCAL_MODEL_STAGING",
       "default": "1",
       "workers": 4,
@@ -87,7 +87,7 @@
       "capacity_toggle": "ENABLE_STAGING_CAPACITY_RESERVATION",
       "capacity_default": "1",
       "fallback_roots": [
-        "/kaggle/working/.arc3-models",
+        "/tmp/models/arc3",
         "/kaggle/temp/arc3-models"
       ],
       "headroom_bytes": 17179869184,
@@ -121,7 +121,7 @@
     "ENABLE_STAGING_CAPACITY_RESERVATION": "1(default): allocate full checkpoint files plus 16 GiB headroom, select capable local candidate;0: preferred-root free-space-only reference."
   },
   "measured_cache_hit_rate": null,
-  "gpu_acceptance": "Version 7 COMPLETE save: RTX PRO 6000 and containment/framework preflight pass. /tmp/models/arc3 overlay reserved 202,580,451,328 bytes across 62 files plus serving headroom in 0.413 seconds; copying began. Live logs lost connection and completed logs return []; actual copy completion/SGLang startup/readiness remain unconfirmed pending the user-offered diagnostic upload. No inference/cache/RHAE acceptance.",
+  "gpu_acceptance": "Version 7 COMPLETE save; readiness FAIL. Committed diagnostics show staging ENOSPC at fsync after 860.627 seconds despite allocated extents, then EROFS during cleanup prevented fallback. Startup attempt failed after 935.044 seconds; SGLang never launched. Containment 20/20 and framework preflight passed. No inference/cache/RHAE acceptance.",
   "bundle_builder_reference": "https://github.com/da-fr/arc-agi-3-solution/tree/10882e332d883af3e61616df8c8a17d03a328a75/serving",
   "local_probe_scope": "present_candidates lists local workspace availability only; the Kaggle run separately verified its attached mounts.",
   "kaggle_runtime_evidence": "research_lab/traces/capacity_staging_deployment.json",
@@ -129,21 +129,22 @@
   "local_model_staging": {
     "default": "1",
     "toggle": "ENABLE_LOCAL_MODEL_STAGING",
-    "root": "/tmp/models/arc3",
+    "root": "/kaggle/working/.arc3-models",
     "barrier": "All target/draft checkpoint files copied, closed/fsynced and metadata verified before args/server launch.",
     "failure": "Prevent server launch; no fallback to FUSE input in the enabled path.",
-    "measured_startup": "Unconfirmed for version 7. No measured readiness latency is available from partial console logs; version 6 failed after 278.679 seconds and is retained separately.",
+    "measured_startup": "935.044 seconds to failed startup attempt; staging failed after 860.627 seconds; no model readiness latency.",
     "storage_requirement_bytes": 185400295230,
     "reported_disk_free_bytes": 1145972940800,
-    "storage_acceptance": "Allocation passed for 202,580,451,328 bytes; complete staged contents and startup outcome pending version-7 diagnostic upload.",
+    "storage_acceptance": "FAIL: ENOSPC while syncing copied bytes, then EROFS while removing the owned transaction. Fallback candidates were not attempted.",
     "fallback_roots": [
-      "/kaggle/working/.arc3-models",
+      "/tmp/models/arc3",
       "/kaggle/temp/arc3-models"
     ],
     "capacity_toggle": "ENABLE_STAGING_CAPACITY_RESERVATION",
     "capacity_default": "1",
     "headroom_bytes": 17179869184,
-    "capacity_candidate": "Allocation verified on Kaggle /tmp overlay; full-copy/model acceptance pending diagnostics.",
-    "output_cleanup": "Remove only nonce-owned working-directory transactions after stopping the server process group."
+    "capacity_candidate": "Reservation succeeded but actual writes failed; posix_fallocate/fsync/st_blocks do not establish complete writable capacity on this Kaggle overlay.",
+    "output_cleanup": "Remove only nonce-owned working-directory transactions after stopping the server process group.",
+    "pending_candidate": "Working volume first; isolate cleanup errors, retain owned orphans and report synced file/byte progress. Pending Phase A rehearsal."
   }
 }

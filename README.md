@@ -22,7 +22,7 @@ identifies the same upstream target and draft models used by the baseline. It in
 the attached wheelhouse into an isolated venv, leaving the framework interpreter
 unchanged. The retained reference notebook is unchanged.
 `ENABLE_LOCAL_MODEL_STAGING=1` copies every target/draft checkpoint file to
-local storage, preferring `/tmp/models/arc3`, waits for all copy workers to close/fsync their files,
+local storage, preferring `/kaggle/working/.arc3-models`, waits for all copy workers to close/fsync their files,
 and verifies checkpoint metadata before SGLang starts. The model, draft weight
 links, tokenizer and template all use the completed local trees. Copy failures
 or insufficient local storage prevent server launch. `0` is the direct-input
@@ -31,12 +31,15 @@ control with the retained background page-cache prefetcher.
 `ENABLE_STAGING_CAPACITY_RESERVATION=1` allocates and fsyncs every destination
 file plus 16 GiB of serving headroom before reading any weight shard. Copies
 overwrite those reserved extents without truncation. If capacity allocation
-fails, try `/kaggle/working/.arc3-models`, then `/kaggle/temp/arc3-models`; each
-failed attempt cleans only its own transaction. The headroom reservation is
+fails, try `/tmp/models/arc3`, then `/kaggle/temp/arc3-models`; each
+failed attempt cleans only its own transaction. Cleanup errors are recorded
+separately and do not prevent the next candidate from being tried. The headroom reservation is
 released for installation after both model copies complete. Diagnostics record
 mount type, device, free inodes, allocations and failures. `0` is the previous
 free-space-only reference using the preferred directory. Disk free-space
-reports alone missed version 6's ENOSPC failure.
+reports alone missed version 6's ENOSPC failure. Version 7 also hit ENOSPC after
+reservation succeeded, so allocation is only a precheck: full copy/fsync is the
+acceptance barrier. Copy progress reports count successfully synced files/bytes.
 Working-directory copies are removed after the owned server stops, using an
 owner-token check, so weights are not saved as notebook outputs.
 

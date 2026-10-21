@@ -28,8 +28,8 @@ except ImportError:
 # ─────────────────────────────────────────────────────────────────────────────
 ACCELERATOR = "rtx6000"
 LLM_STARTUP_SECONDS = 2400
-LOCAL_MODEL_ROOT = "/tmp/models/arc3"
-LOCAL_MODEL_FALLBACK_ROOTS = ("/kaggle/working/.arc3-models", "/kaggle/temp/arc3-models")
+LOCAL_MODEL_ROOT = "/kaggle/working/.arc3-models"
+LOCAL_MODEL_FALLBACK_ROOTS = ("/tmp/models/arc3", "/kaggle/temp/arc3-models")
 LOCAL_MODEL_HEADROOM_BYTES = 16 * 1024**3
 
 # Internal mapping; don't edit unless Kaggle adds new options.
