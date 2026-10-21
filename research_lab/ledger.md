@@ -1,5 +1,110 @@
 # ARC-AGI-3 PhD Research Laboratory Ledger
 
+## Generation 3 Task Packet — [REPLACE] auditable authorization contract
+
+Issued 2026-10-21 (Asia/Calcutta). Requested skills: phd-pi, phd-world-model,
+phd-perception and phd-critic. Branch: `feat/auditable-world-model`.
+Engineering parent is main `01f0521`, descended from the retained exact archive
+`research_lab/top_programs/v1_retrodict_world_model_harness.py` at `6f4dc442`.
+No statistically verified integrated champion exists; preserve all archived
+parents and the official 0.12 deployment baseline without claiming score lift.
+
+| Failure type | Source evidence | Deterministic ticket |
+|---|---|---|
+| A: perception | Raw [DIFF] includes HUD cells; journal not authenticated for replay | phd-perception: separate causal/raw evidence and authenticate complete log.txt |
+| B: reasoning/memory | Probes default to level scope; free action plans bypass mechanic replay; playbook lacks required sections | phd-world-model: whole-game authorization, forward rollout, two-section proof memory |
+| C: planning/control | Escalation counts only zero-diff moves; failure selects blind recovery | phd-world-model: total-action/self-reset escalation, Tier 1/2 synthesis, bounded search, fail-closed dispatch |
+
+[REPLACE] coordinated authorization and memory refactor across the two deployed
+modules; default-on `ENABLE_AUDITABLE_WORLD_MODEL=1` binds the integrated change.
+Setting it to 0 selects the archived behavioral control. Existing independent
+subsystem ablations remain available, with no security ablation. FIFO eviction
+is removed from both paths. No delegation or external messages are required.
+
+Acceptance: real engine-free sandbox fixtures for historical rejection without
+live actions, RESET/cross-level/full-journal coverage and tamper rejection,
+expect mismatch and reset flushing, append-only requests, cross-level proof
+persistence with cleared working memory, total-action/self-reset escalation,
+Tier 1/2 successful search and visible planner failure without live fallback.
+Run the complete pytest suite, required ruff/pyright and behavioral containment;
+regenerate and verify the offline notebook. Public targets remain ls20, ft09,
+vc33, re86; absent real inference, report halted behavior, not acquired skill.
+Gate 2/3 game metrics and performance promotion remain unmeasured pending real
+inference and paired multi-seed trajectories. No Kaggle submission is requested.
+
+### Generation 3 implementation and Critic closeout — 2026-10-21
+
+The default-on authorization path now authenticates the entire append-only
+`log.txt` byte stream and transition records before replay. Every recorded
+transition, including RESET, full resets, unrendered responses and earlier
+levels, participates in whole-game probe and plan authorization. The sandbox
+executes the host-generated `verify_hypothesis(log_history)` in explicit chunks;
+comparison checks complete settled non-HUD state and public level/status.
+The first counterexample rejects the candidate without a live action. Empty
+history grants only one explicitly disambiguating bootstrap probe, recorded as
+unresolved rather than a verified mechanic or a multi-step plan.
+
+`[DIFF]` now contains only changed non-HUD cells; raw grids/diffs, intermediate
+frames, HUD strips and dead signatures remain separately auditable. Once learned
+from varied actions, a HUD strip remains masked during repeated identical
+actions while monotonic visual evidence holds. Dead interactions never become
+mechanic rules. Out-of-band latest-frame changes are recorded as observations,
+flush queues and cannot fabricate historical actions.
+
+Ordinary action batches require `mechanic_source`, complete historical replay,
+and a sandbox forward rollout matching each declared expect. The host expands
+accepted expectations to the full settled non-HUD board. Matching queues run
+without another model request; any mismatch/reset/boundary flushes immediately
+and appends a concrete counterexample before replanning. No sibling action field
+can rescue a rejected hypothesis. Strict failures halt with visible diagnostics
+and close the game scorecard rather than entering permanent blind recovery.
+
+Playbooks now contain exactly `## 1. Verified World Model` and
+`## 2. Current Level Working Memory`. The first retains executable mechanic
+source, object/win behavior encoded by that source, and `[Verified: steps X, Y]`
+proofs; bootstrap and falsified candidates cannot enter it. The second retains
+active state/coordinates, sub-goals, dead targets and falsified paths through
+token resets, and clears on level advance. Immutable numbered snapshots and the
+journal preserve prior evidence. Both strict and reference paths remove FIFO
+message eviction. Prefixes append unchanged until an explicit context reset.
+
+At Level >=3, 40 total non-reset actions or one self-reset triggers mandatory
+simulator synthesis, regardless of zero-diff counts. Tier 1 searches simple,
+observed and object-target actions; failed synthesis/search feeds evidence into
+Tier 2, which expands complex targets to every non-HUD cell. Both compile and
+replay current-level history before BFS; winning routes also pass whole-game
+replay and forward validation before dispatch. BFS has a 14-second cooperative
+budget inside the existing 15-second killing/reaping worker bound. Rollouts are
+chunked and search results compacted under the immutable 1 MiB output cap: a
+real-worker fixture produces a 23-action winning plan on a 64x64 board. Three
+zero-action repair attempts share the existing reasoning allowance; failure
+never substitutes random moves. The integrated toggle 0 retains prior action
+policy for explicit controls; existing independent subsystem ablations remain.
+
+Final verification: **222/222 pytest cases pass**, including **35 new strict
+Generation 3 cases**. Required ruff and pyright checks pass with zero type errors
+or warnings. Behavioral containment passes **20/20**, with
+`containment_passed=true`. The offline RTX 6000 notebook was regenerated and its
+exact source/build round-trip test passes. `git diff --check` passes. Full
+receipt, source/artifact hashes and audit denominators:
+`research_lab/traces/generation3_validation.json` and `containment.json`.
+
+A public `make play-local GAME=ls20` smoke exits cleanly with **0 actions and
+0 completed levels**: without a ready local model, strict mode halts before
+blind exploration. The additional ft09/vc33 commands were **not executed**:
+automatic approval review reached its usage limit before reviewing network
+permission; this was a review-service failure, not an unsafe-action finding.
+No attempt bypassed that rejection. Initial import formatting/type issues and
+legacy fixture/notebook synchronization issues were repaired; the final checks
+above pass. Archived programs and reference notebooks remain unchanged.
+
+**Critic disposition:** Gate 1 PASS, functional fixture acceptance PASS. Actual
+Gate 2 rates are N/A (0/0), and Gate 3 paired-game RHAE/late-level gains remain
+NOT MEASURED. No Level 4-6 gameplay success, GPU/cache result, new score,
+champion promotion or Kaggle submission is claimed. The prior official 0.12
+baseline remains unchanged. This branch is ready for code review; performance
+promotion still requires real inference trajectories and paired ablations.
+
 ## Sprint 3 Task Packet — [EDIT] bounded zero-action replanning
 
 Issued 2026-10-21 (Asia/Calcutta); PI: `phd-pi`, Critic: `phd-critic`,

@@ -41,6 +41,8 @@ def hypothesis(source=WRONG):
 
 @pytest.fixture
 def agent(tmp_path, monkeypatch):
+    # Explicit reference control; strict Generation 3 has separate acceptance fixtures.
+    monkeypatch.setenv('ENABLE_AUDITABLE_WORLD_MODEL', '0')
     monkeypatch.setenv('ARC3_LOG_DIR', str(tmp_path))
     monkeypatch.setenv('ARC3_SANDBOX_PYTHON', str(
         Path(__file__).resolve().parents[1] / '.venv_agent_sandbox/bin/python'))

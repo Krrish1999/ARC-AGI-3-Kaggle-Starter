@@ -1,0 +1,104 @@
+{
+  "date": "2026-10-21",
+  "timezone": "Asia/Calcutta",
+  "mutation": "[REPLACE]",
+  "branch": "feat/auditable-world-model",
+  "engineering_parent": "01f0521",
+  "archived_parent": "research_lab/top_programs/v1_retrodict_world_model_harness.py",
+  "ablation": {
+    "ENABLE_AUDITABLE_WORLD_MODEL": {
+      "default": "1",
+      "control": "0"
+    }
+  },
+  "checks": {
+    "pytest -q": {
+      "passed": true,
+      "cases": 222,
+      "new_generation3_cases": 35
+    },
+    "ruff check agent/ scripts/ tests/test_auditable_world_model.py": {
+      "passed": true
+    },
+    "pyright agent/": {
+      "passed": true,
+      "errors": 0,
+      "warnings": 0
+    },
+    "python scripts/audit_containment.py": {
+      "passed": true,
+      "containment_passed": true,
+      "checks_passed": 20,
+      "checks_total": 20
+    },
+    "python scripts/build_notebook.py": {
+      "passed": true,
+      "accelerator": "rtx6000"
+    },
+    "git diff --check": {
+      "passed": true
+    }
+  },
+  "public_smokes": [
+    {
+      "game": "ls20",
+      "command": "make play-local GAME=ls20",
+      "exit_code": 0,
+      "actions": 0,
+      "levels_completed": 0,
+      "reason": "backend unavailable; strict halt",
+      "scorecard_id": "d0fda339-545f-473c-8698-b971927cb16e"
+    },
+    {
+      "game": "ft09",
+      "status": "not_executed",
+      "reason": "automatic approval review usage limit",
+      "safety_finding": false
+    },
+    {
+      "game": "vc33",
+      "status": "not_executed",
+      "reason": "automatic approval review usage limit",
+      "safety_finding": false
+    }
+  ],
+  "gate2_actual_game_metrics": {
+    "zero_action_retrodiction_rejection": {
+      "numerator": 0,
+      "denominator": 0,
+      "rate": null
+    },
+    "forward_prediction_coverage": {
+      "numerator": 0,
+      "denominator": 0,
+      "rate": null
+    },
+    "forward_prediction_match": {
+      "numerator": 0,
+      "denominator": 0,
+      "rate": null
+    },
+    "simulator_synthesis_success": {
+      "numerator": 0,
+      "denominator": 0,
+      "rate": null
+    }
+  },
+  "gate3": {
+    "status": "not_measured",
+    "score_promotion": false,
+    "kaggle_submission": false
+  },
+  "limitations": [
+    "Synthetic success is not Level 4-6 game completion or RHAE lift.",
+    "No real local model/GPU inference was available in the smoke.",
+    "Legacy fallback-specific fixtures explicitly select the reference ablation."
+  ],
+  "sha256": {
+    "agent/my_agent.py": "c0679f932581559bd3f739be8b315875242a8a67df75542f876ee39768040faa",
+    "agent/arclog.py": "0c119b81ad71aa39e84069dbbbabba7562aa462c94f5f19e5a2177a957c0375e",
+    "tests/test_auditable_world_model.py": "93b63803b280fbfe71768620907b64da67f4fac9234f03c0b90451ea12a39154",
+    "notebooks/submission.ipynb": "04d0837b6a1d3c4abaf8f578f950cb538358f8d6316d9839394182f806a43764",
+    "containment.json": "839b843680b7bffaaa8c8043fe8a5811571079c0a4ece9fe9692e8f180217dd6"
+  }
+}

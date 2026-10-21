@@ -46,6 +46,11 @@ def enabled(name: str) -> bool:
     return os.getenv(name, "1") == "1"
 
 
+def auditable() -> bool:
+    """Default-on Generation 3 contract; 0 is the archived harness control."""
+    return enabled('ENABLE_AUDITABLE_WORLD_MODEL')
+
+
 def freeze_grid(raw: Any) -> Grid:
     grid: Grid = normalize_frames([raw])[0]
     if grid and (not grid[0] or any(len(row) != len(grid[0]) for row in grid)):
@@ -267,10 +272,37 @@ class PerceptionLog:
         self.last_action: str | None = None
         self._hud: frozenset[XY] = frozenset()
         self.remaining_step_budget_estimate: int | None = None
+        self._journal_hash = hashlib.sha256()
 
     @property
     def records(self) -> tuple[Transition, ...]:
         return tuple(self._records)
+
+    def history(self) -> tuple[Transition, ...]:
+        """Read and authenticate the complete journal before issuing evidence.
+
+        The host owns this read; generated code receives JSON through stdin.
+        Missing, edited, extra or truncated transitions cannot authorize a move.
+        Non-transition audit events are deliberately kept out of mechanics.
+        """
+        if self.log_path is None:
+            raise ValueError('retrodiction requires persistent log.txt')
+        raw = self.log_path.read_bytes()
+        if hashlib.sha256(raw).digest() != self._journal_hash.digest():
+            raise ValueError('log.txt append-only evidence was modified')
+        entries = [json.loads(line) for line in raw.splitlines()]
+        logged = [entry for entry in entries if entry.get('type') == 'transition']
+        if len(logged) != len(self._records):
+            raise ValueError('log.txt transition count differs from immutable history')
+        for entry, transition in zip(logged, self._records, strict=True):
+            expected = json.loads(json.dumps(transition.to_dict()))
+            if any(entry.get(key) != value for key, value in expected.items()):
+                raise ValueError(f'log.txt evidence changed at step {transition.step}')
+        return self.records
+
+    @property
+    def dead_signatures(self) -> tuple[Signature, ...]:
+        return tuple(sorted(key for key, count in self._zeros.items() if count >= 2))
 
     @property
     def blocked_proposals(self) -> tuple[dict[str, Any], ...]:
@@ -279,8 +311,10 @@ class PerceptionLog:
     def _emit(self, payload: dict[str, Any]) -> None:
         if self.log_path is not None:
             self.log_path.parent.mkdir(parents=True, exist_ok=True)
+            line = json.dumps(payload, separators=(',', ':'))+'\n'
             with self.log_path.open('a', encoding='utf-8') as stream:
-                stream.write(json.dumps(payload, separators=(',', ':'))+'\n')
+                stream.write(line)
+            self._journal_hash.update(line.encode())
 
     @staticmethod
     def _snapshot(frame: FrameView, action: str = '', **flags: Any) -> dict[str, Any]:
@@ -295,6 +329,22 @@ class PerceptionLog:
         self._scope = [self._snapshot(self.current)]
         self._history = list(self._scope)
         self._reference.note_level(level)
+        if auditable():
+            self._emit({'type': 'initial_observation', **self._snapshot(self.current)})
+
+    def synchronize(self, grids: Any, *, level: int, state: str) -> None:
+        """An out-of-band observation is evidence, never an invented action."""
+        frames = normalize_frames(grids)
+        before = self.current
+        self.current = FrameView(freeze_grid(frames[-1]) if frames else before.grid,
+                                 level, before.episode+1, before.step, state)
+        self._zeros.clear()
+        self._hud = frozenset()
+        self.remaining_step_budget_estimate = None
+        self._scope = [self._snapshot(self.current)]
+        self._history.append(self._scope[0])
+        self._emit({'type': 'observation_resync', 'live_action': False,
+                    'before': asdict(before), 'after': asdict(self.current)})
 
     def _state_hash(self) -> str:
         cells = tuple((x, y, color) for y, row in enumerate(self.current.grid)
@@ -357,7 +407,8 @@ class PerceptionLog:
         if not enabled('ENABLE_HUD_MASK') or len(self._scope) < 4:
             return frozenset()
         history = self._scope[-4:]
-        if len({f['action'] for f in history[1:]}) < 2:
+        varied_actions = len({f['action'] for f in history[1:]}) >= 2
+        if not varied_actions and (not auditable() or not self._hud):
             return frozenset()
         grids: list[Grid] = [f['grid'] for f in history]
         h, w = len(grids[-1]), len(grids[-1][0]) if grids[-1] else 0
@@ -372,6 +423,8 @@ class PerceptionLog:
         borders = [tuple((x, y) for x in range(w)) for y in sorted({0, h-1})]
         borders += [tuple((x, y) for y in range(h)) for x in sorted({0, w-1})]
         for cells in borders:
+            if not varied_actions and not set(cells) <= self._hud:
+                continue  # A learned strip still needs monotonic visual evidence.
             stripes = [tuple(g[y][x] for x, y in cells) for g in grids]
             animated = [tuple(g[y][x] for x, y in cells) for g in timeline]
             palette = set().union(*(set(line) for line in animated))
@@ -393,7 +446,8 @@ class PerceptionLog:
         return frozenset(mask)
 
     def record(self, action: str, coordinates: XY | None, grids: Any, *,
-               level: int, state: str = 'NOT_FINISHED', full_reset: bool = False) -> Transition:
+               level: int, state: str = 'NOT_FINISHED', full_reset: bool = False,
+               level_completed: bool = False) -> Transition:
         """Record a confirmed response. Refusals/failures never create transitions."""
         before = self.current
         frames = tuple(freeze_grid(g) for g in normalize_frames(grids))
@@ -402,7 +456,7 @@ class PerceptionLog:
         post = frames[-1] if frames else before.grid
         reset = action == 'RESET'
         terminal = state in ('GAME_OVER', 'WIN')
-        level_changed = level != before.level
+        level_changed = level != before.level or level_completed
         boundary = reset or terminal or level_changed or full_reset
         after = FrameView(post, level, before.episode + int(boundary), before.step+1, state)
         target = self.signature(action, coordinates)
@@ -424,7 +478,8 @@ class PerceptionLog:
             if xy in seen:
                 repeated.add(xy)
             seen.add(xy)
-        raw_transient = tuple(e for e in events if (e.x, e.y) in repeated)
+        raw_transient = tuple(e for e in events if (e.x, e.y) in repeated
+                              or (auditable() and frames[:-1]))
         transient = tuple(e for e in raw_transient if (e.x, e.y) not in self._hud
                           ) if enabled('ENABLE_ANIMATION_DIFF') else ()
         settled = tuple(d for d in raw_settled if (d.x, d.y) not in self._hud)
@@ -472,10 +527,13 @@ class PerceptionLog:
         self._records.append(record)
         payload = record.to_dict()
         payload.update(type='transition', live_action=True)
-        payload['[DIFF]'] = [f'({d.x}, {d.y}): {d.old} -> {d.new}' for d in raw_settled]
+        payload['[DIFF]'] = [f'({d.x}, {d.y}): {d.old} -> {d.new}'
+                             for d in (settled if auditable() else raw_settled)]
+        payload['[RAW_SETTLED_DIFF]'] = [asdict(d) for d in raw_settled]
         payload['[CAUSAL_BOARD_DIFF]'] = [asdict(d) for d in settled]
         payload['[TRANSIENT_ANIMATION_DIFF]'] = [asdict(e) for e in transient]
         payload['[HUD_STEP_BUDGET_STRIP]'] = sorted(record.hud_mask)
+        payload['dead_signatures'] = self.dead_signatures
         self._emit(payload)
         return record
 

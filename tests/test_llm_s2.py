@@ -250,6 +250,7 @@ def test_model_response_still_requires_forward_predictions(tmp_path, monkeypatch
 
 
 def test_model_plan_reaches_existing_queue_and_mismatch_flush(tmp_path, monkeypatch):
+    monkeypatch.setenv('ENABLE_AUDITABLE_WORLD_MODEL', '0')
     wire = fake_endpoint(monkeypatch, [proposal()])
     perception = PerceptionLog(tmp_path / 'log.txt')
     perception.start([[[0, 0, 0], [0, 1, 0], [0, 0, 0]]], level=1)

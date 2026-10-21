@@ -22,6 +22,8 @@ from agent.my_agent import MyAgent
 
 @pytest.fixture(autouse=True)
 def default_flags(monkeypatch):
+    # Explicit reference control; strict Generation 3 has separate acceptance fixtures.
+    monkeypatch.setenv('ENABLE_AUDITABLE_WORLD_MODEL', '0')
     for name in ('ENABLE_HUD_MASK', 'ENABLE_ANIMATION_DIFF', 'ENABLE_DEAD_SIGNATURE',
                  'ENABLE_DOUBLE_RESET_GUARD'):
         monkeypatch.setenv(name, '1')

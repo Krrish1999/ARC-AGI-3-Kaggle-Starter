@@ -3,9 +3,9 @@
 Generated mechanics implement step(state, action), returning a complete named
 state: grid, level and state (public framework status). Actions use framework
 enum names and optional x/y. No generated Python executes in the engine host.
-An optional injected reasoning backend returns structured hypotheses, [ACTIONS]
-or simulator source. Without one, exact observed transitions provide a partial
-simulator; unknown edges remain unknown and exploration fallbacks are recorded.
+An injected reasoning backend returns structured hypotheses, [ACTIONS] or
+simulator source. The default Generation 3 contract halts if no verified route
+exists. ENABLE_AUDITABLE_WORLD_MODEL=0 retains the archived exploration control.
 """
 from __future__ import annotations
 
@@ -30,14 +30,28 @@ from agents.agent import Agent
 from arcengine import FrameData, GameAction, GameState
 
 try:
-    from .arclog import FrameView, PerceptionLog, Transition, enabled, freeze_grid
+    from .arclog import (
+        FrameView,
+        PerceptionLog,
+        Transition,
+        auditable,
+        enabled,
+        freeze_grid,
+    )
     from .baseline.bounded_search import bounded_bfs
     from .baseline.replay_compare import _rc_differences
     from .local_backend import PROTOCOL, LocalBackend
     from .runtime import TARGET_SECONDS, LevelBudget, PrefixLock, run_expired
     from .sandbox import run_sandbox
 except ImportError:
-    from agent.arclog import FrameView, PerceptionLog, Transition, enabled, freeze_grid
+    from agent.arclog import (
+        FrameView,
+        PerceptionLog,
+        Transition,
+        auditable,
+        enabled,
+        freeze_grid,
+    )
     from agent.baseline.bounded_search import bounded_bfs
     from agent.baseline.replay_compare import _rc_differences
     from agent.local_backend import PROTOCOL, LocalBackend
@@ -65,6 +79,12 @@ def _bfs_source() -> str:
     assert isinstance(function, ast.FunctionDef)
     for argument in function.args.args:
         argument.annotation = None
+    if auditable():
+        # The embedded trusted helper gets 14 seconds for cooperative search;
+        # the existing worker kills/reaps it at 15, including serialization.
+        for node in ast.walk(function):
+            if isinstance(node, ast.Constant) and type(node.value) is float and node.value == 5.0:
+                node.value = 14.0
     return ast.unparse(tree)
 
 
@@ -84,12 +104,15 @@ class ProposalValidationError(ValueError):
     """A model proposal failed a pure schema/action/expect check, not a tool."""
 
 
+class PlanningHalted(RuntimeError):
+    """No authorized action: retain evidence and stop instead of live guessing."""
+
+
 class Playbook:
     """Evidence-backed section memory, with append-only turns per context.
 
-    The reference ablation drains oldest exchanges into a fresh context, since
-    FIFO deletion inside an already submitted prefix would violate S1-S. Both
-    paths retain the external complete evidence log and section memory.
+    Full turns append until explicit reset. The external journal and versioned
+    playbook retain evidence independently of inference context limits.
     """
 
     def __init__(self, directory: Path, lock: PrefixLock, token_ceiling: int = 58 * 1024) -> None:
@@ -97,6 +120,7 @@ class Playbook:
         self.lock = lock
         self.token_ceiling = token_ceiling
         self.facts: dict[str, dict[str, Any]] = {}
+        self.working: dict[str, Any] = {}
         self.version = 0
         self.context = 0
         self.messages: list[dict[str, Any]] = []
@@ -108,6 +132,17 @@ class Playbook:
                           'Use observed evidence only. Mechanics require complete replay; '
                           'emit concrete [ACTIONS] with non-HUD expect cells and expect_level_up.\n'
                           + PROTOCOL + '\nPlaybook snapshot:\n' + snapshot}]
+        if auditable():
+            self.messages[0]['content'] += (
+                '\nGeneration 3 contract overrides the example protocol: every actions/[ACTIONS] '
+                'response also needs mechanic_source containing def step(state, action). '
+                'It must predict ALL logged transitions across levels, including RESET. '
+                'Empty history permits only one explicitly disambiguating hypothesis probe. '
+                'Simulator requests require simulator_source, never guessed live actions. '
+                'Each step returns the complete grid, level and public state. '
+                'A failed proposal costs zero actions. Never bypass replay or expect. '
+                'Cross-level mechanics and win conditions need step proofs; coordinates, '
+                'sub-goals, inert targets and falsified paths belong to working memory.')
         self.messages.extend(_copy(retained or []))
         self.request()
 
@@ -119,6 +154,11 @@ class Playbook:
         self.facts[key] = _copy(fact)
 
     def append(self, role: str, content: Any) -> None:
+        if auditable() and role == 'user' and isinstance(content, dict):
+            if 'state' in content:
+                self.working['latest_state'] = _copy(content['state'])
+            if content.get('type') in ('replan_rejected', 'live_counterexample', 'prediction_counterexample'):
+                self.working.setdefault('falsified_paths', []).append(_copy(content))
         entry = {'role': role, 'content': json.dumps(content, sort_keys=True)}
         # Conservative UTF-8 byte bound: no tokenizer/model assets are assumed.
         # Reset before appending so a ceiling crossed by the latest state
@@ -128,12 +168,37 @@ class Playbook:
         self.messages.append(entry)
         self.request()
 
-    def distill(self, reason: str) -> None:
+    def distill(self, reason: str, *, level_advance: bool = False) -> None:
+        if auditable():
+            if level_advance:
+                self.working.clear()
+                # Historical sources remain in log.txt and immutable versions;
+                # stale level coordinates and falsifications leave active memory.
+                self.facts = {key: value for key, value in self.facts.items()
+                              if value.get('status') == 'verified' and value.get('scope') == 'game'}
+            if not enabled('ENABLE_PLAYBOOK_RESET') and not level_advance:
+                return  # Ablation retains the entire prefix; never FIFO eviction.
+            self.version += 1
+            lines = [f'# Playbook v{self.version}', f'Reset reason: {reason}',
+                     'Historical consistency is evidence, not a universal proof.',
+                     '\n## 1. Verified World Model']
+            for key, value in sorted(self.facts.items()):
+                if value.get('status') != 'verified' or value.get('scope') != 'game':
+                    continue
+                steps = value.get('proof_steps', [])
+                if steps:
+                    proof = ', '.join(str(step) for step in steps)
+                    lines.append(f'- [Verified: steps {proof}] ' + json.dumps({'id': key, **value}, sort_keys=True))
+            lines.append('\n## 2. Current Level Working Memory')
+            lines.append(json.dumps(self.working, sort_keys=True))
+            lines.extend(json.dumps({'id': key, **value}, sort_keys=True)
+                         for key, value in sorted(self.facts.items())
+                         if value.get('status') != 'verified' or value.get('scope') != 'game')
+            self._write_snapshot('\n'.join(lines)+'\n')
+            return
         if not enabled('ENABLE_PLAYBOOK_RESET'):
             retained = self.messages[1:]
-            # Archived oldest-block drain, always through a new prefix identity.
-            while retained and len(json.dumps(retained).encode()) >= self.token_ceiling // 2:
-                retained = retained[2:]
+            # Memory ablation keeps all exchanges under a fresh prefix identity.
             self._fresh('Persistent section memory:\n' + json.dumps(self.facts, sort_keys=True), retained)
             return
         self.version += 1
@@ -144,6 +209,9 @@ class Playbook:
             lines.extend(json.dumps({'id': key, **value}, sort_keys=True)
                          for key, value in sorted(self.facts.items()) if value['status'] == status)
         snapshot = '\n'.join(lines) + '\n'
+        self._write_snapshot(snapshot)
+
+    def _write_snapshot(self, snapshot: str) -> None:
         self.directory.mkdir(parents=True, exist_ok=True)
         (self.directory / f'playbook.v{self.version:04d}.md').write_text(snapshot)
         temporary = self.directory / 'playbook.tmp'
@@ -170,6 +238,18 @@ class WorldModel:
         self.backend: Callable[[list[dict[str, Any]]], dict[str, Any]] | None = None
         self._seen = 0
         self._tier_attempt: tuple[int, int] | None = None
+        self.queue_kind = 'plan'
+        self._tier_failures = 0
+        self.halted = False
+
+    def tier_due(self) -> bool:
+        if not enabled('ENABLE_TIER1_SIMULATOR') or self.log.current.level < 3:
+            return False
+        if not auditable():
+            return self.wasted_moves >= 40
+        history = [t for t in self.log.records if t.before.level == self.log.current.level]
+        return (sum(not t.reset for t in history) >= 40
+                or any(t.reset and t.before.state == 'NOT_FINISHED' for t in history))
 
     def event(self, kind: str, **payload: Any) -> None:
         entry = {'type': kind, 'step': self.log.current.step, 'live_action': False, **payload}
@@ -200,6 +280,9 @@ class WorldModel:
     def _relevant(self, scope: str) -> list[Transition]:
         if scope not in ('level', 'game'):
             raise ValueError('scope must be level or game')
+        if auditable():
+            return [t for t in self.log.history()
+                    if scope == 'game' or t.before.level == self.log.current.level]
         return [t for t in self.log.records if not t.reset and not t.full_reset
                 and t.before.grid and json.loads(t.evidence_json).get('rendered_response')
                 and (scope == 'game' or t.before.level == self.log.current.level)]
@@ -229,7 +312,11 @@ class WorldModel:
                 break
             chunk = records[offset:offset+chunk_size]
             evidence = [{'step': t.step, 'before': _state(t.before),
-                         'action': _action(t.action, t.coordinates)} for t in chunk]
+                         'action': _action(t.action, t.coordinates),
+                         'intermediate': t.intermediate, 'hud_mask': sorted(t.hud_mask),
+                         'reset': t.reset, 'full_reset': t.full_reset,
+                         'rendered_response': json.loads(t.evidence_json).get('rendered_response')}
+                        for t in chunk]
             body = (f'log_history = json.loads({json.dumps(evidence)!r})\n'
                     'def verify_hypothesis(log_history):\n'
                     '    return [step(t["before"], t["action"]) for t in log_history]\n'
@@ -250,12 +337,16 @@ class WorldModel:
                         report['counterexamples'].append({'step': transition.step,
                             'expected_cells': differences, 'actual_state': actual,
                             'difference_count': count})
+                        if auditable():
+                            break
                     else:
                         report['matched'] += 1
             except (KeyError, TypeError, ValueError, IndexError) as error:
                 report.update(status='error', errors=report['errors']+1, failure=str(error))
                 break
             report['chunks'].append({'offset': offset, 'checked': len(chunk)})
+            if auditable() and report['counterexamples']:
+                break
         if report['status'] not in ('error', 'limited'):
             report['complete'] = bool(records) and report['checked'] == len(records)
             report['status'] = ('counterexample' if report['counterexamples'] else
@@ -312,6 +403,12 @@ class WorldModel:
         return result
 
     def execute_plan(self, actions: list[dict[str, Any]], legal: list[GameAction]) -> None:
+        if auditable():
+            raise ProposalValidationError('plan requires a completely replayed mechanic_source')
+        self._install_plan(actions, legal)
+
+    def _install_plan(self, actions: list[dict[str, Any]], legal: list[GameAction],
+                      *, kind: str = 'plan') -> None:
         """Install an immutable concrete queue; actual dispatch stays in the host.
 
         Like checked_execute, terminal flags interrupt before old-level decoding.
@@ -323,6 +420,7 @@ class WorldModel:
             raise ProposalValidationError('plan requires 1..128 concrete actions')
         plan = [self._plan_item(item, legal) for item in actions]
         self.queue = deque(plan)
+        self.queue_kind = kind
         current = self.log.current
         self.queue_scope = (current.level, current.episode, current.step)
         self.event('plan_queued', count=len(plan))
@@ -341,6 +439,9 @@ class WorldModel:
             raise RuntimeError('settled observation required before another dispatch')
         if not self.queue:
             return None
+        if auditable() and self.tier_due() and self.queue_kind != 'simulator':
+            self.flush('simulator_required')
+            return None
         if self.queue_scope != (current.level, current.episode, current.step):
             self.flush('stale_state')
             return None
@@ -351,6 +452,7 @@ class WorldModel:
             return None
         stored = self.queue.popleft()
         item['probe'] = bool(stored.get('probe'))
+        item['simulator'] = self.queue_kind == 'simulator'
         if 'mechanic_key' in stored:
             item['mechanic_key'] = stored['mechanic_key']
         self.pending = item
@@ -374,6 +476,10 @@ class WorldModel:
                                  and grid[c['y']][c['x']] == c['value'] for c in cells)
             self.event('prediction', matched=match, predicted_cells=len(cells),
                        probing=bool(item.get('probe')), boundary=boundary)
+            if auditable() and not match:
+                self.event('prediction_counterexample', transition=transition.step,
+                           action=_action(transition.action, transition.coordinates),
+                           expected_cells=cells, actual_state=_state(transition.after))
             if not match and item.get('mechanic_key') in self.memory.facts:
                 key = item['mechanic_key']
                 fact = _copy(self.memory.facts[key])
@@ -393,6 +499,8 @@ class WorldModel:
         if boundary:
             self.wasted_moves = 0
             self._tier_attempt = None
+            if transition.level_changed:
+                self._tier_failures = 0
         elif transition.zero_causal_diff:
             self.wasted_moves += 1
         # Record observations separately; a replay pass remains explicitly tied
@@ -400,8 +508,12 @@ class WorldModel:
         self.memory.append('user', {'transition': transition.step, 'level': transition.before.level,
                                   'diff': [vars(cell) for cell in transition.settled],
                                   'transient_cells': len(transition.transient), 'boundary': boundary})
+        if auditable():
+            self.memory.working.update(latest_state=_state(transition.after),
+                                       dead_signatures=self.log.dead_signatures)
         if boundary:
-            self.memory.distill('level_boundary' if transition.level_changed else 'reset_or_terminal')
+            self.memory.distill('level_boundary' if transition.level_changed else 'reset_or_terminal',
+                                level_advance=transition.level_changed)
 
     def _predict(self, source: str, action: dict[str, Any]) -> dict[str, Any]:
         result = self._worker(source, f'print(json.dumps(step(json.loads({json.dumps(_state(self.log.current))!r}), '
@@ -414,10 +526,16 @@ class WorldModel:
     def propose_hypothesis(self, source: str, probe: dict[str, Any], alternative_expect: Any,
                            legal: list[GameAction], *, scope: str = 'level') -> dict[str, Any]:
         """Replay first, then authorize exactly one differing, evidence-seeking probe."""
+        if auditable():
+            scope = 'game'
         source_hash = hashlib.sha256(source.encode()).hexdigest()
         key = f'{source_hash}:{scope}:{self.log.current.level if scope == "level" else "all"}'
         report = (self.replay_transitions(source, scope=scope) if enabled('ENABLE_RETRODICTION')
                   else {'status': 'ablation_bypass', 'complete': False})
+        if auditable() and report['status'] == 'empty' and not self.log.records:
+            # Vacuous historical consistency buys one explicit bootstrap probe,
+            # never a verified rule or a multi-step plan.
+            report.update(status='bootstrap', complete=True)
         status = ('verified' if report['status'] == 'pass' else 'counterexample'
                   if report['status'] == 'counterexample' else 'unresolved')
         fact = {'status': status, 'scope': scope, 'level': self.log.current.level,
@@ -427,12 +545,14 @@ class WorldModel:
         source_path = self.directory / f'mechanic.{source_hash}.py'
         source_path.write_text(source)
         self.memory.remember(key, status=status, scope=scope, level=self.log.current.level,
-                             source_file=source_path.name, evidence={
+                             source_file=source_path.name, mechanic_source=source, evidence={
                                  k: report[k] for k in ('status', 'complete', 'history_hash', 'checked', 'eligible')
                                  if k in report},
+                             proof_steps=[t.step for t in self._relevant(scope)]
+                             if status == 'verified' else [],
                              counterexamples=[{'step': c['step'], 'expected_cells': c['expected_cells']}
                                               for c in report.get('counterexamples', [])[:1]])
-        if enabled('ENABLE_RETRODICTION') and not (report['status'] == 'pass' and report['complete']):
+        if enabled('ENABLE_RETRODICTION') and not (report['status'] in ('pass', 'bootstrap') and report['complete']):
             self.event('hypothesis_rejected', source_hash=source_hash, reason=report['status'], live_actions=0)
             return report
         item = self._plan_item(probe, legal)
@@ -446,7 +566,7 @@ class WorldModel:
             raise ProposalValidationError('probe expectation disagrees with mechanic')
         if sorted(alternative, key=lambda c: (c['x'], c['y'])) == sorted(item['expect'], key=lambda c: (c['x'], c['y'])):
             raise ProposalValidationError('probe must disambiguate concrete predictions')
-        self.execute_plan([item], legal)
+        self._install_plan([item], legal, kind='probe')
         self.queue[0]['probe'] = True
         self.queue[0]['mechanic_key'] = key
         self.event('probe_authorized', source_hash=source_hash, count=1, replay_status=report['status'])
@@ -463,7 +583,70 @@ class WorldModel:
                 '        return matches[0]\n'
                 '    return None\n')
 
-    def search_plan(self, source: str, legal: list[GameAction]) -> dict[str, Any]:
+    def verified_actions(self, source: Any, actions: list[dict[str, Any]],
+                         legal: list[GameAction], *, kind: str = 'plan') -> dict[str, Any]:
+        """Replay the journal, then validate the entire forward rollout offline."""
+        if not isinstance(actions, list) or not 1 <= len(actions) <= 128:
+            raise ProposalValidationError('plan requires 1..128 concrete actions')
+        plan = [self._plan_item(item, legal) for item in actions]
+        if not isinstance(source, str) or not source.strip():
+            raise ProposalValidationError('plan requires mechanic_source with def step(state, action)')
+        report = self.replay_transitions(source, scope='game')
+        if report['status'] != 'pass' or not report['complete']:
+            self.event('hypothesis_rejected', reason=report['status'], live_actions=0)
+            return report
+        predictions: list[dict[str, Any]] = []
+        current = _state(self.log.current)
+        # Keep long full-board rollouts below the worker's 1 MiB output cap.
+        for offset in range(0, len(plan), 16):
+            chunk = plan[offset:offset+16]
+            body = (f'state = json.loads({json.dumps(current)!r})\n'
+                    f'actions = json.loads({json.dumps(chunk)!r})\n'
+                    'predictions = []\n'
+                    'for item in actions:\n'
+                    '    state = step(json.loads(json.dumps(state)), '
+                    '{k: v for k, v in item.items() if k in ("action", "x", "y")})\n'
+                    '    predictions.append(json.loads(json.dumps(state)))\n'
+                    'print(json.dumps(predictions))\n')
+            result = self._worker(source, body)
+            values = result.get('value')
+            if not result['ok'] or not isinstance(values, list) or len(values) != len(chunk):
+                raise RuntimeError('forward simulator failed: ' + str(result))
+            predictions.extend(values)
+            current = values[-1]
+        level = self.log.current.level
+        mask = self.log.get_hud_mask()
+        for index, (item, state) in enumerate(zip(plan, predictions, strict=True)):
+            _masked(state, mask)
+            grid = state['grid']
+            if (any(c['y'] >= len(grid) or c['x'] >= len(grid[c['y']])
+                    or grid[c['y']][c['x']] != c['value'] for c in item['expect'])
+                    or (state['level'] > level) != item['expect_level_up']):
+                raise ProposalValidationError(f'plan expectation disagrees with mechanic at index {index}')
+            if (state['level'] != level or state['state'] in ('WIN', 'GAME_OVER')) and index < len(plan)-1:
+                raise ProposalValidationError('plan must end at level or terminal boundary')
+            # Check all settled board cells, so a partial declared expect cannot
+            # conceal a counterexample elsewhere on the board.
+            item['expect'] = [{'x': x, 'y': y, 'value': value} for y, row in enumerate(grid)
+                              for x, value in enumerate(row) if (x, y) not in mask]
+            level = state['level']
+        digest = hashlib.sha256(source.encode()).hexdigest()
+        key = f'{digest}:game:all'
+        path = self.directory / f'mechanic.{digest}.py'
+        path.write_text(source)
+        fact = {'status': 'verified', 'scope': 'game', 'source_file': path.name,
+                'mechanic_source': source,
+                'proof_steps': [t.step for t in self._relevant('game')],
+                'evidence': {k: report[k] for k in ('history_hash', 'checked', 'eligible')},
+                'counterexamples': []}
+        self.memory.remember(key, **fact)
+        self.candidates[key] = _copy(fact)
+        self._install_plan(plan, legal, kind=kind)
+        for item in self.queue:
+            item['mechanic_key'] = key
+        return report
+
+    def search_plan(self, source: str, legal: list[GameAction], *, tier: int = 1) -> dict[str, Any]:
         """Compile and replay current-level history before bounded sandbox BFS."""
         compile_result = self._worker(source, 'assert callable(step)\nprint(json.dumps(True))\n')
         self.event('simulator_compile', success=compile_result['ok'], result=compile_result)
@@ -477,7 +660,20 @@ class WorldModel:
         actions = [_action(a.name, None) for a in legal if not a.is_complex()]
         actions.extend(_action(t.action, t.coordinates) for t in self._relevant('level')
                        if GameAction[t.action] in legal and t.coordinates is not None)
+        if auditable():
+            grid, mask = self.log.current.grid, self.log.get_hud_mask()
+            targets = ([(x, y) for y, row in enumerate(grid) for x in range(len(row))
+                        if (x, y) not in mask] if tier >= 2 else
+                       [(int(o.centroid[0]), int(o.centroid[1]))
+                        for o in self.log.get_board_objects()])
+            actions.extend(_action(a.name, xy) for a in legal if a.is_complex()
+                           for xy in targets if xy not in mask)
         actions = list({json.dumps(a, sort_keys=True): a for a in actions}.values())
+        limits = ('max_nodes=50000, max_depth=128, max_edges=250000, timeout_s=14.0'
+                  if auditable() else 'max_nodes=2000, max_depth=32, max_edges=10000, timeout_s=2.0')
+        mask_source = f'mask = {set(self.log.get_hud_mask())!r}\n'
+        compact_cells = ('    cells = [c for c in cells if (c["x"], c["y"]) not in mask][:1]\n'
+                         if auditable() else '')
         # Reuse the extracted BFS verbatim, providing already-bootstrapped aliases.
         body = ('from collections import deque as _bfs_deque\nfrom time import monotonic as _bfs_clock\n'
                 '_bfs_copy = lambda value: json.loads(json.dumps(value))\n'
@@ -491,12 +687,12 @@ class WorldModel:
                 '            yield action, candidate\n'
                 'report = bounded_bfs(start, successors, lambda s: s["level"] > start["level"] '
                 'or s["state"] == "WIN", key=lambda s: json.dumps(s, sort_keys=True), '
-                'max_nodes=2000, max_depth=32, max_edges=10000, timeout_s=2.0)\n'
-                'plan = []\nstate = start\n'
+                + limits + ')\n'
+                'plan = []\nstate = start\n' + mask_source +
                 'for action in report.get("actions") or []:\n'
                 '    after = step(_bfs_copy(state), _bfs_copy(action))\n'
                 '    cells = [{"x": x, "y": y, "value": v} for y, row in enumerate(after["grid"]) '
-                'for x, v in enumerate(row)]\n'
+                'for x, v in enumerate(row)]\n' + compact_cells +
                 '    plan.append(dict(action, expect=cells, expect_level_up=after["level"] > state["level"]))\n'
                 '    state = after\n'
                 'report["plan"] = plan\nprint(json.dumps(report))\n')
@@ -510,13 +706,17 @@ class WorldModel:
             mask = self.log.get_hud_mask()
             for item in report['plan']:
                 item['expect'] = [c for c in item['expect'] if (c['x'], c['y']) not in mask]
-            self.execute_plan(report['plan'], legal)
+            if auditable():
+                proof = self.verified_actions(source, report['plan'], legal, kind='simulator')
+                if proof['status'] != 'pass':
+                    return {'status': 'history_rejected', 'replay': proof}
+            else:
+                self.execute_plan(report['plan'], legal)
         return report
 
     def reason(self, legal: list[GameAction]) -> None:
         """Backend integration boundary: validate immutable prefix before inference."""
-        tier_due = (enabled('ENABLE_TIER1_SIMULATOR') and self.log.current.level >= 3
-                    and self.wasted_moves >= 40)
+        tier_due = self.tier_due()
         response: dict[str, Any] = {}
         if self.backend is not None:
             self.memory.append('user', {'request': 'simulator' if tier_due else 'hypotheses_or_actions',
@@ -524,12 +724,33 @@ class WorldModel:
                                       'available_actions': [a.name for a in legal],
                                       'objects': [o.node() for o in self.log.get_board_objects()],
                                       'hud_mask': sorted(self.log.get_hud_mask()),
+                                      'dead_signatures': self.log.dead_signatures,
+                                      'simulator_tier': min(2, self._tier_failures+1) if tier_due else None,
                                       'transition_count': len(self.log.records)})
             response = self.backend(self.memory.request())
             self.memory.append('assistant', response)
             if not isinstance(response, dict):
                 raise ProposalValidationError('structured proposal object required')
+            if auditable() and isinstance(response.get('working_memory'), dict):
+                for key in ('active_coordinates', 'sub_goals', 'falsified_paths'):
+                    if key in response['working_memory']:
+                        self.memory.working[key] = _copy(response['working_memory'][key])
         if tier_due:
+            if auditable():
+                self.flush('simulator_required')
+                tier = min(2, self._tier_failures+1)
+                source = response.get('simulator_source')
+                if not isinstance(source, str) or not source.strip():
+                    raise ProposalValidationError('live moves halted: synthesize simulator_source with def step')
+                self.event('tier1_required' if tier == 1 else 'tier2_required',
+                           level_actions=sum(t.before.level == self.log.current.level and not t.reset
+                                             for t in self.log.records), live_actions=0)
+                report = self.search_plan(source, legal, tier=tier)
+                if report['status'] != 'found' or not self.queue:
+                    self._tier_failures += 1
+                    self.event('simulator_rejected', tier=tier, report=report, live_actions=0)
+                    raise ProposalValidationError('simulator failed: ' + json.dumps(report))
+                return
             revision = (self.log.current.level, len(self.log.records))
             if self._tier_attempt != revision:
                 self._tier_attempt = revision
@@ -560,7 +781,12 @@ class WorldModel:
             # disguised as a second response field.
             return
         if response.get('actions'):
-            self.execute_plan(response['actions'], legal)
+            if auditable():
+                self.verified_actions(response.get('mechanic_source'), response['actions'], legal)
+            else:
+                self.execute_plan(response['actions'], legal)
+        elif auditable() and response.get('[ACTIONS]'):
+            self.verified_actions(response.get('mechanic_source'), response['[ACTIONS]'], legal)
 
 
 class MyAgent(Agent):
@@ -593,7 +819,7 @@ class MyAgent(Agent):
             self.world.event('backend_connected', model='flashnext', endpoint='loopback:8001')
         else:
             self.world.event('backend_unavailable', reason=os.getenv('ARC3_LLM_FAILURE', 'not_ready_or_disabled'),
-                             mode='exploration')
+                             mode='halt_until_verified' if auditable() else 'exploration')
 
     def _inference_limits(self) -> tuple[int, float]:
         remaining = (float(os.getenv('ARC3_RUN_STARTED', str(time.time())))
@@ -607,11 +833,11 @@ class MyAgent(Agent):
         return tokens, max(0.0, min(30.0, remaining))
 
     def _reason_with_replanning(self, legal: list[GameAction]) -> None:
-        # Simulator synthesis retains its one-attempt-per-evidence-revision
-        # contract. This mutation repairs ordinary mechanic/action proposals.
-        tier_due = (enabled('ENABLE_TIER1_SIMULATOR') and self.perception.current.level >= 3
-                    and self.world.wasted_moves >= 40)
-        if not enabled('ENABLE_ZERO_ACTION_REPLAN') or self.world.backend is None or tier_due:
+        # All strict proposals, including simulator revisions, share one
+        # bounded zero-action repair allowance. The control keeps its old guard.
+        tier_due = self.world.tier_due()
+        if (not enabled('ENABLE_ZERO_ACTION_REPLAN') or self.world.backend is None
+                or (tier_due and not auditable())):
             self.world.reason(legal)
             return
         if self.world.pending is not None:
@@ -676,9 +902,19 @@ class MyAgent(Agent):
     def name(self) -> str:
         return f"{super().name}.{self.MAX_ACTIONS}"
 
+    def main(self) -> None:
+        try:
+            super().main()
+        except PlanningHalted as error:
+            # The framework has no pause action. End this game explicitly and
+            # close its public scorecard without turning a failed planner into
+            # another live move or taking down other games in the runner.
+            logging.getLogger(__name__).warning('planning halted: %s', error)
+            self.cleanup()
+
     def is_done(self, frames: list[FrameData], latest_frame: FrameData) -> bool:
         # Stop once we win. Don't stop on GAME_OVER — we want to RESET and retry.
-        return run_expired() or latest_frame.state is GameState.WIN
+        return run_expired() or latest_frame.state is GameState.WIN or self.world.halted
 
     def choose_action(
         self, frames: list[FrameData], latest_frame: FrameData
@@ -725,6 +961,8 @@ class MyAgent(Agent):
                     if proposal.is_complex():
                         proposal.set_data({'x': planned['x'], 'y': planned['y']})
                 else:
+                    if auditable():
+                        raise PlanningHalted('no admissible evidence-gated plan; live exploration halted')
                     if self.world.backend is not None:
                         raise RuntimeError('backend produced no admissible evidence-gated plan')
                     self.world.event('fallback', reason='no_backend_or_validated_route',
@@ -743,6 +981,14 @@ class MyAgent(Agent):
                 action.reasoning["budget"] = "level reasoning budget exhausted; best-effort action"
             return action
         except Exception as e:
+            if auditable():
+                self.world.halted = True
+                self.world.queue.clear()
+                self.world.pending = None
+                self.world.queue_scope = None
+                self._dispatch_approval = None
+                self._log_action_failure(e)
+                raise PlanningHalted('live moves halted: ' + str(e)) from e
             if not enabled('ENABLE_ACTION_FALLBACK'):
                 raise
             # Do not call world.flush/event or perception here: these may be
@@ -783,11 +1029,25 @@ class MyAgent(Agent):
         return action
 
     def _ensure_perception(self, observation: FrameData) -> None:
+        previous = self._observation
         self._observation = observation
         if not self._perception_started:
             self.perception.start(observation.frame, level=observation.levels_completed+1,
                                   state=observation.state.name)
             self._perception_started = True
+        elif auditable():
+            grid = freeze_grid(observation.frame[-1]) if observation.frame else self.perception.current.grid
+            current = self.perception.current
+            if (grid != current.grid or observation.levels_completed+1 != current.level
+                    or observation.state.name != current.state
+                    or (previous is not observation and observation.full_reset)):
+                self.world.flush('observation_resync')
+                self.world.event('prediction_counterexample', reason='observation_resync',
+                                 expected_state=_state(current), actual_grid=grid)
+                advanced = observation.levels_completed+1 != current.level
+                self.perception.synchronize(observation.frame, level=observation.levels_completed+1,
+                                            state=observation.state.name)
+                self.world.memory.distill('observation_resync', level_advance=advanced)
 
     @staticmethod
     def _legal_actions(observation: FrameData) -> list[GameAction]:
@@ -818,6 +1078,8 @@ class MyAgent(Agent):
         if reason is None:
             return proposal
         self.perception.note_blocked(proposal.name, coordinates, reason)
+        if auditable():
+            raise ProposalValidationError('action blocked before dispatch: ' + reason)
         self._rng.shuffle(legal)
         for candidate in legal:
             grid = self.perception.current.grid
@@ -851,6 +1113,8 @@ class MyAgent(Agent):
         raise RuntimeError("all advertised actions blocked; replan required before dispatch")
 
     def do_action_request(self, action: GameAction) -> FrameData:
+        if auditable() and (self.world.halted or self._recovery_mode):
+            raise PlanningHalted('live moves halted; no recovery dispatch permitted')
         if self._recovery_mode:
             # Remain in best-effort mode for this game. Failed perception must
             # not crash dispatch or invent transitions used as replay evidence.
@@ -862,6 +1126,14 @@ class MyAgent(Agent):
         if self._observation is None:
             self._ensure_perception(self._convert_raw_frame_data(self.arc_env.observation_space))
         assert self._observation is not None
+        if auditable():
+            lifecycle_reset = (action is GameAction.RESET and self._observation.state in (
+                GameState.NOT_PLAYED, GameState.GAME_OVER))
+            simulator = self.world.pending is not None and self.world.pending.get('simulator')
+            if ((self.world.tier_due() and not simulator)
+                    or (self.world.pending is None and not lifecycle_reset)):
+                self.world.flush('unapproved_dispatch')
+                raise PlanningHalted('live dispatch requires a verified plan or lifecycle reset')
         if action is GameAction.RESET:
             self.world.flush('reset_proposal')
         elif self.world.queue and self.world.pending is None:
@@ -892,7 +1164,8 @@ class MyAgent(Agent):
             raise
         transition = self.perception.record(selected.name, coordinates, response.frame,
                                             level=response.levels_completed+1, state=response.state.name,
-                                            full_reset=response.full_reset)
+                                            full_reset=response.full_reset,
+                                            level_completed=bool(getattr(response, 'level_completed', False)))
         self.world.observe(transition)
         self._observation = response
         return response
