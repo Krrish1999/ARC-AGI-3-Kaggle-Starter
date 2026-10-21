@@ -104,7 +104,7 @@ def extract_launcher() -> tuple[str, dict]:
         'pennyroyal_release': 'v2.5.3',
         'upstream_commit': 'd00d88efc8d6281b12be4f4073126aec95038c55',
         'sglang_wheel': 'sglang-0.5.19+gd00d88efc8d6-cp312-cp312-linux_x86_64.whl',
-        'served_model': 'flashnext', 'startup_seconds': 900,
+        'served_model': 'flashnext', 'startup_seconds': 2400,
         'prefetch': 'Cell 7 wheel prewarm (16 readers); Cell 13 model-prefetch start (3 readers, 60s delay); best-effort I/O only, mandatory asset validation retained',
         'radix_cache': 'enabled by server default; schedule-policy=lpm; cache reporting enabled',
         'configuration_edits': edits,

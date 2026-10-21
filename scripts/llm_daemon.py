@@ -16,9 +16,9 @@ from typing import Any
 
 class LLMDaemon:
     def __init__(self, launcher: Path, working: Path, event: Callable[..., Any],
-                 *, startup_seconds: float = 900.0) -> None:
-        if not 0 < startup_seconds <= 900:
-            raise ValueError('LLM startup must fit within 900 seconds')
+                 *, startup_seconds: float = 2400.0) -> None:
+        if not 0 < startup_seconds <= 2400:
+            raise ValueError('LLM startup must fit within 2400 seconds')
         self.launcher, self.working, self.event = launcher, working, event
         self.startup_seconds = startup_seconds
         self.process: subprocess.Popen | None = None

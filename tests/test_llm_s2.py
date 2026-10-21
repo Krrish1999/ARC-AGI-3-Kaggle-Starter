@@ -57,9 +57,9 @@ def daemon(tmp_path, monkeypatch):
 
 def test_readiness_precedes_backend_enable_and_cleanup_owns_all_children(daemon):
     supervisor = daemon.supervisor
-    supervisor.models_ready = Mock(side_effect=lambda timeout: daemon.clock.now >= 619)
+    supervisor.models_ready = Mock(side_effect=lambda timeout: daemon.clock.now >= 1800)
     assert supervisor.start()
-    assert daemon.clock.now == 619
+    assert daemon.clock.now == 1800
     assert os.environ['ARC3_LLM_READY'] == '1'
     assert daemon.spawn.call_args.kwargs['start_new_session'] is True
     assert daemon.spawn.call_args.kwargs['env']['HF_HUB_OFFLINE'] == '1'
@@ -85,10 +85,10 @@ def test_startup_failure_is_bounded_logged_exploration(daemon, monkeypatch, fail
     elif failure == 'disabled':
         monkeypatch.setenv('ENABLE_OFFLINE_BACKEND', '0')
     assert not supervisor.start()
-    assert daemon.clock.now <= 900
+    assert daemon.clock.now <= 2400
     if failure == 'deadline':
-        assert daemon.clock.now == 900
-        assert 'startup_deadline_900s' in supervisor.reason
+        assert daemon.clock.now == 2400
+        assert 'startup_deadline_2400s' in supervisor.reason
     assert os.environ['ARC3_LLM_READY'] == '0'
     status = json.loads((supervisor.working / 'diagnostics/llm_status.json').read_text())
     assert status['mode'] == 'exploration' and not status['ever_ready']
@@ -121,7 +121,7 @@ def test_health_checks_served_identity_on_loopback(tmp_path, monkeypatch, body, 
 
 
 def test_no_unbounded_startup_configuration(tmp_path):
-    for timeout in (0, -1, 901):
+    for timeout in (0, -1, 2401):
         with pytest.raises(ValueError):
             llm_daemon.LLMDaemon(tmp_path / 'launcher', tmp_path, Mock(), startup_seconds=timeout)
 
@@ -279,8 +279,8 @@ def test_backend_connection_obeys_ablation_and_readiness(tmp_path, monkeypatch, 
 def test_notebook_waits_for_daemon_before_gateway_and_always_cleans_up(tmp_path):
     notebook = build()
     cells = [cell['source'] for cell in notebook['cells'] if cell['cell_type'] == 'code']
-    assert cells.index('runner.start_llm(startup_seconds=900)\n') < cells.index('runner.run()\n')
-    assert notebook['metadata']['arc3']['llm_bundle']['startup_seconds'] == 900
+    assert cells.index('runner.start_llm(startup_seconds=2400)\n') < cells.index('runner.run()\n')
+    assert notebook['metadata']['arc3']['llm_bundle']['startup_seconds'] == 2400
     run = NotebookRunner('fixture', working=tmp_path)
     run.llm = Mock()
     run._run = Mock(side_effect=RuntimeError('gateway failed'))
@@ -393,3 +393,32 @@ def test_cleanup_escalates_for_unresponsive_owned_process(daemon):
     daemon.process.wait.side_effect = [subprocess.TimeoutExpired('launcher', 2), 0]
     daemon.supervisor.stop()
     assert daemon.kills.call_args.args == (123456, signal.SIGKILL)
+
+
+def test_save_preflight_dispatches_initial_reset_with_strict_gen3(tmp_path, monkeypatch):
+    """Execute the embedded save preflight against the actual framework/agent."""
+    monkeypatch.setenv('ENABLE_AUDITABLE_WORLD_MODEL', '1')
+    monkeypatch.setenv('ENABLE_NOTEBOOK_DIAGNOSTICS', '0')
+    runner = NotebookRunner('gen3-save-fixture', working=tmp_path / 'working')
+    runner.start()
+    runner.framework.mkdir(parents=True)
+    monkeypatch.setattr(runner, 'prepare_offline_framework', lambda: None)
+    command = runner.command
+
+    def registered_command(label, argv, **kwargs):
+        prefix = (f'import sys\nsys.path[:0] = {[str(ROOT), str(ROOT / "vendor/ARC-AGI-3-Agents")]!r}\n'
+                  'import agents\nfrom agent.my_agent import MyAgent\n'
+                  'agents.AVAILABLE_AGENTS["myagent"] = MyAgent\n')
+        return command(label, [*argv[:2], prefix + argv[2]], **kwargs)
+
+    monkeypatch.setattr(runner, 'command', registered_command)
+    try:
+        runner.preflight_framework()
+        log = (runner.diagnostics / 'framework_imports.log').read_text()
+        assert 'FRAMEWORK_RUNTIME_OK synthetic_actions=1 gateway_actions=0' in log
+        events = [json.loads(line) for line in (runner.diagnostics / 'events.jsonl').read_text().splitlines()]
+        assert any(event['event'] == 'save_preflight_passed' for event in events)
+    finally:
+        for handler in list(runner.logger.handlers):
+            handler.close()
+            runner.logger.removeHandler(handler)

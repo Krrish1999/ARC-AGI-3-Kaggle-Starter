@@ -1,5 +1,35 @@
 # ARC-AGI-3 PhD Research Laboratory Ledger
 
+## [EDIT] Gen-3 Kaggle deployment — 2,400-second startup, 2026-10-21
+
+The user confirms PR #12 merged into main `87fbb24` and explicitly authorizes
+this Phase A deployment and a revised **2,400-second (40-minute)** startup
+allowance. This supersedes the earlier instruction to preserve 900 seconds.
+The Gen-3 agent sources and security gates remain unchanged. Branch:
+`feat/gen3-kaggle-2400s`; retained architectural parent remains
+`research_lab/top_programs/v1_retrodict_world_model_harness.py`, followed by the
+merged Gen-3 authorization refactor. No new score promotion is inferred.
+
+Pre-deployment audit found the builder, runtime default, supervisor default and
+maximum, and manifest all still using 900 seconds. Update the complete path to
+2,400, preserving the shared monotonic deadline, remaining global run budget,
+model readiness gate, offline dataset mounts and owned-process cleanup. Required
+metadata datasets are present: `dfranzen/pennyroyal-v253`,
+`mirzamilanfarabi/intel-qwen3-8-flash-next-w4a16-autoround`, and
+`mirzamilanfarabi/albucino-qwen3-8-flash-next-drafter`. RTX PRO 6000 is selected;
+GPU is enabled and internet disabled.
+
+The save preflight also expected a synthetic non-reset action with no backend,
+which Gen-3 correctly refuses. Its toy environment now begins at NOT_PLAYED and
+asserts a single lifecycle RESET, preserving strict authorization while testing
+the actual framework dispatch path. No real game or gateway is contacted by
+this fixture. Run deadline/readiness fixtures, exact notebook synchronization,
+full regressions, lint/type checks and containment before `make submit`.
+
+Phase A is a saved notebook/startup validation. Hidden RHAE is measured by a
+separate competition rerun (Phase B); do not report a save as a hidden score.
+Deployment status and the exact saved version/build will be appended below.
+
 ## Generation 3 Task Packet — [REPLACE] auditable authorization contract
 
 Issued 2026-10-21 (Asia/Calcutta). Requested skills: phd-pi, phd-world-model,

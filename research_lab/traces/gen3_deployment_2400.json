@@ -1,0 +1,40 @@
+{
+  "mutation": "[EDIT]",
+  "phase": "A",
+  "status": "prepared",
+  "prepared_at_utc": "2026-10-21T10:36:35.724215+00:00",
+  "parent_main": "87fbb24",
+  "branch": "feat/gen3-kaggle-2400s",
+  "kernel_id": "aanchal009/arc-agi-3-runtime-check",
+  "build_id": "4086c46befdb2235",
+  "startup_seconds": 2400,
+  "dataset_sources": [
+    "dfranzen/pennyroyal-v253",
+    "mirzamilanfarabi/intel-qwen3-8-flash-next-w4a16-autoround",
+    "mirzamilanfarabi/albucino-qwen3-8-flash-next-drafter"
+  ],
+  "machine_shape": "NvidiaRtxPro6000",
+  "enable_gpu": true,
+  "enable_internet": false,
+  "checks": {
+    "pytest_passed": 224,
+    "ruff_passed": true,
+    "pyright_errors": 0,
+    "pyright_warnings": 0,
+    "containment_passed": true,
+    "containment_checks": 20,
+    "source_build_sync": true
+  },
+  "sha256": {
+    "notebooks/submission.ipynb": "cf74026c93b8adc612d78e2517dd020385a75f5300537a6d4fdf5f8e5f6d090e",
+    "notebooks/kernel-metadata.json": "05bf130a005c885153cf248065b7a73fad5d01d1afd8e5212427263c48cdffb7",
+    "agent/my_agent.py": "5e6a76bc2376407c045fed7f4a7eed0e254e658009955b0c304c89b281826bc9",
+    "agent/arclog.py": "0c119b81ad71aa39e84069dbbbabba7562aa462c94f5f19e5a2177a957c0375e",
+    "scripts/build_notebook.py": "4abfd0e621908b6fd0a6a934a704a8e1aabafdc72e46ec84a7fba86afb8f8465",
+    "scripts/notebook_runtime.py": "dcae1dab49683d05c875d575d4b15926432ed096e2bfac004ef0bb1c7dbb586f",
+    "scripts/llm_daemon.py": "be59215b0c31e7ed7182b856e8bae928fac66822c4d9cdf6d54ff2d37786a207",
+    "containment.json": "e7a76dbc5b4a6f7f38aad5b4411b1dca8aa449dee5da3bd75444ade3df0dfb2b"
+  },
+  "phase_b_submitted": false,
+  "hidden_score": null
+}
