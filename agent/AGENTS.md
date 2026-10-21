@@ -15,3 +15,4 @@ Every heuristic or subsystem added to `agent/my_agent.py` or `agent/arclog.py` m
 - `ENABLE_RETRODICTION`: Requires candidate mechanic scripts to pass 100% historical replay over `log.txt` before live probing.
 - `ENABLE_EXPECT_QUEUE`: Executes multi-step `[ACTIONS]` plans gated by per-step `expect` cell predictions.
 - `ENABLE_TIER1_SIMULATOR`: Triggers `step(state, action)` Python synthesis and bounded BFS after 40 wasted moves on Level >= 3.
+- `ENABLE_ZERO_ACTION_REPLAN`: Allows at most three proposal attempts under one shared reasoning allowance; retries classified proposal errors and historical counterexamples without weakening replay, exact predictions or containment. Setting `0` retains one proposal; infrastructure failures remain visible.

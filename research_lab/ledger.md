@@ -1,5 +1,130 @@
 # ARC-AGI-3 PhD Research Laboratory Ledger
 
+## Sprint 3 Task Packet — [EDIT] bounded zero-action replanning
+
+Issued 2026-10-21 (Asia/Calcutta); PI: `phd-pi`, Critic: `phd-critic`,
+assigned specialist: `phd-world-model`. This packet supersedes earlier current
+status statements while retaining their historical evidence.
+
+**Official baseline audit.** Ran
+`kaggle competitions submissions -c arc-prize-2026-arc-agi-3 -v` through the
+repository credential wrapper. Committed receipt:
+`research_lab/traces/sprint3_submissions.csv`. The six returned entries contain
+one COMPLETE result, submission **57449526**, dated
+2026-10-20 18:31:40.460000 UTC, with official **publicScore=0.12** and no released
+privateScore. Five earlier entries are ERROR. The completed entry is the
+previous fallback evaluation, described as "Runtime isolation: verified Kaggle
+startup and lifecycle"; its recorded notebook is
+`aanchal009/arc-agi-3-runtime-check`, script version ID 360525150. No newer
+integrated Pennyroyal/Qwen Phase B submission appears in this account's list.
+**Retain 0.12** as the verified deployment baseline. Retiring it or assigning a
+new integrated score would invent evidence. The user-confirmed 28-point notebook
+remains a separate reference; no score conversion or inferred hidden score.
+The latest notebook pulled through the CLI is still fallback build
+`7cf1b632a694c2af`, with empty model_sources and dataset_sources. Its API status
+is COMPLETE. The 900-second integration is merged in GitHub but is not the
+current notebook returned for this configured Kaggle ID. The machine-readable
+audit and receipt hashes are in
+`research_lab/traces/sprint3_submission_audit.json`.
+
+**Selected parent/provenance.** Engineering parent: merged integrated harness
+`2fa8c0d`, including the 900-second startup allowance. Exact retained source
+archive: `research_lab/top_programs/v1_retrodict_world_model_harness.py`,
+SOURCE_COMMIT `6f4dc442f587ac5ba26fea2fdf1de889291dfc6f`, followed by the recorded
+reliability and Sprint 2 integration commits. This archive is not a scored
+Sprint 2 champion. There is no scored integrated snapshot to promote. Preserve
+`baseline_28_score.ipynb` and the archive unchanged.
+
+| Failure type | Available evidence | Decision |
+|---|---|---|
+| A: perception | No new integrated trajectories | Preserve object, HUD, dead-signature and reset contracts |
+| B: reasoning | Existing synthetic regression and source show that one replay-rejected hypothesis can permanently switch the game to emergency recovery | Selected deterministic mutation; not a proven hidden-game root cause |
+| C: throughput | 900-second allowance is configured, but no new integrated Phase B entry or inference trajectories are available | Preserve serving configuration and obtain actual execution evidence |
+
+**One orthogonal ticket — phd-world-model, [EDIT].**
+`ENABLE_ZERO_ACTION_REPLAN=1` is an independent default-on toggle; `0` retains
+the one-proposal reference. Permit at most three proposals before dispatch,
+within one bounded reasoning allowance and remaining level/global budgets.
+Append explicit recoverable proposal-validation failures and replay
+counterexamples for the next request. Accept a queue only through the existing
+complete replay, legal-action, exact nonempty `expect`, sandbox and PrefixLock
+gates. A rejected hypothesis cannot smuggle a sibling `actions` field into the
+queue. Infrastructure, filesystem, containment, perception and prefix failures
+must remain visible; they are not ordinary proposal repair. Preserve the Tier-1
+revision guard unless retries account for it explicitly. Log attempts,
+rejections, acceptance and exhaustion; no live actions during repair.
+
+**Research hypothesis.** Counterexample-guided repair can keep the reasoning
+engine active after a bad proposal instead of abandoning it for the game.
+The score effect is unmeasured. Require paired causal evidence, >=5 RHAE lift or
+>=20% Level 3–5 action reduction before performance promotion; no numerical
+effect estimate is claimed from source inspection.
+
+**Acceptance plan.** Synthetic wrong-then-correct mechanic and invalid-then-valid
+plan; max-attempt and elapsed-time exhaustion; toggle-off reference;
+append-only requests; no live dispatch before authorization; sibling-field
+rejection; unchanged infrastructure failure handling. Run all fixtures,
+`ruff check agent/`, `pyright agent/`, and behavioral containment. Public
+validation targets remain `ls20`, `ft09`, `vc33`, `re86`, paired policy/environment
+seeds `{7,19}`, equal budgets and real inference when available. Synthetic
+fixtures cannot establish public-game skill, RHAE lift or GPU/cache performance.
+
+**Critic initial disposition.** Preflight Gate 1 PASS, 20/20 checks. Current
+candidate Gate 2 metrics are NOT MEASURED: rejection numerator/denominator,
+prediction coverage numerator/denominator, prediction-match numerator/denominator
+and simulator compile/replay attempts are unavailable, all N/A. The current
+diagnostics scan finds zero files; `summarize_diagnostics.py` lists files rather
+than computing these rates. Historical S1 backend-free coverage 0/328 is not
+new candidate telemetry. The user's conditional `make submit` is HOLD until
+actual Gate 2 evidence passes; local implementation, verification, notebook
+generation and PR preparation proceed. No score promotion is authorized by
+synthetic success alone.
+
+### Sprint 3 implementation and Critic closeout — 2026-10-21
+
+Implemented the single `ENABLE_ZERO_ACTION_REPLAN` mutation in
+`agent/my_agent.py`. A dedicated `ProposalValidationError` class identifies only
+pure model schema/action/expect/probe failures. Counterexample and empty-history
+rejections can trigger another proposal; worker/limited replay failures,
+transport, filesystem, perception and PrefixLock errors cannot. Up to three
+proposals share one remaining reasoning allowance. Local inference and worker
+timeouts shrink with it, and a late queue is flushed before authorization.
+This is an allowance checked between operations and passed as timeouts, not a
+separately enforced hard end-to-end wall timer. Generation tokens remain capped
+per request. Toggle `0`, backend absence and Tier-1's one-shot revision guard
+retain their reference paths.
+
+Feedback appends validation errors and concrete replay counterexamples without
+rewriting earlier turns. No live action is taken during repair. Exact expect
+cells, legal actions, whole-history replay and sandbox containment are unchanged.
+Pending dispatch cannot be overwritten. An earlier worker failure wins over a
+later malformed sibling or apparently valid sibling queue; all such failures
+remain logged before recovery rather than being mislabeled model repair.
+
+Final verification: **187/187 pytest cases pass**, including **21 new Sprint 3
+cases**. `ruff check agent/ scripts/ tests/test_zero_action_replan_s3.py` passes;
+`pyright agent/` reports zero errors/warnings. Behavioral containment passes
+20/20 checks with containment_passed=true. The notebook was regenerated locally;
+the exact-build/source round-trip passes and its 900-second serving window is
+preserved. Evidence and hashes: `research_lab/traces/sprint3_validation.json`.
+Synthetic positives use actual sandbox replay, then demonstrate recovery from a
+wrong mechanic or invalid plan; they are not gameplay/GPU/RHAE measurements.
+
+One repair round fixed the full-suite fixture's inherited stale sandbox path and
+the Critic's mixed worker-error/sibling-proposal classification finding. Final
+read-only Critic review accepts functional safety with no remaining blocker.
+No baseline archive or reference notebook was changed or score-promoted.
+
+**Deployment decision: HOLD under the user's Gate 1 + Gate 2 condition.** Gate 1
+passes; actual Gate 2 coverage, match, zero-action rejection and simulator rates
+are unavailable (N/A), not synthetic passes. No GPU or mounted model weights are
+available here, and the configured Kaggle notebook still returns the old
+fallback build. `make submit` and a new competition rerun were not executed.
+Official score remains **0.12**, integrated-harness score unverified; no retired
+fallback or score lift is claimed. Next evidence required: the integrated
+notebook's actual Phase B receipt and real inference trajectories with the
+required prediction/replay/simulator denominators.
+
 ## [EDIT] Gateway-only submissions and notebook diagnostics — 2026-10-20
 
 The user's latest instruction explicitly supersedes the early placeholder
