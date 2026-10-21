@@ -1,5 +1,5 @@
 {
-  "status": "kaggle_mounts_verified_llm_startup_timeout",
+  "status": "kaggle_v6_complete_model_readiness_unconfirmed",
   "assets": {
     "WHEELHOUSE_DIR": {
       "candidates": [
@@ -108,21 +108,21 @@
   "ablations": {
     "ENABLE_OFFLINE_BACKEND": "1 (default): startup/connect; 0: explicit exploration",
     "ENABLE_SPECULATIVE_DRAFT": "1 (default): NEXTN/FR-Spec; 0: same target without draft",
-    "ENABLE_BASELINE_PREFETCH": "1(default): wheel prewarm16 readers and delayed model prefetch3 readers;0: serial-read control. Asset checks always enforced.",
+    "ENABLE_BASELINE_PREFETCH": "1(default): wheel prewarm with 16 readers; delayed 3-reader model page-cache prefetch only when ENABLE_LOCAL_MODEL_STAGING=0. Asset checks always enforced.",
     "ENABLE_LOCAL_MODEL_STAGING": "1(default): blocking local target/draft copies;0: direct dataset paths with retained page-cache prefetch control."
   },
   "measured_cache_hit_rate": null,
-  "gpu_acceptance": "Version 5 COMPLETE: Gen-3 containment/framework preflight and mounted assets pass on RTX PRO 6000. SGLang did not become ready within 2,400 seconds; 25/38 target shards loaded at 36:21 checkpoint progress. Model readiness FAIL; no inference/cache/RHAE acceptance.",
+  "gpu_acceptance": "Version 6 COMPLETE save: RTX PRO 6000, containment/framework preflight and a real local-copy start observed. Required space 185,400,295,230 bytes; free space 1,145,972,953,088 bytes. Completed console API returns []; saved diagnostics are network-blocked, so copy completion, model readiness and startup time are unconfirmed. No inference/cache/RHAE acceptance.",
   "bundle_builder_reference": "https://github.com/da-fr/arc-agi-3-solution/tree/10882e332d883af3e61616df8c8a17d03a328a75/serving",
   "local_probe_scope": "present_candidates lists local workspace availability only; the Kaggle run separately verified its attached mounts.",
-  "kaggle_runtime_evidence": "research_lab/traces/gen3_deployment_2400.json",
-  "prior_kaggle_runtime_evidence": "research_lab/traces/clean_llm_deployment.json",
+  "kaggle_runtime_evidence": "research_lab/traces/local_staging_deployment.json",
+  "prior_kaggle_runtime_evidence": "research_lab/traces/gen3_deployment_2400.json",
   "local_model_staging": {
     "default": "1",
     "toggle": "ENABLE_LOCAL_MODEL_STAGING",
     "root": "/kaggle/temp/arc3-models",
     "barrier": "All target/draft checkpoint files copied, closed/fsynced and metadata verified before args/server launch.",
     "failure": "Prevent server launch; no fallback to FUSE input in the enabled path.",
-    "measured_startup": "Pending Phase A measurement"
+    "measured_startup": "Unconfirmed for saved version 6: COMPLETE status alone does not measure SGLang readiness; completed logs empty and saved diagnostics network-blocked."
   }
 }

@@ -38,6 +38,39 @@ and exact notebook/source checks. Deploy using `make submit`, monitor Phase A,
 and record staging/loader/readiness times separately. A ready endpoint is not
 an inference/cache/RHAE measurement. No Phase B submission is requested.
 
+### Local staging deployment — version 6 COMPLETE, readiness unconfirmed
+
+Local verification passes **237/237 pytest cases**, including 13 new staging
+cases, required ruff/pyright and containment 20/20. The agent sources are
+unchanged. `python scripts/build_notebook.py` and `make submit` packaged
+**8e291c0a90d1533a** and successfully pushed saved **version 6**. A CLI pull
+matches every generated cell source. Kaggle-side containment/framework
+preflight passes and the local-copy event reports **185,400,295,230 bytes**
+required with **1,145,972,953,088 bytes** free under
+`/kaggle/temp/arc3-models`; the copy-start observation uses four workers.
+
+`make status` first reports **COMPLETE at 2026-10-21 17:38:20 Asia/Calcutta**;
+the preceding poll was RUNNING at 17:37:34. The notebook began at 17:26:59.671,
+so the interval to observed completion is **680.412 seconds**, including all
+preflight/save work. This is **not a measured model-startup time**. The last
+captured console event is copy start; it cannot prove that copying or loading
+finished. Every final pulled cell still matches build **8e291c0a90d1533a**.
+
+**Measurement blocked.** The normal completed-log endpoint and exact session
+stream return `[]`, including a retry after completion. Saved diagnostics are
+on `www.kaggleusercontent.com`, which the enforced cloud allowlist blocks with
+proxy CONNECT 403. Access to that hostname has been requested. Record actual
+copy duration and SGLang startup duration as **null/unconfirmed**, rather than
+turning the notebook completion interval into a readiness claim. No new
+2400-second timeout, model failure, successful inference, cache hit rate or
+RHAE result can be inferred from the available console fragment.
+
+Receipts: `research_lab/traces/local_staging_deployment.json` and the captured
+events/status polls in `research_lab/traces/local_staging_runtime_evidence.json`.
+The 2,400-second deadline and Gen-3 policy remain unchanged. No Phase B
+competition evaluation was submitted. Reconcile the measured startup and copy
+timings when the saved diagnostics become accessible.
+
 ## [EDIT] Gen-3 Kaggle deployment — 2,400-second startup, 2026-10-21
 
 The user confirms PR #12 merged into main `87fbb24` and explicitly authorizes

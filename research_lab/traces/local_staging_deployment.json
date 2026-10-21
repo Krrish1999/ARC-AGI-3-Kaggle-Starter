@@ -1,5 +1,5 @@
 {
-  "status": "prepared",
+  "status": "COMPLETE",
   "phase": "A",
   "prepared_at_utc": "2026-10-21T11:56:43.250922+00:00",
   "mutation": "[EDIT]",
@@ -41,5 +41,29 @@
     "notebooks/submission.ipynb": "1a79801935df26c4435225a14d2de91e67f707f6ddb55391cd377af6780f85ca",
     "notebooks/kernel-metadata.json": "05bf130a005c885153cf248065b7a73fad5d01d1afd8e5212427263c48cdffb7",
     "containment.json": "f0f5d857946f4f215d079057c7919a12979c279213b2be2352f7710f069319b2"
-  }
+  },
+  "saved_version": 6,
+  "submitted_source_commit": "bd648bb",
+  "saved_sources_match": true,
+  "kernel_url": "https://www.kaggle.com/code/aanchal009/arc-agi-3-runtime-check",
+  "first_runtime_staging_observation": {
+    "status": "copying",
+    "bytes_required": 185400295230,
+    "disk_free_before": 1145972953088,
+    "workers": 4,
+    "root": "/kaggle/temp/arc3-models"
+  },
+  "observed_completed_at_utc": "2026-10-21T12:08:20.083223+00:00",
+  "last_observed_running_at_utc": "2026-10-21T12:07:34.254051+00:00",
+  "runtime_started_at_utc": "2026-10-21 11:56:59.671Z",
+  "llm_supervisor_started_at_utc": "2026-10-21 11:57:20.711Z",
+  "model_readiness": "unconfirmed",
+  "model_ready": null,
+  "model_startup_duration_seconds": null,
+  "local_copy_duration_seconds": null,
+  "runtime_evidence": "research_lab/traces/local_staging_runtime_evidence.json",
+  "runtime_evidence_sha256": "4b342e70d6c5d57165980192ecf307d3c41ae1db389d46aed48e647bf5a207e4",
+  "completion_source_check": true,
+  "observation_limit": "Runtime logs API returns []; saved diagnostics download is blocked on www.kaggleusercontent.com by the enforced cloud network allowlist. No readiness/startup-time claim.",
+  "notebook_start_to_observed_complete_seconds": 680.412
 }
