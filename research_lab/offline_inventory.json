@@ -65,7 +65,7 @@
       "7": "7ef53c4c2f0a6c2e636be00056ac7ce2a6813c8d6d2ced8e65937e1d6465641a",
       "13": "0261d61f296b6f85f5c99e9299eb0bb7134e5ee39dd86d33765efb596da3d22e"
     },
-    "launcher_sha256": "89cebe84c119ec32b0604f883940d4d7aeb57e73e82b8c0de140198cef958657",
+    "launcher_sha256": "5cfb9ea235ec560c24c8f1455003581c2122e26d25c1aac694d2fe074029f45a",
     "wheelhouse": "dfranzen/pennyroyal-v253",
     "dataset_version_observed": 1,
     "weight_datasets": {
@@ -79,11 +79,19 @@
     "startup_seconds": 2400,
     "prefetch": "Cell 7 wheel prewarm (16 readers); models copied with a blocking 4-worker barrier before installation/launch. Original model page-cache prefetch is an explicit staging-off control only.",
     "local_model_staging": {
-      "root": "/kaggle/temp/arc3-models",
+      "root": "/tmp/models/arc3",
       "toggle": "ENABLE_LOCAL_MODEL_STAGING",
       "default": "1",
       "workers": 4,
-      "copy_barrier": "all files closed/fsynced; target and draft validated before args/Popen"
+      "copy_barrier": "all files closed/fsynced; target and draft validated before args/Popen",
+      "capacity_toggle": "ENABLE_STAGING_CAPACITY_RESERVATION",
+      "capacity_default": "1",
+      "fallback_roots": [
+        "/kaggle/working/.arc3-models",
+        "/kaggle/temp/arc3-models"
+      ],
+      "headroom_bytes": 17179869184,
+      "reservation": "posix_fallocate and fsync every destination file plus headroom before FUSE reads; retain extents during copy"
     },
     "radix_cache": "enabled by server default; schedule-policy=lpm; cache reporting enabled",
     "configuration_edits": {
@@ -109,7 +117,8 @@
     "ENABLE_OFFLINE_BACKEND": "1 (default): startup/connect; 0: explicit exploration",
     "ENABLE_SPECULATIVE_DRAFT": "1 (default): NEXTN/FR-Spec; 0: same target without draft",
     "ENABLE_BASELINE_PREFETCH": "1(default): wheel prewarm with 16 readers; delayed 3-reader model page-cache prefetch only when ENABLE_LOCAL_MODEL_STAGING=0. Asset checks always enforced.",
-    "ENABLE_LOCAL_MODEL_STAGING": "1(default): blocking local target/draft copies;0: direct dataset paths with retained page-cache prefetch control."
+    "ENABLE_LOCAL_MODEL_STAGING": "1(default): blocking local target/draft copies;0: direct dataset paths with retained page-cache prefetch control.",
+    "ENABLE_STAGING_CAPACITY_RESERVATION": "1(default): allocate full checkpoint files plus 16 GiB headroom, select capable local candidate;0: preferred-root free-space-only reference."
   },
   "measured_cache_hit_rate": null,
   "gpu_acceptance": "Version 6 COMPLETE save; model readiness FAIL. Uploaded diagnostics confirm local-copy ENOSPC at fsync after 270.003 seconds. Startup attempt failed after 278.679 seconds before SGLang launched. No target/draft checkpoint published; ready=false and ever_ready=false. RTX PRO 6000, containment 20/20 and framework preflight pass. No inference/cache/RHAE acceptance.",
@@ -120,12 +129,21 @@
   "local_model_staging": {
     "default": "1",
     "toggle": "ENABLE_LOCAL_MODEL_STAGING",
-    "root": "/kaggle/temp/arc3-models",
+    "root": "/tmp/models/arc3",
     "barrier": "All target/draft checkpoint files copied, closed/fsynced and metadata verified before args/server launch.",
     "failure": "Prevent server launch; no fallback to FUSE input in the enabled path.",
     "measured_startup": "278.679 seconds to failed startup attempt; copying failed after 270.003 seconds at fsync with ENOSPC. SGLang was never launched and no readiness latency exists.",
     "storage_requirement_bytes": 185400295230,
     "reported_disk_free_bytes": 1145972953088,
-    "storage_acceptance": "FAIL: reported free space did not establish writable checkpoint capacity. Exact quota/backing-store limit is not present in diagnostics."
+    "storage_acceptance": "FAIL: reported free space did not establish writable checkpoint capacity. Exact quota/backing-store limit is not present in diagnostics.",
+    "fallback_roots": [
+      "/kaggle/working/.arc3-models",
+      "/kaggle/temp/arc3-models"
+    ],
+    "capacity_toggle": "ENABLE_STAGING_CAPACITY_RESERVATION",
+    "capacity_default": "1",
+    "headroom_bytes": 17179869184,
+    "capacity_candidate": "Full file allocations/fsync before FUSE weight reads, retained extents during copy; GPU acceptance pending next Phase A run.",
+    "output_cleanup": "Remove only nonce-owned working-directory transactions after stopping the server process group."
   }
 }

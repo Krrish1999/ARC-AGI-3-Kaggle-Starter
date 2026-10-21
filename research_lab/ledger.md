@@ -1,5 +1,54 @@
 # ARC-AGI-3 PhD Research Laboratory Ledger
 
+## [EDIT] Capacity-backed local checkpoint boot — 2026-10-21
+
+Requested skill: `phd-systems`; continue `feat/local-model-staging` / PR #14.
+Engineering parent is `9084757` (the version-6 diagnostic closeout), merged with
+main `fb1fbb9` (PR #13). Archived parents and the Gen-3 agent/security sources
+remain unchanged. The user explicitly authorizes another build, Phase A save,
+startup measurement and PR update. Version 6's ENOSPC supersedes the earlier
+assumption that a filesystem free-space report establishes checkpoint capacity.
+
+**Type C hypothesis / [EDIT].** Prefer `/tmp/models/arc3`, with configured
+alternatives `/kaggle/working/.arc3-models` and `/kaggle/temp/arc3-models`.
+Default-on `ENABLE_STAGING_CAPACITY_RESERVATION=1` uses `posix_fallocate`, fsync
+and allocated-block verification on every destination checkpoint file plus
+16 GiB of serving headroom **before reading any weight shard**. Record mount
+type, device and free inodes. Reject memory/network filesystems; on capacity
+failure clean only the owned transaction and try the next local candidate.
+Copy into reserved files with `r+b`, preserving allocations. Release the owned
+headroom file only after both copies complete, for the subsequent installation.
+After the owned server process group stops, remove working-directory model
+copies only when their transaction and marker match this supervisor's owner
+token, keeping large checkpoints out of saved notebook outputs. Other paths,
+symlinks and another run's files are never eligible for this cleanup.
+Argument binding still follows complete close/fsync and metadata verification.
+No enabled-path fallback to FUSE input or timeout increase is allowed.
+
+**Ablation / acceptance.** Toggle 0 retains the prior free-space-only algorithm
+at the preferred root. Test actual small-file allocations and copies, exhausted
+or unsupported allocation despite high reported free space, fsync ENOSPC,
+fallback/owned cleanup, late copy failure, a blocking final allocation,
+sparse-allocation rejection, mount/inode rejection and generated handoff.
+Run pytest, ruff, pyright, containment and exact notebook checks, then deploy
+and record the observed capacity/copy/startup outcome. Allocation checks improve
+capacity evidence; no candidate volume is assumed large enough before the
+Kaggle run, and successful local fixtures are not GPU readiness or RHAE proof.
+
+### Capacity candidate verification and deployment preparation
+
+Final verification: **256/256 pytest cases**, including 19 additional capacity,
+fallback and cleanup cases; required ruff and pyright pass; containment
+**20/20**, `containment_passed=true`. One import-order lint repair passed on the
+next check. The notebook exactly matches its sources; both agent entry-module
+hashes match version 6. Build **a56668207f023cce** preserves the 2,400-second
+startup and global deadlines. Receipt:
+`research_lab/traces/capacity_staging_deployment.json`.
+
+The user will upload the new diagnostic folder again if the Kaggle log API
+remains empty. Monitor Phase A to a terminal status; do not claim model
+readiness from COMPLETE alone or reuse version-6 failure timings for this build.
+
 ## [EDIT] Blocking local checkpoint staging — systems ticket, 2026-10-21
 
 Requested skill: `phd-systems`; branch `feat/local-model-staging`. Engineering

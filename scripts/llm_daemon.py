@@ -5,10 +5,12 @@ import hashlib
 import http.client
 import json
 import os
+import shutil
 import signal
 import subprocess
 import sys
 import time
+import uuid
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -27,6 +29,7 @@ class LLMDaemon:
         self.reason = 'not_started'
         self.log: Any = None
         self._staging_signature: tuple[int, int] | None = None
+        self._staging_owner = uuid.uuid4().hex
 
     def models_ready(self, timeout: float) -> bool:
         connection = http.client.HTTPConnection('127.0.0.1', 8001, timeout=timeout)
@@ -107,6 +110,7 @@ class LLMDaemon:
             (self.working / 'diagnostics/model_staging.json').unlink(missing_ok=True)
             self.log = (self.working / 'diagnostics/llm_launcher.log').open('ab', buffering=0)
             environment = dict(os.environ, ARC3_LLM_WORKING=str(self.working),
+                               ARC3_MODEL_OWNER=self._staging_owner,
                                ARC3_LLM_PREFIX=f'/tmp/arc3-pennyroyal-{digest[:16]}',
                                HF_HUB_OFFLINE='1', TRANSFORMERS_OFFLINE='1', UV_OFFLINE='1',
                                UV_PYTHON_DOWNLOADS='never')
@@ -150,6 +154,25 @@ class LLMDaemon:
             self.stop()
             raise
 
+    def cleanup_output_staging(self) -> None:
+        """Never save model copies as outputs; remove only our stopped run."""
+        try:
+            report = json.loads((self.working / 'diagnostics/model_staging.json').read_text())
+            transaction = Path(report['transaction'])
+            root = (self.working / '.arc3-models').resolve()
+            if (transaction.is_symlink() or transaction.parent.resolve() != root
+                    or not transaction.name.startswith('run-')):
+                return
+            marker = transaction / '.arc3-owner'
+            if marker.is_symlink() or marker.read_text() != self._staging_owner:
+                return
+            shutil.rmtree(transaction)
+            self.event('model_staging_cleaned', transaction=str(transaction))
+        except (FileNotFoundError, KeyError):
+            pass
+        except (OSError, ValueError, TypeError) as error:
+            self.event('model_staging_cleanup_error', error=str(error))
+
     def stop(self) -> None:
         self.ready = False
         os.environ['ARC3_LLM_READY'] = '0'
@@ -170,6 +193,7 @@ class LLMDaemon:
         if self.log is not None:
             self.log.close()
             self.log = None
+        self.cleanup_output_staging()
         if self.ever_ready:
             self.reason = 'stopped_after_ready'
             self.record()

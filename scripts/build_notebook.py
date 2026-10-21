@@ -28,7 +28,9 @@ except ImportError:
 # ─────────────────────────────────────────────────────────────────────────────
 ACCELERATOR = "rtx6000"
 LLM_STARTUP_SECONDS = 2400
-LOCAL_MODEL_ROOT = "/kaggle/temp/arc3-models"
+LOCAL_MODEL_ROOT = "/tmp/models/arc3"
+LOCAL_MODEL_FALLBACK_ROOTS = ("/kaggle/working/.arc3-models", "/kaggle/temp/arc3-models")
+LOCAL_MODEL_HEADROOM_BYTES = 16 * 1024**3
 
 # Internal mapping; don't edit unless Kaggle adds new options.
 _ACCELERATORS = {
@@ -72,7 +74,10 @@ def build() -> dict:
     source_hashes = {path.relative_to(ROOT / "agent").as_posix():
                      hashlib.sha256(path.read_bytes()).hexdigest() for path in sources}
     runtime_source = (ROOT / "scripts/notebook_runtime.py").read_text()
-    launcher_source, llm_manifest = extract_launcher(local_model_root=LOCAL_MODEL_ROOT)
+    launcher_source, llm_manifest = extract_launcher(
+        local_model_root=LOCAL_MODEL_ROOT,
+        local_model_fallback_roots=LOCAL_MODEL_FALLBACK_ROOTS,
+        local_model_headroom_bytes=LOCAL_MODEL_HEADROOM_BYTES)
     daemon_source = (ROOT / 'scripts/llm_daemon.py').read_text()
     build_id = hashlib.sha256((json.dumps(source_hashes, sort_keys=True)
                               + runtime_source + launcher_source + daemon_source
