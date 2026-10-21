@@ -89,12 +89,12 @@ exact source/build round-trip test passes. `git diff --check` passes. Full
 receipt, source/artifact hashes and audit denominators:
 `research_lab/traces/generation3_validation.json` and `containment.json`.
 
-A public `make play-local GAME=ls20` smoke exits cleanly with **0 actions and
-0 completed levels**: without a ready local model, strict mode halts before
-blind exploration. The additional ft09/vc33 commands were **not executed**:
-automatic approval review reached its usage limit before reviewing network
-permission; this was a review-service failure, not an unsafe-action finding.
-No attempt bypassed that rejection. Initial import formatting/type issues and
+Public `make play-local GAME=ls20`, `GAME=ft09` and `GAME=vc33` smokes all
+exit cleanly with **0 actions and 0 completed levels**: without a ready local
+model, strict mode halts before blind exploration. Automatic approval review
+initially could not review the two additional commands because of a usage
+limit. After normal review became available, both commands were approved and
+passed; no rejection was bypassed. Initial import formatting/type issues and
 legacy fixture/notebook synchronization issues were repaired; the final checks
 above pass. Archived programs and reference notebooks remain unchanged.
 

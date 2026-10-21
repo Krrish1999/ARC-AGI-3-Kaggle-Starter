@@ -51,15 +51,21 @@
     },
     {
       "game": "ft09",
-      "status": "not_executed",
-      "reason": "automatic approval review usage limit",
-      "safety_finding": false
+      "command": "make play-local GAME=ft09",
+      "exit_code": 0,
+      "actions": 0,
+      "levels_completed": 0,
+      "reason": "backend unavailable; strict halt",
+      "scorecard_id": "5bd37ad3-6b09-45d0-af1e-7482f1040e05"
     },
     {
       "game": "vc33",
-      "status": "not_executed",
-      "reason": "automatic approval review usage limit",
-      "safety_finding": false
+      "command": "make play-local GAME=vc33",
+      "exit_code": 0,
+      "actions": 0,
+      "levels_completed": 0,
+      "reason": "backend unavailable; strict halt",
+      "scorecard_id": "972a3693-a08a-4d02-902c-ced7e4b15074"
     }
   ],
   "gate2_actual_game_metrics": {
@@ -100,5 +106,9 @@
     "tests/test_auditable_world_model.py": "93b63803b280fbfe71768620907b64da67f4fac9234f03c0b90451ea12a39154",
     "notebooks/submission.ipynb": "04d0837b6a1d3c4abaf8f578f950cb538358f8d6316d9839394182f806a43764",
     "containment.json": "839b843680b7bffaaa8c8043fe8a5811571079c0a4ece9fe9692e8f180217dd6"
+  },
+  "approval_review": {
+    "initial_additional_smokes": "review usage limit; not executed then",
+    "resolution": "normal approval review subsequently available; both smokes passed without bypass"
   }
 }
