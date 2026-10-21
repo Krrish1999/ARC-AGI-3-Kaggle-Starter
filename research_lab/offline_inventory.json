@@ -1,5 +1,5 @@
 {
-  "status": "kaggle_v6_complete_local_staging_enospc",
+  "status": "kaggle_v7_complete_readiness_pending_diagnostics",
   "assets": {
     "WHEELHOUSE_DIR": {
       "candidates": [
@@ -121,21 +121,21 @@
     "ENABLE_STAGING_CAPACITY_RESERVATION": "1(default): allocate full checkpoint files plus 16 GiB headroom, select capable local candidate;0: preferred-root free-space-only reference."
   },
   "measured_cache_hit_rate": null,
-  "gpu_acceptance": "Version 6 COMPLETE save; model readiness FAIL. Uploaded diagnostics confirm local-copy ENOSPC at fsync after 270.003 seconds. Startup attempt failed after 278.679 seconds before SGLang launched. No target/draft checkpoint published; ready=false and ever_ready=false. RTX PRO 6000, containment 20/20 and framework preflight pass. No inference/cache/RHAE acceptance.",
+  "gpu_acceptance": "Version 7 COMPLETE save: RTX PRO 6000 and containment/framework preflight pass. /tmp/models/arc3 overlay reserved 202,580,451,328 bytes across 62 files plus serving headroom in 0.413 seconds; copying began. Live logs lost connection and completed logs return []; actual copy completion/SGLang startup/readiness remain unconfirmed pending the user-offered diagnostic upload. No inference/cache/RHAE acceptance.",
   "bundle_builder_reference": "https://github.com/da-fr/arc-agi-3-solution/tree/10882e332d883af3e61616df8c8a17d03a328a75/serving",
   "local_probe_scope": "present_candidates lists local workspace availability only; the Kaggle run separately verified its attached mounts.",
-  "kaggle_runtime_evidence": "research_lab/traces/local_staging_deployment.json",
-  "prior_kaggle_runtime_evidence": "research_lab/traces/gen3_deployment_2400.json",
+  "kaggle_runtime_evidence": "research_lab/traces/capacity_staging_deployment.json",
+  "prior_kaggle_runtime_evidence": "research_lab/traces/local_staging_deployment.json",
   "local_model_staging": {
     "default": "1",
     "toggle": "ENABLE_LOCAL_MODEL_STAGING",
     "root": "/tmp/models/arc3",
     "barrier": "All target/draft checkpoint files copied, closed/fsynced and metadata verified before args/server launch.",
     "failure": "Prevent server launch; no fallback to FUSE input in the enabled path.",
-    "measured_startup": "278.679 seconds to failed startup attempt; copying failed after 270.003 seconds at fsync with ENOSPC. SGLang was never launched and no readiness latency exists.",
+    "measured_startup": "Unconfirmed for version 7. No measured readiness latency is available from partial console logs; version 6 failed after 278.679 seconds and is retained separately.",
     "storage_requirement_bytes": 185400295230,
-    "reported_disk_free_bytes": 1145972953088,
-    "storage_acceptance": "FAIL: reported free space did not establish writable checkpoint capacity. Exact quota/backing-store limit is not present in diagnostics.",
+    "reported_disk_free_bytes": 1145972940800,
+    "storage_acceptance": "Allocation passed for 202,580,451,328 bytes; complete staged contents and startup outcome pending version-7 diagnostic upload.",
     "fallback_roots": [
       "/kaggle/working/.arc3-models",
       "/kaggle/temp/arc3-models"
@@ -143,7 +143,7 @@
     "capacity_toggle": "ENABLE_STAGING_CAPACITY_RESERVATION",
     "capacity_default": "1",
     "headroom_bytes": 17179869184,
-    "capacity_candidate": "Full file allocations/fsync before FUSE weight reads, retained extents during copy; GPU acceptance pending next Phase A run.",
+    "capacity_candidate": "Allocation verified on Kaggle /tmp overlay; full-copy/model acceptance pending diagnostics.",
     "output_cleanup": "Remove only nonce-owned working-directory transactions after stopping the server process group."
   }
 }

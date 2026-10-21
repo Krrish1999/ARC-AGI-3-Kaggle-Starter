@@ -45,9 +45,42 @@ hashes match version 6. Build **a56668207f023cce** preserves the 2,400-second
 startup and global deadlines. Receipt:
 `research_lab/traces/capacity_staging_deployment.json`.
 
+`make submit` successfully pushed saved **version 7** from `5699882`.
+The pulled notebook matches every source cell and all three datasets, with GPU
+on, internet off and `NvidiaRtxPro6000`. Kaggle containment/framework preflight
+passes. At 2026-10-21 18:19:52 Asia/Calcutta, the local `/tmp/models/arc3` overlay
+reports **202,580,451,328 bytes allocated**, **62 files reserved**, and **0.413
+seconds** reservation time. Copying began into retained extents; completion and
+model readiness are still pending. This establishes allocation evidence on
+that candidate, not successful checkpoint contents or model loading.
+
 The user will upload the new diagnostic folder again if the Kaggle log API
 remains empty. Monitor Phase A to a terminal status; do not claim model
 readiness from COMPLETE alone or reuse version-6 failure timings for this build.
+
+### Version 7 Phase A closeout — COMPLETE save, final diagnostics pending
+
+`make status` first reports **COMPLETE at 2026-10-21 18:41:08.815
+Asia/Calcutta** (preceding RUNNING poll 18:40:22.791). A final source/metadata
+pull still matches **a56668207f023cce**, all three datasets, GPU enabled,
+internet disabled and NvidiaRtxPro6000. The interval from notebook start to
+observed completion is **1373.083 seconds**;
+this includes save/platform overhead and is not a measured model-startup time.
+
+The captured allocation/copy-start evidence is positive, but the live CLI
+reports connection losses and the completed log API returns `[]`. There is no
+captured copy-complete, SGLang-launch, `llm_ready`, fallback or final timing
+event for version 7. Keep **model readiness, copy duration and startup duration
+unconfirmed/null** until the user-offered diagnostic upload arrives. Do not
+substitute version 6's timings or call this completed save successful inference.
+No Phase B evaluation or RHAE/cache claim is made. PR #14 remains draft pending
+the runtime evidence, with its description updated to the capacity-backed boot.
+
+Evidence: `research_lab/traces/capacity_staging_runtime_evidence.json` contains
+this run's captured events, allocation result and status polls; the deployment
+receipt binds those bytes and every deployed source/artifact hash. The final
+closeout changes documentation/evidence only; 256-test, lint/type and containment
+verification remain valid for the unchanged deployed runtime.
 
 ## [EDIT] Blocking local checkpoint staging — systems ticket, 2026-10-21
 

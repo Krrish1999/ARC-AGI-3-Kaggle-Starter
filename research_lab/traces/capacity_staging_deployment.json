@@ -1,5 +1,5 @@
 {
-  "status": "prepared",
+  "status": "COMPLETE",
   "phase": "A",
   "prepared_at_utc": "2026-10-21T12:48:02.553249+00:00",
   "branch": "feat/local-model-staging",
@@ -53,5 +53,48 @@
     "notebooks/kernel-metadata.json": "05bf130a005c885153cf248065b7a73fad5d01d1afd8e5212427263c48cdffb7",
     "containment.json": "607b255ed55c763ab53f5c7eee68566142f6166e8d5b956eaef3d2b5b262ebf2"
   },
-  "diagnostic_access": "User will upload diagnostics again if live/completed log API is insufficient; no further hostname approval requested."
+  "diagnostic_access": "User will upload diagnostics again if live/completed log API is insufficient; no further hostname approval requested.",
+  "saved_version": 7,
+  "submitted_source_commit": "5699882",
+  "saved_sources_match": true,
+  "latest_staging_observation": {
+    "bytes_required": 185400295230,
+    "capacity_reservation": true,
+    "disk_free_before": 1145972940800,
+    "headroom_bytes": 17179869184,
+    "mode": "local_copy",
+    "models": {},
+    "root": "/tmp/models/arc3",
+    "status": "copying",
+    "storage_attempts": [
+      {
+        "allocated_bytes": 202580451328,
+        "block_size": 4096,
+        "device": 64,
+        "disk_free_before": 1145972940800,
+        "filesystem": "overlay",
+        "free_inodes": 442956464,
+        "mount": "/",
+        "reservation_seconds": 0.413,
+        "reserved_files": 62,
+        "root": "/tmp/models/arc3",
+        "status": "reserved",
+        "total_inodes": 543162368
+      }
+    ],
+    "transaction": "/tmp/models/arc3/run-5vzlrisp",
+    "workers": 4
+  },
+  "runtime_started_at_utc": "2026-10-21 12:48:15.732Z",
+  "llm_supervisor_started_at_utc": "2026-10-21 12:48:37.462Z",
+  "observed_completed_at_utc": "2026-10-21T13:11:08.815334+00:00",
+  "last_observed_running_at_utc": "2026-10-21T13:10:22.791251+00:00",
+  "completion_source_check": true,
+  "runtime_evidence": "research_lab/traces/capacity_staging_runtime_evidence.json",
+  "runtime_evidence_sha256": "b1c9bd445b567bae9d519853299772b78d47253e2d4928fa7797839a6881a084",
+  "model_readiness": "unconfirmed_pending_uploaded_diagnostics",
+  "notebook_start_to_observed_complete_seconds": 1373.083,
+  "local_copy_duration_seconds": null,
+  "local_copy_completed": null,
+  "server_launch_reached": null
 }
