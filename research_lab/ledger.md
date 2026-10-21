@@ -905,3 +905,103 @@ a unique root cause: kernel identity, mounted inputs and interpreter setup
 changed across experiments. It establishes a working deployment configuration.
 The agent policy is unchanged and still has no LLM reasoning backend, so this
 result does not reproduce the user-confirmed 28-point baseline.
+
+
+## [EDIT] 2026-10-21 — Sprint 2 bounded Pennyroyal daemon and local backend
+
+Branch: `feat/s2-systems-llm-daemon`, based on latest main `8e2aad7`.
+Deployment parent: the verified fallback pipeline (submission 57449526, score
+0.12). Serving reference: user-confirmed 28-point
+`research_lab/top_programs/baseline_28_score.ipynb`, retained unchanged at SHA256
+`3c4815ce430b9fc501c077265da11a6b7847c7f7fcf66b7eeda1c77385972cdf`.
+Read AGENTS.md, this ledger, phd-systems and phd-critic before implementation;
+verified both Python 3.12 interpreters and behavioral containment first.
+
+The builder extracts only path/model identities from baseline Cell 5 and the
+serving implementation from Cell 13. The unrelated taaf source/pickle/patch
+payload is not executed. Every extraction checks the immutable baseline hash,
+expected transformation boundaries and resulting Python syntax. The generated
+notebook contains both the transformed launcher and its stdlib supervisor;
+baseline cell hashes, launcher hash and supported configuration changes are
+recorded in notebook metadata and offline_inventory.json.
+
+Verified Kaggle dataset metadata and file listing identify
+`dfranzen/pennyroyal-v253` (observed dataset version 1, ID 12273106), Pennyroyal
+v2.5.3, fork revision `d00d88efc8d6281b12be4f4073126aec95038c55`, and wheel
+`sglang-0.5.19+gd00d88efc8d6-cp312-cp312-linux_x86_64.whl`. The public builder
+at `da-fr/arc-agi-3-solution` revision
+`10882e332d883af3e61616df8c8a17d03a328a75` corroborates that identity and its
+five custom patches. Metadata now mounts that real dataset plus version-1
+Intel Qwen3.8 AutoRound target and Albucino INT4 group32 MTP draft. Dataset
+license metadata is unknown; bundled dependencies retain their own licenses.
+The dataset slug mounts its latest version, so the observed version is not
+claimed as a content pin. Runtime checks record wheel/lock hashes, validate
+formats and indexed shards, and retain baseline tokenizer/token-map digests.
+Independent upstream weight-shard hashes are unavailable; this limitation is
+explicit in the asset report.
+
+`ENABLE_OFFLINE_BACKEND=1` (default) installs into an isolated venv with
+--no-index/--find-links/--only-binary, then launches loopback flashnext:8001.
+All install/load/readiness work shares one monotonic 180-second deadline;
+/v1/models must advertise flashnext before gameplay starts. Startup failure
+logs the cause, stops/reaps the owned process group and selects exploration.
+This follows the user's explicit fallback requirement, superseding the older
+packet's fail-hard startup language. Port conflicts never adopt or kill foreign
+services. Normal completion, gateway failure and startup interruption clean up
+owned children. `ENABLE_OFFLINE_BACKEND=0` is the logged exploration control;
+`ENABLE_SPECULATIVE_DRAFT=0` serves the same target without NEXTN/FR-Spec.
+Kaggle alone still controls KAGGLE_IS_COMPETITION_RERUN and gateway:8001.
+
+The adapter sends full immutable message histories to the existing WorldModel
+interface. Model replies still require the unchanged replay, worker, legal-action
+and expect gates. Requests use level-weighted budgets, up to 4096 generation
+tokens and a maximum 30-second socket timeout. Conservative serving settings:
+64K context, 0.88 static memory fraction, four concurrent requests/graph slots,
+16 Mamba cache slots; default Radix caching, LPM scheduling and cache reporting.
+These are candidate settings, not GPU-measured optimizations.
+
+Prefix tests compare eight successive actual adapter request bodies and enforce
+100% unchanged prior messages within each context. Fact/playbook edits do not
+modify an active system prompt; explicit resets create new context identities.
+Fixed a discovered token-ceiling bug: distillation previously could discard the
+latest state request immediately before inference. It now resets before
+appending that request. KV-cache hit rate >95% remains a target; only reported
+cached-token counts produce a measured rate, otherwise N/A. Request logs record
+latency, token counts, derived completion throughput and visible errors.
+
+Validation: 166 tests passed (34 new S2 cases); required ruff and pyright passed
+with zero type errors/warnings; behavioral containment_passed=true, 20/20 checks.
+Generated notebook rebuilt and source/hash round-trip checks passed. Synthetic
+valid replies reach the existing queue and mismatched predictions flush it;
+invalid/missing predictions remain rejected. Real failed-launcher cleanup and
+accelerated 180-second timeout fixtures pass. No game implementation was read.
+
+Critic decision: Gate 1 PASS; Gates 2–3 and actual GPU acceptance remain HOLD /
+NOT MEASURED. This workspace has no GPU utility, mounted wheelhouse or model
+weights; redirected dataset downloads are blocked by its network proxy. No
+real model load, first GPU response, peak VRAM, nine-hour rehearsal, multi-seed
+RHAE lift or measured cache rate is claimed. The retained notebook's cold-load
+log took roughly 619 seconds, exceeding the user's requested 180-second cap;
+valid assets may therefore fall back to exploration until warm-start timing is
+measured on Kaggle. No new competition slot was used and no candidate was
+promoted to top_programs. This PR delivers the implementation for review;
+hardware/performance acceptance remains pending.
+
+
+### [EDIT] 2026-10-21 — Extend model readiness to 15 minutes
+
+Per user direction, supersede the initial 180-second startup allowance with
+900 seconds. `scripts/build_notebook.py` now explicitly configures that value
+in the generated startup cell. The supervisor default/maximum, runtime entry
+point, bundle manifest and current asset inventory agree on 900 seconds.
+Installation, target/draft loading and /v1/models readiness still share one
+monotonic deadline before gameplay, capped by the remaining global run budget.
+Timeout diagnostics report the actual allowed duration; failure still records
+exploration and cleans up owned processes.
+
+Updated the existing readiness fixture to accept a server becoming ready at
+619 seconds; the timeout fixture now exhausts exactly 900 simulated seconds.
+Regenerated the notebook and validation hashes. All 166 tests pass, required
+ruff and pyright pass, and behavioral containment passes all 20 checks.
+The reference cold load now fits within the configured allowance; actual GPU
+loading/cache performance remains unmeasured. No competition slot was used.

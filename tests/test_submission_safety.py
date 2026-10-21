@@ -480,6 +480,7 @@ def test_exact_generated_notebook_executes_and_records_correct_outcome(tmp_path,
                 monkeypatch.setattr(run, 'install_dependencies', lambda: run.event('fixture_install'))
                 monkeypatch.setattr(run, 'prepare_framework', prepare)
                 monkeypatch.setattr(run, 'preflight_framework', save_preflight)
+                monkeypatch.setattr(run, 'start_llm', lambda runner=run, **kwargs: runner.event('fixture_llm_startup'))
         assert status(run)['status'] == ('NOT_EVALUATED' if mode == 'ordinary' else
                                          'FAILED' if mode.endswith('failure') else 'COMPLETE')
         assert run.submission.exists() is (mode in ('ordinary', 'rerun'))

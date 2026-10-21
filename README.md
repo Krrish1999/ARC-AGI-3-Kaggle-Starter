@@ -11,6 +11,37 @@ a single command.
 No Docker. No `submission.json` to hand-write. No copy-pasting between your
 editor and a notebook.
 
+## Sprint 2 local inference
+
+The generated notebook now starts the retained 28-point notebook's Pennyroyal
+v2.5.3 / SGLang 0.5.19 launcher, serving Qwen 3.8 AutoRound as `flashnext` on
+`127.0.0.1:8001`. Kernel metadata attaches `dfranzen/pennyroyal-v253` and the
+version-1 Intel AutoRound target and Albucino MTP draft models. It installs from
+the attached wheelhouse into an isolated venv, leaving the framework interpreter
+unchanged. The retained reference notebook is unchanged.
+
+Installation, model loading and `/v1/models` readiness share a **900-second (15-minute)**
+deadline before the gameplay runner starts. Failure stops the owned process
+group and records exploration fallback. `ENABLE_OFFLINE_BACKEND=0` selects that
+control explicitly; `ENABLE_SPECULATIVE_DRAFT=0` serves the same target without
+the draft. Both default to `1`. The model endpoint is separate from
+`gateway:8001`; Kaggle alone controls `KAGGLE_IS_COMPETITION_RERUN`.
+
+Complete prompt histories pass through PrefixLock unchanged between playbook
+resets. Structured model proposals still pass replay, sandbox and forward
+prediction gates. Inference requests use the existing level budgets and a
+30-second maximum socket timeout. Diagnostics include `llm_status.json`,
+`llm_assets.json`, `llm_launcher.log`, `llm_requests.jsonl`, and `serve.log`.
+Cache-hit rates are recorded only when the server supplies cached-token counts.
+The >95% rate is a performance target, not a measured result here.
+
+Local regression checks cover startup and adapter failures. Actual GPU loading,
+VRAM, throughput and cache reuse await an offline Kaggle rehearsal with these
+mounts. The 900-second allowance accommodates the reference's roughly
+619-second cold load; slower or failed startup still selects exploration.
+Asset provenance and validation limits are recorded in
+`research_lab/offline_inventory.json`.
+
 ---
 
 ## What you need before you start

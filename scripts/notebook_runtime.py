@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib.metadata
+import importlib.util
 import json
 import logging
 import os
@@ -44,6 +45,7 @@ class NotebookRunner:
         self.rerun = False
         self.verbose = os.getenv('ENABLE_NOTEBOOK_DIAGNOSTICS', '1') == '1'
         self.initial_submission: tuple[int, int, int] | None = None
+        self.llm = None
         self.state: dict = {}
         self.logger = logging.getLogger(f'arc3.notebook.{id(self)}')
         self.logger.setLevel(logging.INFO)
@@ -225,7 +227,7 @@ class NotebookRunner:
                 f'RECORDINGS_DIR={self.working / "server_recording"}\n')
             self.event('agent_registered', agent='myagent', action_log=os.environ['ARC3_LOG_DIR'],
                        operation_mode='competition',
-                       backend='existing agent configuration; no model server launched by this notebook')
+                       backend='local flashnext' if os.getenv('ARC3_LLM_READY') == '1' else 'exploration')
 
     def preflight_framework(self) -> None:
         """Validate Kaggle's actual interpreter, containment and framework imports."""
@@ -234,6 +236,7 @@ class NotebookRunner:
             self.command('framework_imports', [sys.executable, '-c',
                          dedent('''\
                          import os
+                         os.environ['ENABLE_OFFLINE_BACKEND'] = '0'
                          from pathlib import Path
                          import numpy as np
                          from agents import AVAILABLE_AGENTS
@@ -263,6 +266,24 @@ class NotebookRunner:
                          ''')],
                          timeout=120, cwd=self.framework)
         self.event('save_preflight_passed', gateway_contacted=False, gameplay_actions=0)
+
+    def start_llm(self, *, startup_seconds: float = 900.0) -> None:
+        with self.stage('llm_startup'):
+            spec = importlib.util.spec_from_file_location('arc3_llm_daemon', '/tmp/arc3_llm_daemon.py')
+            if spec is None or spec.loader is None:
+                raise RuntimeError('Bundled LLM supervisor is unavailable')
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            remaining = self.target_seconds - self.elapsed()
+            if remaining <= 0:
+                raise TimeoutError('Run budget exhausted before LLM startup')
+            self.llm = module.LLMDaemon(Path('/tmp/arc3_llm_launcher.py'), self.working,
+                                        self.event, startup_seconds=min(startup_seconds, remaining))
+            self.llm.start()
+
+    def stop_llm(self) -> None:
+        if self.llm is not None:
+            self.llm.stop()
 
     def monitor(self, process: subprocess.Popen, output) -> None:
         last_heartbeat = -60.0
@@ -356,6 +377,12 @@ class NotebookRunner:
         self.status('COMPLETE', stage='submission_validation', submission_exists=True)
 
     def run(self) -> None:
+        try:
+            self._run()
+        finally:
+            self.stop_llm()
+
+    def _run(self) -> None:
         if not self.rerun:
             if os.getenv('ENABLE_SUBMISSION_BOOTSTRAP', '1') == '1':
                 # Create no scores or gameplay records. Kaggle requires a saved

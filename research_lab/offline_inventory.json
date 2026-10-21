@@ -1,21 +1,23 @@
 {
-  "status": "missing_offline_llm_prerequisites",
+  "status": "bundle_implemented_gpu_acceptance_pending",
   "assets": {
-    "ORIG_BUNDLE_DIR": {
-      "candidates": [
-        "/kaggle/input/taaf-kaggle-source-bundle-copy",
-        "/kaggle/input/datasets/dfranzen/taaf-kaggle-source-bundle-copy",
-        "/kaggle/input/dfranzen/taaf-kaggle-source-bundle-copy"
-      ],
-      "present_candidates": []
-    },
     "WHEELHOUSE_DIR": {
       "candidates": [
         "/kaggle/input/pennyroyal-v253",
         "/kaggle/input/datasets/dfranzen/pennyroyal-v253",
         "/kaggle/input/dfranzen/pennyroyal-v253"
       ],
-      "present_candidates": []
+      "present_candidates": [],
+      "source": "dfranzen/pennyroyal-v253",
+      "dataset_version_observed": 1,
+      "dataset_id": 12273106,
+      "license": "Kaggle dataset metadata: unknown; bundled packages retain their own licenses",
+      "required": [
+        "requirements.lock",
+        "wheels/sglang-0.5.19+gd00d88efc8d6-cp312-cp312-linux_x86_64.whl",
+        "wheels/uv-*.whl",
+        "hot_tokens_64k.pt"
+      ]
     },
     "MODEL_DIR": {
       "candidates": [
@@ -24,7 +26,17 @@
         "/kaggle/input/intel-qwen3.8-flash-next-w4a16-autoround",
         "/kaggle/input/models/dfranzen/intel-qwen3.8-flash-next-w4a16-autoround"
       ],
-      "present_candidates": []
+      "present_candidates": [],
+      "source": "dfranzen/intel-qwen3.8-flash-next-w4a16-autoround/Transformers/default/1",
+      "required": [
+        "config.json",
+        "model.safetensors.index.json",
+        "indexed shards",
+        "tokenizer.json",
+        "tokenizer_config.json"
+      ],
+      "quantization": "auto-round INT4",
+      "license": "Use model-card/upstream license on the versioned Kaggle model"
     },
     "DRAFT_MODEL_DIR": {
       "candidates": [
@@ -33,12 +45,55 @@
         "/kaggle/input/albucino-qwen3-8-flash-next-drafter",
         "/kaggle/input/models/dfranzen/albucino-qwen3-8-flash-next-drafter"
       ],
-      "present_candidates": []
+      "present_candidates": [],
+      "source": "dfranzen/albucino-qwen3-8-flash-next-drafter/Transformers/default/1",
+      "required": [
+        "config.json (mtp-int4-g32)",
+        "model.safetensors.index.json",
+        "indexed shards"
+      ],
+      "quantization": "compressed-tensors symmetric INT4 group32 MTP",
+      "license": "Use model-card/upstream license on the versioned Kaggle model"
     }
   },
-  "inference_api": "archived Pennyroyal/SGLang OpenAI-compatible flashnext localhost:8001; not installed or benchmarked here",
-  "package_hash_verification": "wheelhouse absent; no package hashes verified",
-  "source_verification": "49 archived final-source SHA256 values preserved in agent/baseline/manifest.json; base bundle absent, not verified",
-  "model_flags": "No server launched or new flags selected without installed supported backend",
-  "deployment": "random-agent path plus containment/runtime handoff built; full LLM port remains S1-P/S1-W integration"
+  "launcher": {
+    "baseline_notebook_sha256": "3c4815ce430b9fc501c077265da11a6b7847c7f7fcf66b7eeda1c77385972cdf",
+    "baseline_cells": {
+      "5": "19339a509a32df2e2914e5c4d8c493937a20f53d784daad9fe80884d0ace62a1",
+      "13": "0261d61f296b6f85f5c99e9299eb0bb7134e5ee39dd86d33765efb596da3d22e"
+    },
+    "launcher_sha256": "99d15db42a2165cbb9abb5f3c136b7c13e7bbb4703f2fd2d4155ae69cd7d7550",
+    "wheelhouse": "dfranzen/pennyroyal-v253",
+    "dataset_version_observed": 1,
+    "pennyroyal_release": "v2.5.3",
+    "upstream_commit": "d00d88efc8d6281b12be4f4073126aec95038c55",
+    "sglang_wheel": "sglang-0.5.19+gd00d88efc8d6-cp312-cp312-linux_x86_64.whl",
+    "served_model": "flashnext",
+    "startup_seconds": 900,
+    "radix_cache": "enabled by server default; schedule-policy=lpm; cache reporting enabled",
+    "configuration_edits": {
+      "PREFIX = \"/tmp/sgl-intel\"": "PREFIX = os.environ[\"ARC3_LLM_PREFIX\"]",
+      "CTX=(116+12+8)*1024": "CTX=65536",
+      "MEMFRAC=0.96": "MEMFRAC=0.88",
+      "MAXREQ=10": "MAXREQ=4",
+      "CUDAGRAPH_MAXBS=10": "CUDAGRAPH_MAXBS=4",
+      "MAMBA_CACHE=60": "MAMBA_CACHE=16",
+      "    SPEC=True,": "    SPEC=os.getenv(\"ENABLE_SPECULATIVE_DRAFT\", \"1\") == \"1\",",
+      "\"--no-index\", \"--find-links\", str(WHEELS)": "\"--no-index\", \"--only-binary\", \":all:\", \"--find-links\", str(WHEELS)"
+    }
+  },
+  "source_provenance": "Immutable retained baseline Cells 5 and 13; adapted launcher only. No taaf source-bundle or pickle payload is executed.",
+  "upstream_reference": "https://github.com/jpezzulli/sglang-rtxpro6000/tree/d00d88efc8d6281b12be4f4073126aec95038c55",
+  "version_evidence": "Kaggle API dataset metadata/file listing and baseline launcher checked 2026-10-21 UTC. Dataset slug mounts latest; version 1 was observed, not content-pinned by the CLI metadata.",
+  "inference_api": "OpenAI-compatible flashnext at http://127.0.0.1:8001/v1; distinct from gateway:8001",
+  "package_verification": "Before installation, validate wheel containers and record SHA256 of every wheel/lock. Exact SGLang release filename is required; these observed hashes are not independently authenticated signatures.",
+  "model_verification": "Validate AutoRound/draft metadata, all indexed shard existence/sizes, config/index hashes; draft token map/tokenizer have retained baseline SHA256 assertions. No upstream full weight-shard digests supplied.",
+  "startup": "Single monotonic 900-second (15-minute) install/load/readiness deadline. Require /v1/models to advertise flashnext; failed startup is logged exploration with process-group cleanup.",
+  "ablations": {
+    "ENABLE_OFFLINE_BACKEND": "1 (default): startup/connect; 0: explicit exploration",
+    "ENABLE_SPECULATIVE_DRAFT": "1 (default): NEXTN/FR-Spec; 0: same target without draft"
+  },
+  "measured_cache_hit_rate": null,
+  "gpu_acceptance": "BLOCKED locally: no nvidia-smi, wheelhouse or weight mounts in this workspace; redirected dataset downloads blocked by environment proxy. No real offline load, tokens/sec, peak VRAM, cache-hit rate or score lift measured.",
+  "bundle_builder_reference": "https://github.com/da-fr/arc-agi-3-solution/tree/10882e332d883af3e61616df8c8a17d03a328a75/serving"
 }

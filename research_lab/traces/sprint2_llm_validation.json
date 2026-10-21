@@ -1,0 +1,82 @@
+{
+  "recorded_utc": "2026-10-21T06:57:32.829943+00:00",
+  "mutation": "[EDIT]",
+  "branch": "feat/s2-systems-llm-daemon",
+  "parent": "8e2aad7a5d23ca7730b5d1d95d077226cb433644",
+  "notebook_build_id": "30ebefed736a39ef",
+  "notebook_sha256": "4b22efe9f68f6a1a7c24802fc26ca9a2c51fd07b65e25eef0b00eedc740a4efb",
+  "source_sha256": {
+    "agent/my_agent.py": "b7aa2c4e60bf4e95eae37dda6e9a5d9a928ea690f3fdca620c252f1690dbab35",
+    "agent/local_backend.py": "4c006f6b56dfae61ff019724ab90fc07150462f46a43d874bc1d2e3aec5ad1b9",
+    "scripts/build_notebook.py": "bf6687d8adf4b12fc1d6c3ba5768666093744c7cb0302791964434c5ece47fd8",
+    "scripts/extract_llm_launcher.py": "e96efbf1bd032dc3d20a6b9d34cfc6a1b93bd9ffca151ff41062b4c35fe9147a",
+    "scripts/llm_assets.py": "66b818a99b57851bbc145f2d72c2da9534407264f716acc8bf9f144dfd6cf85c",
+    "scripts/llm_daemon.py": "59ac4dec610a9cfd92d9191863b095e05622c3a4dafc45124ebbbbd1eb04a4d0",
+    "scripts/notebook_runtime.py": "c4fe30106b91ac356fe5486f5a70bb01b5465b8efaee5f3e14428d80c10d66b9",
+    "notebooks/kernel-metadata.json": "8bdb7524ae3f77e3f4ab1c8b07a888a557647cc841525a500eb9bbce7b694a99",
+    "tests/test_llm_s2.py": "03dd8151cd198fbac677563c71c36b2af133a930c576592f154b34060273e11f",
+    "tests/test_submission_safety.py": "7bd13f41a04231fb2a09a0af27055597621e74bd1180ffd0ed6ea05849d95c96"
+  },
+  "launcher": {
+    "baseline_notebook_sha256": "3c4815ce430b9fc501c077265da11a6b7847c7f7fcf66b7eeda1c77385972cdf",
+    "baseline_cells": {
+      "5": "19339a509a32df2e2914e5c4d8c493937a20f53d784daad9fe80884d0ace62a1",
+      "13": "0261d61f296b6f85f5c99e9299eb0bb7134e5ee39dd86d33765efb596da3d22e"
+    },
+    "launcher_sha256": "99d15db42a2165cbb9abb5f3c136b7c13e7bbb4703f2fd2d4155ae69cd7d7550",
+    "wheelhouse": "dfranzen/pennyroyal-v253",
+    "dataset_version_observed": 1,
+    "pennyroyal_release": "v2.5.3",
+    "upstream_commit": "d00d88efc8d6281b12be4f4073126aec95038c55",
+    "sglang_wheel": "sglang-0.5.19+gd00d88efc8d6-cp312-cp312-linux_x86_64.whl",
+    "served_model": "flashnext",
+    "startup_seconds": 900,
+    "radix_cache": "enabled by server default; schedule-policy=lpm; cache reporting enabled",
+    "configuration_edits": {
+      "PREFIX = \"/tmp/sgl-intel\"": "PREFIX = os.environ[\"ARC3_LLM_PREFIX\"]",
+      "CTX=(116+12+8)*1024": "CTX=65536",
+      "MEMFRAC=0.96": "MEMFRAC=0.88",
+      "MAXREQ=10": "MAXREQ=4",
+      "CUDAGRAPH_MAXBS=10": "CUDAGRAPH_MAXBS=4",
+      "MAMBA_CACHE=60": "MAMBA_CACHE=16",
+      "    SPEC=True,": "    SPEC=os.getenv(\"ENABLE_SPECULATIVE_DRAFT\", \"1\") == \"1\",",
+      "\"--no-index\", \"--find-links\", str(WHEELS)": "\"--no-index\", \"--only-binary\", \":all:\", \"--find-links\", str(WHEELS)"
+    }
+  },
+  "checks": {
+    "ruff": "PASS: agent/ scripts/ tests/test_llm_s2.py",
+    "pyright": "PASS: agent/; 0 errors, 0 warnings",
+    "pytest": {
+      "passed": 166,
+      "s2_cases": 34,
+      "failed": 0
+    },
+    "containment": {
+      "passed": true,
+      "checks_passed": 20,
+      "report_sha256": "5f05637e86e8b4d44dd9905e6f6538b18a5aa7fc7b43b10b4bd48d015ebf75b9"
+    },
+    "generated_notebook_roundtrip": true,
+    "immutable_request_prefix": "PASS: eight successive request bodies unchanged within context; resets change context; latest state survives ceiling reset",
+    "real_failed_launcher_cleanup": "PASS: child exit captured and reaped, fallback logged",
+    "startup_readiness": "PASS: ready at 619 simulated seconds; timeout at 900; generated cell waits before gameplay"
+  },
+  "runtime_acceptance": {
+    "status": "BLOCKED_LOCALLY",
+    "reason": "No GPU utility, mounted wheelhouse or target/draft weights; redirected dataset downloads blocked by environment proxy.",
+    "inference": "Synthetic API responses only; actual GPU response not measured.",
+    "measured_cache_hit_rate": null,
+    "measured_tokens_per_second": null,
+    "peak_vram_bytes": null,
+    "reference_cold_load_seconds": 619,
+    "configured_startup_deadline_seconds": 900,
+    "cold_load_risk": "Reference 619-second cold load fits within the 900-second allowance; actual GPU readiness and install/load timing remain unmeasured."
+  },
+  "critic": {
+    "gate_1": "PASS",
+    "gate_2": "NOT_MEASURED",
+    "gate_3": "HOLD",
+    "score_promotion": false,
+    "new_competition_submission": false
+  }
+}

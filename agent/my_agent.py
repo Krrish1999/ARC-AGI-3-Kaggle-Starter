@@ -33,12 +33,14 @@ try:
     from .arclog import FrameView, PerceptionLog, Transition, enabled, freeze_grid
     from .baseline.bounded_search import bounded_bfs
     from .baseline.replay_compare import _rc_differences
+    from .local_backend import PROTOCOL, LocalBackend
     from .runtime import TARGET_SECONDS, LevelBudget, PrefixLock, run_expired
     from .sandbox import run_sandbox
 except ImportError:
     from agent.arclog import FrameView, PerceptionLog, Transition, enabled, freeze_grid
     from agent.baseline.bounded_search import bounded_bfs
     from agent.baseline.replay_compare import _rc_differences
+    from agent.local_backend import PROTOCOL, LocalBackend
     from agent.runtime import TARGET_SECONDS, LevelBudget, PrefixLock, run_expired
     from agent.sandbox import run_sandbox
 
@@ -100,7 +102,8 @@ class Playbook:
         self.context += 1
         self.messages = [{'role': 'system', 'content':
                           'Use observed evidence only. Mechanics require complete replay; '
-                          'emit concrete [ACTIONS] with non-HUD expect cells and expect_level_up.\n' + snapshot}]
+                          'emit concrete [ACTIONS] with non-HUD expect cells and expect_level_up.\n'
+                          + PROTOCOL + '\nPlaybook snapshot:\n' + snapshot}]
         self.messages.extend(_copy(retained or []))
         self.request()
 
@@ -112,11 +115,14 @@ class Playbook:
         self.facts[key] = _copy(fact)
 
     def append(self, role: str, content: Any) -> None:
-        self.messages.append({'role': role, 'content': json.dumps(content, sort_keys=True)})
-        self.request()
+        entry = {'role': role, 'content': json.dumps(content, sort_keys=True)}
         # Conservative UTF-8 byte bound: no tokenizer/model assets are assumed.
-        if len(json.dumps(self.messages).encode()) >= self.token_ceiling:
+        # Reset before appending so a ceiling crossed by the latest state
+        # request cannot discard that request immediately before inference.
+        if len(json.dumps([*self.messages, entry]).encode()) >= self.token_ceiling:
             self.distill('token_ceiling')
+        self.messages.append(entry)
+        self.request()
 
     def distill(self, reason: str) -> None:
         if not enabled('ENABLE_PLAYBOOK_RESET'):
@@ -561,6 +567,22 @@ class MyAgent(Agent):
         assert self.perception.log_path is not None
         self.world = WorldModel(self.perception, self.execute_planner,
                                 self.perception.log_path.parent, self.prefix_lock)
+        if enabled('ENABLE_OFFLINE_BACKEND') and os.getenv('ARC3_LLM_READY') == '1':
+            self.world.backend = LocalBackend(self.perception.log_path.parent, self._inference_limits,
+                                             lambda: str(self.world.memory.context))
+            self.world.event('backend_connected', model='flashnext', endpoint='loopback:8001')
+        else:
+            self.world.event('backend_unavailable', reason=os.getenv('ARC3_LLM_FAILURE', 'not_ready_or_disabled'),
+                             mode='exploration')
+
+    def _inference_limits(self) -> tuple[int, float]:
+        remaining = (float(os.getenv('ARC3_RUN_STARTED', str(time.time())))
+                     + TARGET_SECONDS - time.time())
+        tokens = 4096
+        if self.level_budget is not None:
+            remaining = min(remaining, self.level_budget.remaining())
+            tokens = self.level_budget.generation_tokens(tokens)
+        return tokens, max(0.0, min(30.0, remaining))
 
     def execute_planner(self, source: str) -> dict[str, Any]:
         root = Path(__file__).resolve().parents[1]
