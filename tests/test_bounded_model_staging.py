@@ -217,7 +217,8 @@ def test_growing_source_cannot_exceed_manifest_disk_bound(tmp_path):
     assert (destination / 'shard').stat().st_size == 8
 
 
-def test_exact_generated_handoff_and_native_loader_consume_local_cache(setup, tmp_path, monkeypatch):
+@pytest.mark.parametrize('packaged_lookahead', [False, True])
+def test_exact_generated_handoff_and_native_loader_consume_local_cache(setup, tmp_path, monkeypatch, packaged_lookahead):
     monkeypatch.setenv('ENABLE_BOUNDED_MODEL_STAGING', '1')
     monkeypatch.setenv('ENABLE_LOCAL_MODEL_STAGING', '1')
     source, manifest = extract_launcher(local_model_root=str(tmp_path / 'working' / '.arc3-models'),
@@ -254,6 +255,9 @@ def test_exact_generated_handoff_and_native_loader_consume_local_cache(setup, tm
     # loader/iterator boundary. Only heavyweight CUDA dependencies are omitted.
     fixture = json.loads((Path(__file__).parent / 'fixtures' / 'pennyroyal_loader_contract.json').read_text())
     contract = 'from __future__ import annotations\nclass DefaultModelLoader:\n' + '\n'.join(fixture['methods'].values())
+    if packaged_lookahead:
+        contract = contract.replace('weights_iterator = safetensors_weights_iterator(\n                    hf_weights_files,\n',
+            'weights_iterator = safetensors_weights_iterator(\n                    hf_weights_files,\n                    prefetch_lookahead=4,\n')
     patched = bounded.patch_bounded_loader(contract, expected_sha256=hashlib.sha256(contract.encode()).hexdigest())
     monkeypatch.setitem(sys.modules, 'arc3_bounded_loader', bounded)
     formats = SimpleNamespace(SAFETENSORS='safetensors', NPCACHE='npcache', FASTSAFETENSORS='fast')
@@ -286,6 +290,15 @@ def test_exact_generated_handoff_and_native_loader_consume_local_cache(setup, tm
 def test_loader_hash_change_rejected_before_patch(tmp_path):
     with pytest.raises(ValueError, match='hash differs'):
         bounded.patch_bounded_loader('class DefaultModelLoader: pass\n')
+
+
+def test_native_unreviewed_iterator_keyword_still_rejected():
+    fixture = json.loads((Path(__file__).parent / 'fixtures' / 'pennyroyal_loader_contract.json').read_text())
+    source = 'from __future__ import annotations\nclass DefaultModelLoader:\n' + '\n'.join(fixture['methods'].values())
+    source = source.replace('weights_iterator = safetensors_weights_iterator(\n                    hf_weights_files,\n',
+        'weights_iterator = safetensors_weights_iterator(\n                    hf_weights_files,\n                    unknown_policy=True,\n')
+    with pytest.raises(ValueError, match='unreviewed'):
+        bounded.patch_bounded_loader(source, expected_sha256=hashlib.sha256(source.encode()).hexdigest())
 
 
 def test_generated_support_modules_and_installed_adapter_are_self_contained(tmp_path, monkeypatch):

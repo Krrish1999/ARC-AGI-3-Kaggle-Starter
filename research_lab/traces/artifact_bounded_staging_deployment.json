@@ -13,7 +13,7 @@
   "observed_cache_bound_bytes": 10741854576,
   "phase_b_submitted": false,
   "hidden_score": null,
-  "status": "PREPARED",
+  "status": "COMPLETE",
   "prepared_at_utc": "2026-10-22T15:05:29.476368+00:00",
   "engineering_parent": "0a6316c",
   "build_id": "75c1403830052f18",
@@ -39,9 +39,9 @@
     "source_build_sync": true,
     "agent_sources_unchanged": true
   },
-  "model_ready": null,
+  "model_ready": false,
   "time_to_model_ready_seconds": null,
-  "startup_attempt_duration_seconds": null,
+  "startup_attempt_duration_seconds": 170.084,
   "sha256": {
     "agent/my_agent.py": "5e6a76bc2376407c045fed7f4a7eed0e254e658009955b0c304c89b281826bc9",
     "agent/arclog.py": "0c119b81ad71aa39e84069dbbbabba7562aa462c94f5f19e5a2177a957c0375e",
@@ -55,5 +55,13 @@
     "notebooks/submission.ipynb": "964a811371ec00f9f82f084b9c8d7154063730554b3b99107a78c96db52731db",
     "notebooks/kernel-metadata.json": "05bf130a005c885153cf248065b7a73fad5d01d1afd8e5212427263c48cdffb7",
     "tests/fixtures/pennyroyal_loader_contract.json": "6fffcc91add7f419e375a8655c01b22708002a70d736d5fb4d7f5ffc6f37c8c2"
-  }
+  },
+  "saved_version": 10,
+  "source_commit": "2757785e30652ad592532b5fde7e0bb919666b1e",
+  "source_pull_matches": true,
+  "last_status_check_at_utc": "2026-10-22T15:07:13.054809+00:00",
+  "server_launch_reached": true,
+  "observed_completed_at_utc": "2026-10-22T15:10:15.116555+00:00",
+  "runtime_evidence": "research_lab/traces/artifact_bounded_staging_runtime_evidence.json",
+  "runtime_evidence_sha256": "fde3f032d8fda28dfcc7c457853bfcf4e962e0be2856fb497dbb684d87ffe0a7"
 }

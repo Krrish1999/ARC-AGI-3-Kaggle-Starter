@@ -163,13 +163,26 @@ def patch_bounded_loader(source: str, *, expected_sha256: str = PINNED_LOADER_SH
         return model_name_or_path, managed_weights(model_name_or_path), True
 
 '''+anchor
-    iterator = 'weights_iterator = safetensors_weights_iterator('
-    changes = {'_prepare_weights': [(anchor, replacement)], '_get_weights_iterator': [(iterator,
-        'weights_iterator = __import__("arc3_bounded_loader").weights_iterator('),
-        ('use_multithread = extra_config.get("enable_multithread_load", True)',
-         'use_multithread = False  # The bounded pipeline owns target and draft I/O.') ]}
     loader = next(node for node in ast.parse(source).body
                   if isinstance(node, ast.ClassDef) and node.name == 'DefaultModelLoader')
+    method = next(node for node in loader.body
+                  if isinstance(node, ast.FunctionDef) and node.name == '_get_weights_iterator')
+    calls = [node for node in ast.walk(method) if isinstance(node, ast.Call)
+             and isinstance(node.func, ast.Name) and node.func.id == 'safetensors_weights_iterator']
+    if (len(calls) != 1 or len(calls[0].args) != 1
+            or not isinstance(calls[0].args[0], ast.Name) or calls[0].args[0].id != 'hf_weights_files'
+            or any(keyword.arg not in {'disable_mmap', 'prefetch', 'prefetch_num_threads',
+                       'prefetch_lookahead', 'drop_cache_after_load'} for keyword in calls[0].keywords)):
+        raise ValueError('unreviewed Pennyroyal safetensors iterator call')
+    native_call = ast.get_source_segment(source, calls[0])
+    assert native_call is not None
+    # Own the complete copy/mmap/prefetch policy instead of forwarding native
+    # optional knobs (the packaged wheel adds prefetch_lookahead). Unknown
+    # arguments still fail above; no catch-all keyword acceptance is used.
+    changes = {'_prepare_weights': [(anchor, replacement)], '_get_weights_iterator': [(native_call,
+        '__import__("arc3_bounded_loader").weights_iterator(hf_weights_files)'),
+        ('use_multithread = extra_config.get("enable_multithread_load", True)',
+         'use_multithread = False  # The bounded pipeline owns target and draft I/O.')]}
     lines = source.splitlines(keepends=True)
     found = set()
     for node in reversed(loader.body):

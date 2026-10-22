@@ -98,6 +98,37 @@ the exact installed method contract is saved as `diagnostics/loader_contract.jso
 No checkpoint, agent policy, serving setting or deadline changes. Separate
 receipt: `research_lab/traces/artifact_bounded_staging_deployment.json`.
 
+### Version 10 — artifact binding passes; iterator keyword mismatch
+
+Version 10 / **75c1403830052f18**, source `2757785`, matches the pulled
+notebook and dataset membership. The approved archive digest matches;
+installed loader SHA256 is **d12e619c9a334f1af61d79d1958c59554e0931986da4942b1f570562d0752bb1**,
+distinct from the upstream reference. The metadata transaction, installation,
+CUDA and SGLang process launch succeed. SGLang reaches model initialization,
+then its packaged iterator supplies **prefetch_lookahead**, absent from the
+upstream fixture signature. The adapter raises TypeError before any weight
+copy. Startup fails after **170.084 seconds**, zero loaded/copied shards;
+readiness remains false. COMPLETE save observed **2026-10-22 20:40:15.117
+Asia/Calcutta**. Owned working metadata is cleaned. Full live evidence is in
+`research_lab/traces/artifact_bounded_staging_runtime_evidence.json`.
+
+**[EDIT] iterator-call repair.** AST-validate the single native safetensors
+call, its weight-list argument and the reviewed optional argument names,
+including packaged `prefetch_lookahead`. Replace the entire call with the
+bounded iterator's weight list only: this adapter owns copy/mmap/prefetch
+settings instead of inheriting upstream optional knobs. Unknown arguments
+still reject before patching. Test actual tensor loading for both reference
+and lookahead-call variants and rejection of an unreviewed keyword. The wheel
+digest/installed-member checks and all bounds remain unchanged. The initial
+test-only synthetic call syntax was corrected before final verification.
+
+**Iterator repair verification.** **286/286 pytest cases**, required ruff and
+pyright pass; containment **20/20**. The rebuilt notebook is
+**79f942481dc996e6** and matches source. The two added cases exercise the
+packaged lookahead argument and reject an unknown argument; no permissive
+`**kwargs` fallback is introduced. Receipt:
+`research_lab/traces/iterator_bounded_staging_deployment.json`.
+
 ## [EDIT] Working-volume staging and cleanup-error isolation — 2026-10-21
 
 Requested skill: `phd-systems`; continue PR #14 / `feat/local-model-staging`.
