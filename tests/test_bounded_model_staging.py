@@ -15,6 +15,7 @@ import json
 import os
 import sys
 import threading
+import zipfile
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -293,17 +294,18 @@ def test_generated_support_modules_and_installed_adapter_are_self_contained(tmp_
     staging = (root / 'scripts/model_staging.py').read_text()
     fixture = json.loads((Path(__file__).parent / 'fixtures' / 'pennyroyal_loader_contract.json').read_text())
     contract = 'from __future__ import annotations\nclass DefaultModelLoader:\n' + '\n'.join(fixture['methods'].values())
-    # The production hash check has its own rejection test; exercise the exact
-    # installer with the reviewed method fixture in place of a 173 KB wheel file.
-    patch = bounded.patch_bounded_loader
-    monkeypatch.setattr(bounded, 'patch_bounded_loader', lambda text: patch(text,
-        expected_sha256=hashlib.sha256(contract.encode()).hexdigest()))
+    # A tiny approved archive exercises the same archive and installed-member
+    # checks as the real runtime wheel, without redistributing the whole wheel.
+    wheel = tmp_path / 'fixture.whl'
+    with zipfile.ZipFile(wheel, 'w') as archive:
+        archive.writestr('sglang/srt/model_loader/loader.py', contract)
+    monkeypatch.setattr(bounded, 'PINNED_WHEEL_SHA256', hashlib.sha256(wheel.read_bytes()).hexdigest())
     venv = tmp_path / 'venv'
     loader_path = venv / 'lib/python3.12/site-packages/sglang/srt/model_loader/loader.py'
     loader_path.parent.mkdir(parents=True)
     loader_path.write_text(contract)
     support = tmp_path / 'clean_python'; support.mkdir()
-    report = bounded.install_bounded_loader(venv, support, source, staging)
+    report = bounded.install_bounded_loader(venv, support, source, staging, wheel, tmp_path / 'contract.json')
     assert hashlib.sha256(loader_path.read_bytes()).hexdigest() == report['patched_sha256']
     # Import like the actual isolated SGLang child, outside the repository
     # package namespace; this catches missing relative/support imports.
@@ -312,6 +314,27 @@ def test_generated_support_modules_and_installed_adapter_are_self_contained(tmp_
     monkeypatch.delitem(sys.modules, 'arc3_model_staging', raising=False)
     import arc3_bounded_loader
     assert arc3_bounded_loader.PINNED_LOADER_SHA256 == bounded.PINNED_LOADER_SHA256
+
+
+@pytest.mark.parametrize('failure', ['wheel', 'installed'])
+def test_installer_rejects_archive_or_installed_member_drift(tmp_path, monkeypatch, failure):
+    venv = tmp_path / 'venv'
+    path = venv / 'lib/python3.12/site-packages/sglang/srt/model_loader/loader.py'
+    path.parent.mkdir(parents=True)
+    contract = 'class DefaultModelLoader: pass\n'
+    path.write_text(contract)
+    wheel = tmp_path / 'fixture.whl'
+    with zipfile.ZipFile(wheel, 'w') as archive:
+        archive.writestr('sglang/srt/model_loader/loader.py', contract)
+    monkeypatch.setattr(bounded, 'PINNED_WHEEL_SHA256', hashlib.sha256(wheel.read_bytes()).hexdigest())
+    if failure == 'wheel':
+        with wheel.open('ab') as stream:
+            stream.write(b'changed')
+    else:
+        path.write_text(contract+'# changed\n')
+    with pytest.raises(ValueError, match='differs from approved'):
+        bounded.install_bounded_loader(venv, tmp_path, '', '', wheel, tmp_path / 'contract.json')
+    assert not (tmp_path / 'arc3_bounded_loader.py').exists()
 
 
 def test_draft_alias_uses_same_cache_without_source_weight_links(setup, tmp_path):

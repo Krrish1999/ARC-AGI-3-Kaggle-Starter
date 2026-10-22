@@ -63,6 +63,41 @@ The reviewed notebook build is **f68cb1c9e817f9fe**. Deployment receipt:
 COMPLETE with final startup diagnostics unavailable; this is a distinct,
 explicitly authorized bounded-loading experiment. No Phase B request is made.
 
+### Version 9 — loader source mismatch, zero weight reads
+
+`make submit` saved version 9 from `0a6316c`, build **f68cb1c9e817f9fe**.
+All deployed cells match, dataset membership matches (Kaggle reordered the
+array), GPU-on/internet-off accepted. Local metadata and the owned working
+cache passed preflight on ext4 with 20,937,408,512 bytes free. Pennyroyal
+installed and CUDA initialized, but the installed loader's full-file hash
+differs from the Git commit source. The adapter correctly refused to patch;
+**SGLang never launched and zero weight shards were read**. The owned metadata
+transaction was removed. Startup failed after **131.064 seconds**; readiness
+latency remains null. COMPLETE save observed **2026-10-22 20:30:38.939
+Asia/Calcutta**, separately from the startup failure. Full console evidence is
+captured in `research_lab/traces/bounded_staging_runtime_evidence.json`.
+
+**[EDIT] artifact-binding repair.** Bind the installed loader to the exact
+approved wheel's SHA256 **d0620216732b82b6efd4f8a78cc9b5f55343a4d3837fdfa3bcbb841b7718a225**,
+already observed in version-7 input diagnostics, and require installed bytes
+to equal that wheel's loader member before patching. Keep the upstream hash
+as a reference rather than assume packaged source equality. Retain AST-scoped
+method/boundary checks, record wheel/installed/patched hashes and extract the
+actual method contract for auditing. A changed archive or installed file must
+still reject before loading. Normal Kaggle wheel download is blocked at
+storage.googleapis.com; perform archive verification inside the authorized
+offline Kaggle bootstrap instead. This is an exact-artifact binding, not an
+unchecked acceptance of the mismatching installed source. Test corrupt wheel
+and installed-file drift before rebuilding and one further startup rehearsal.
+
+**Repair verification.** **284/284 pytest cases** pass, including two new
+archive/installed-member tampering cases. Ruff and pyright pass, containment
+**20/20**. Rebuilt notebook **75c1403830052f18** matches its sources. Archive
+verification happens before writing support modules or patched loader code;
+the exact installed method contract is saved as `diagnostics/loader_contract.json`.
+No checkpoint, agent policy, serving setting or deadline changes. Separate
+receipt: `research_lab/traces/artifact_bounded_staging_deployment.json`.
+
 ## [EDIT] Working-volume staging and cleanup-error isolation — 2026-10-21
 
 Requested skill: `phd-systems`; continue PR #14 / `feat/local-model-staging`.

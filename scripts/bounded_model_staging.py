@@ -14,6 +14,7 @@ import os
 import shutil
 import tempfile
 import time
+import zipfile
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -23,6 +24,7 @@ except ImportError:
     from arc3_model_staging import _stage_file, _staging_files, _storage_profile
 
 PINNED_LOADER_SHA256 = '1016b2c6c2d7eb50ef25e0a731e20096e4b79239bccb6fea26aa59d3f29bf8fe'
+PINNED_WHEEL_SHA256 = 'd0620216732b82b6efd4f8a78cc9b5f55343a4d3837fdfa3bcbb841b7718a225'
 
 
 def _bounded_save(path: Path, value: dict) -> None:
@@ -187,16 +189,41 @@ def patch_bounded_loader(source: str, *, expected_sha256: str = PINNED_LOADER_SH
 
 
 def install_bounded_loader(venv: Path, support_dir: Path, bounded_source: str,
-                           staging_source: str) -> dict:
+                           staging_source: str, wheel_path: Path, contract_path: Path) -> dict:
     loaders = list(venv.glob('lib/python*/site-packages/sglang/srt/model_loader/loader.py'))
     if len(loaders) != 1:
         raise ValueError('cannot locate unique pinned SGLang loader')
     path = loaders[0]
-    patched = patch_bounded_loader(path.read_text())
+    with wheel_path.open('rb') as stream:
+        wheel_digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+    if wheel_digest != PINNED_WHEEL_SHA256:
+        raise ValueError('Pennyroyal wheel differs from approved artifact')
+    with zipfile.ZipFile(wheel_path) as archive:
+        member = archive.read('sglang/srt/model_loader/loader.py')
+    if path.read_bytes() != member:
+        raise ValueError('installed Pennyroyal loader differs from approved wheel member')
+    source = member.decode('utf-8')
+    original_digest = hashlib.sha256(member).hexdigest()
+    tree = ast.parse(source)
+    loader = next(node for node in tree.body
+                  if isinstance(node, ast.ClassDef) and node.name == 'DefaultModelLoader')
+    lines = source.splitlines(keepends=True)
+    methods = {node.name: ''.join(lines[node.lineno-1:node.end_lineno]) for node in loader.body
+               if isinstance(node, ast.FunctionDef) and node.name in ('_prepare_weights', '_get_weights_iterator')}
+    contract = {'wheel_sha256': wheel_digest, 'full_file_sha256': original_digest,
+                'upstream_reference_sha256': PINNED_LOADER_SHA256, 'methods': methods}
+    _bounded_save(contract_path, contract)
+    try:
+        patched = patch_bounded_loader(source, expected_sha256=original_digest)
+    except (ValueError, StopIteration):
+        print('Bounded loader integration rejected: '+json.dumps(contract), flush=True)
+        raise
     (support_dir / 'arc3_bounded_loader.py').write_text(bounded_source)
     (support_dir / 'arc3_model_staging.py').write_text(staging_source)
     path.write_text(patched)
-    return {'original_sha256': PINNED_LOADER_SHA256,
+    return {'original_sha256': original_digest, 'wheel_sha256': wheel_digest,
+            'contract': str(contract_path),
+            'method_sha256': {name: hashlib.sha256(text.encode()).hexdigest() for name, text in methods.items()},
             'patched_sha256': hashlib.sha256(patched.encode()).hexdigest()}
 
 

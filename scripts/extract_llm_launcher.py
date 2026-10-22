@@ -104,7 +104,8 @@ def extract_launcher(*, local_model_root: str = '/kaggle/working/.arc3-models',
     # Keep install + server in the supervisor's process group. The parent owns
     # the single bounded readiness deadline, termination and reaping.
     tail = (f'\nif {bounded_guard}:\n'
-            '    adapter = install_bounded_loader(Path(VENV), clean_py_dir, BOUNDED_SOURCE, STAGING_SOURCE)\n'
+            '    adapter = install_bounded_loader(Path(VENV), clean_py_dir, BOUNDED_SOURCE, STAGING_SOURCE,\n'
+            '        wheel, WORKING_DIR / "diagnostics/loader_contract.json")\n'
             '    staging_report["loader_adapter"] = adapter\n'
             '    _bounded_save(WORKING_DIR / "diagnostics/model_staging.json", staging_report)\n'
             'if precache_model_thread is not None:\n    precache_model_thread.start()\n'
@@ -174,7 +175,9 @@ def extract_launcher(*, local_model_root: str = '/kaggle/working/.arc3-models',
             'cache_slots': 2, 'root': local_model_root, 'headroom_bytes': bounded_model_headroom_bytes,
             'barrier': 'per shard: close, fsync, byte count and local digest match before safe_open',
             'eviction': 'CPU tensor clones detach mmap; unlink after consumption; target/draft interprocess lock',
-            'loader_sha256': '1016b2c6c2d7eb50ef25e0a731e20096e4b79239bccb6fea26aa59d3f29bf8fe'},
+            'upstream_loader_reference_sha256': '1016b2c6c2d7eb50ef25e0a731e20096e4b79239bccb6fea26aa59d3f29bf8fe',
+            'wheel_sha256': 'd0620216732b82b6efd4f8a78cc9b5f55343a4d3837fdfa3bcbb841b7718a225',
+            'binding': 'exact approved wheel digest and identical installed loader member; AST-scoped boundary checks'},
         'local_model_staging': {'root': local_model_root, 'toggle': 'ENABLE_LOCAL_MODEL_STAGING',
                                 'default': '1', 'workers': 4, 'copy_barrier': 'all files closed/fsynced; target and draft validated before args/Popen',
                                 'capacity_toggle': 'ENABLE_STAGING_CAPACITY_RESERVATION',

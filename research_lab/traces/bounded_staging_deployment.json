@@ -1,5 +1,5 @@
 {
-  "status": "PREPARED",
+  "status": "COMPLETE",
   "phase": "A",
   "prepared_at_utc": "2026-10-22T14:55:50.056281+00:00",
   "branch": "feat/local-model-staging",
@@ -35,9 +35,9 @@
     "source_build_sync": true,
     "agent_sources_unchanged": true
   },
-  "model_ready": null,
+  "model_ready": false,
   "time_to_model_ready_seconds": null,
-  "startup_attempt_duration_seconds": null,
+  "startup_attempt_duration_seconds": 131.064,
   "phase_b_submitted": false,
   "hidden_score": null,
   "sha256": {
@@ -53,5 +53,15 @@
     "notebooks/submission.ipynb": "9d6486f7cc8b0de4f8439880a1cb3eb7d31dfe3abe0f22a73011a44951330891",
     "notebooks/kernel-metadata.json": "05bf130a005c885153cf248065b7a73fad5d01d1afd8e5212427263c48cdffb7",
     "tests/fixtures/pennyroyal_loader_contract.json": "6fffcc91add7f419e375a8655c01b22708002a70d736d5fb4d7f5ffc6f37c8c2"
-  }
+  },
+  "saved_version": 9,
+  "source_commit": "0a6316c22fbc767973d394d5150a51dec3c222e8",
+  "source_pull_matches": true,
+  "kaggle_gpu_enabled": true,
+  "kaggle_internet_enabled": false,
+  "last_status_check_at_utc": "2026-10-22T14:58:52.742412+00:00",
+  "server_launch_reached": false,
+  "observed_completed_at_utc": "2026-10-22T15:00:38.938589+00:00",
+  "runtime_evidence": "research_lab/traces/bounded_staging_runtime_evidence.json",
+  "runtime_evidence_sha256": "249af15abbbe06905403b210a342b2cc51f534e5f7f14699fba7f8c2485e42d6"
 }
