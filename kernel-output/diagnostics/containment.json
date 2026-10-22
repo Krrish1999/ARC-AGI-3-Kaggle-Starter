@@ -1,0 +1,151 @@
+{
+  "containment_passed": true,
+  "sandbox_isolated": true,
+  "checks": {
+    "deployed_sources_present": true,
+    "sandbox_present": true,
+    "engine_import_denied": true,
+    "absolute_read": true,
+    "traversal_read": true,
+    "symlink_read": true,
+    "write": true,
+    "symlink_write": true,
+    "directory_list": true,
+    "subprocess_escape": true,
+    "fork_escape": true,
+    "exec_escape": true,
+    "native_open": true,
+    "canary_unchanged": true,
+    "write_not_created": true,
+    "compute_works": true,
+    "memory_capped": true,
+    "planner_failure_visible": true,
+    "loop_terminated": true,
+    "missing_worker_fails": true
+  },
+  "violations": [],
+  "evidence": {
+    "engine_probe_returncode": 0,
+    "absolute_read": {
+      "ok": true,
+      "ready": true,
+      "timeout": false,
+      "returncode": 0,
+      "stdout": "DENIED\n",
+      "stderr": "Error in sitecustomize; set PYTHONVERBOSE for traceback:\nModuleNotFoundError: No module named 'wrapt'\n",
+      "error": null,
+      "elapsed_seconds": 0.06385673899990252
+    },
+    "traversal_read": {
+      "ok": true,
+      "ready": true,
+      "timeout": false,
+      "returncode": 0,
+      "stdout": "DENIED\n",
+      "stderr": "Error in sitecustomize; set PYTHONVERBOSE for traceback:\nModuleNotFoundError: No module named 'wrapt'\n",
+      "error": null,
+      "elapsed_seconds": 0.03169358000002376
+    },
+    "symlink_read": {
+      "ok": true,
+      "ready": true,
+      "timeout": false,
+      "returncode": 0,
+      "stdout": "DENIED\n",
+      "stderr": "Error in sitecustomize; set PYTHONVERBOSE for traceback:\nModuleNotFoundError: No module named 'wrapt'\n",
+      "error": null,
+      "elapsed_seconds": 0.03162026999996215
+    },
+    "write": {
+      "ok": true,
+      "ready": true,
+      "timeout": false,
+      "returncode": 0,
+      "stdout": "DENIED\n",
+      "stderr": "Error in sitecustomize; set PYTHONVERBOSE for traceback:\nModuleNotFoundError: No module named 'wrapt'\n",
+      "error": null,
+      "elapsed_seconds": 0.03164975999993658
+    },
+    "symlink_write": {
+      "ok": true,
+      "ready": true,
+      "timeout": false,
+      "returncode": 0,
+      "stdout": "DENIED\n",
+      "stderr": "Error in sitecustomize; set PYTHONVERBOSE for traceback:\nModuleNotFoundError: No module named 'wrapt'\n",
+      "error": null,
+      "elapsed_seconds": 0.03157277000002523
+    },
+    "directory_list": {
+      "ok": true,
+      "ready": true,
+      "timeout": false,
+      "returncode": 0,
+      "stdout": "DENIED\n",
+      "stderr": "Error in sitecustomize; set PYTHONVERBOSE for traceback:\nModuleNotFoundError: No module named 'wrapt'\n",
+      "error": null,
+      "elapsed_seconds": 0.03163530999995601
+    },
+    "subprocess_escape": {
+      "ok": true,
+      "ready": true,
+      "timeout": false,
+      "returncode": 0,
+      "stdout": "DENIED\n",
+      "stderr": "Error in sitecustomize; set PYTHONVERBOSE for traceback:\nModuleNotFoundError: No module named 'wrapt'\n",
+      "error": null,
+      "elapsed_seconds": 0.03163777999998274
+    },
+    "fork_escape": {
+      "ok": true,
+      "ready": true,
+      "timeout": false,
+      "returncode": 0,
+      "stdout": "DENIED\n",
+      "stderr": "Error in sitecustomize; set PYTHONVERBOSE for traceback:\nModuleNotFoundError: No module named 'wrapt'\n",
+      "error": null,
+      "elapsed_seconds": 0.031602610000049935
+    },
+    "exec_escape": {
+      "ok": true,
+      "ready": true,
+      "timeout": false,
+      "returncode": 0,
+      "stdout": "DENIED\n",
+      "stderr": "Error in sitecustomize; set PYTHONVERBOSE for traceback:\nModuleNotFoundError: No module named 'wrapt'\n",
+      "error": null,
+      "elapsed_seconds": 0.03164789900006326
+    },
+    "native_open": {
+      "ok": true,
+      "ready": true,
+      "timeout": false,
+      "returncode": 0,
+      "stdout": "DENIED\n",
+      "stderr": "Error in sitecustomize; set PYTHONVERBOSE for traceback:\nModuleNotFoundError: No module named 'wrapt'\n",
+      "error": null,
+      "elapsed_seconds": 0.03166929999997592
+    },
+    "memory": {
+      "ok": true,
+      "ready": true,
+      "timeout": false,
+      "returncode": 0,
+      "stdout": "MEMORY_CAPPED\n",
+      "stderr": "Error in sitecustomize; set PYTHONVERBOSE for traceback:\nModuleNotFoundError: No module named 'wrapt'\n",
+      "error": null,
+      "elapsed_seconds": 0.03163662999997996
+    },
+    "loop": {
+      "ok": false,
+      "ready": true,
+      "timeout": true,
+      "returncode": -9,
+      "stdout": "",
+      "stderr": "Error in sitecustomize; set PYTHONVERBOSE for traceback:\nModuleNotFoundError: No module named 'wrapt'\n",
+      "error": "timeout",
+      "elapsed_seconds": 15.001029350000067
+    }
+  },
+  "resource_limits_enabled": true
+}

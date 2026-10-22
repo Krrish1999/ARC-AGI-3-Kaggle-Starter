@@ -1,0 +1,9 @@
+{
+  "ready": false,
+  "ever_ready": true,
+  "reason": "stopped_after_ready",
+  "endpoint": "http://127.0.0.1:8001/v1",
+  "mode": "exploration",
+  "startup_seconds": 2400,
+  "startup_elapsed_seconds": 2188.0407373840003
+}

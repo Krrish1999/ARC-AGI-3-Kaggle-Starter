@@ -1,0 +1,8 @@
+{
+  "status": "NOT_EVALUATED",
+  "elapsed_seconds": 2211.674,
+  "build_id": "e8d4cc5d22a4713b",
+  "competition_rerun": false,
+  "stage": "competition_dispatch",
+  "reason": "Competition rerun flag is not enabled; gameplay gateway is unavailable"
+}

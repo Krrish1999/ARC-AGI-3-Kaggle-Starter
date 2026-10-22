@@ -1,0 +1,73 @@
+Precaching: Started...
+Precaching: loaded 211 files (6.70 GB) in 72.44 seconds.
+
+=== installing Pennyroyal (offline) ===
+$ /tmp/arc3-pennyroyal-5421240a93a0dd61/bin/uv venv --python /usr/bin/python3 /tmp/arc3-pennyroyal-5421240a93a0dd61/venv
+$ /tmp/arc3-pennyroyal-5421240a93a0dd61/bin/uv pip install --python /tmp/arc3-pennyroyal-5421240a93a0dd61/venv/bin/python --no-index --only-binary :all: --find-links /kaggle/input/pennyroyal-v253/wheels -r /kaggle/input/pennyroyal-v253/requirements.lock
+$ /tmp/arc3-pennyroyal-5421240a93a0dd61/bin/uv pip install --python /tmp/arc3-pennyroyal-5421240a93a0dd61/venv/bin/python --no-index --only-binary :all: --find-links /kaggle/input/pennyroyal-v253/wheels --reinstall --no-deps /kaggle/input/pennyroyal-v253/wheels/sglang-0.5.19+gd00d88efc8d6-cp312-cp312-linux_x86_64.whl
+Host GPU driver libcuda: /usr/local/nvidia/lib64/libcuda.so.580.178.04 (from 3 candidates: ['/usr/local/nvidia/lib64/libcuda.so.580.178.04', '/usr/local/nvidia/lib64/libcuda.so.1', '/usr/local/nvidia/lib64/libcuda.so'])
+Symlinked /tmp/arc3-pennyroyal-5421240a93a0dd61/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcuda.so -> /usr/local/nvidia/lib64/libcuda.so.580.178.04
+Symlinked /tmp/arc3-pennyroyal-5421240a93a0dd61/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcuda.so.1 -> /usr/local/nvidia/lib64/libcuda.so.580.178.04
+$ /tmp/arc3-pennyroyal-5421240a93a0dd61/venv/lib/python3.12/site-packages/nvidia/cu13/bin/nvcc --version
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2025 NVIDIA Corporation
+Built on Wed_Aug_20_01:58:59_PM_PDT_2025
+Cuda compilation tools, release 13.0, V13.0.88
+Build cuda_13.0.r13.0/compiler.36424714_0
+Host compiler: g++-11
+$ /tmp/arc3-pennyroyal-5421240a93a0dd61/venv/bin/python -c 'import os, pathlib, sglang, subprocess, torch
+print("sglang", sglang.__version__, "| torch", torch.__version__)
+print("CUDA_VISIBLE_DEVICES:", os.environ.get("CUDA_VISIBLE_DEVICES"))
+print("LD_LIBRARY_PATH:", os.environ.get("LD_LIBRARY_PATH"))
+try:
+    res = subprocess.run(["nvidia-smi"], capture_output=True, text=True, check=False)
+    if res.stdout:
+        print("nvidia-smi:")
+        print(res.stdout)
+    if res.stderr:
+        print("nvidia-smi stderr:")
+        print(res.stderr)
+except Exception as e:
+    print("nvidia-smi exec error:", e)
+
+try:
+    torch.cuda.init()
+    print("torch.cuda.init() succeeded! Device count:", torch.cuda.device_count())
+except Exception as e:
+    print("torch.cuda.init() error:", repr(e))
+
+if not torch.cuda.is_available():
+    raise RuntimeError(f"CUDA is unavailable! Device count={torch.cuda.device_count()}")
+print("GPU:", torch.cuda.get_device_name(0), "capability:", torch.cuda.get_device_capability(0))
+'
+sglang 0.5.19+gd00d88efc8d6 | torch 2.13.0+cu130
+CUDA_VISIBLE_DEVICES: None
+LD_LIBRARY_PATH: /tmp/arc3-pennyroyal-5421240a93a0dd61/venv/lib/python3.12/site-packages/nvidia/cu13/lib64:/tmp/arc3-pennyroyal-5421240a93a0dd61/venv/lib/python3.12/site-packages/nvidia/cu13/lib:/usr/local/nvidia/lib64:/usr/lib/x86_64-linux-gnu:/usr/local/nvidia/lib64:/usr/local/cuda/lib64:/usr/local/cuda/lib64
+nvidia-smi:
+Thu Oct 22 16:19:43 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA RTX PRO 6000 Blac...    Off |   00000000:05:00.0 Off |                    0 |
+| N/A   29C    P0             45W /  600W |       3MiB /  97887MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+
+torch.cuda.init() succeeded! Device count: 1
+GPU: NVIDIA RTX PRO 6000 Blackwell Server Edition capability: (12, 0)
+Target: /tmp/models/arc3/run-prt66a56/target | shards: 38 | PLE dtype: checkpoint default (typically BF16)
+Draft source: /tmp/models/arc3/run-prt66a56/draft
+SGLang draft view: /tmp/arc3-pennyroyal-5421240a93a0dd61/draft-view-0a9ad38c95ccdb5e (2 linked weight shards)
+SGLang launch: ['/tmp/arc3-pennyroyal-5421240a93a0dd61/venv/bin/sglang', 'serve', '--model-path', '/tmp/models/arc3/run-prt66a56/target', '--load-format', 'safetensors', '--model-loader-extra-config', '{"enable_multithread_load":false}', '--served-model-name', 'flashnext', '--host', '127.0.0.1', '--port', '8001', '--tensor-parallel-size', '1', '--dtype', 'bfloat16', '--quantization', 'auto-round', '--kv-cache-dtype', 'fp8_e4m3', '--mem-fraction-static', '0.88', '--context-length', '65536', '--page-size', '64', '--max-running-requests', '4', '--chunked-prefill-size', '8192', '--max-prefill-tokens', '16384', '--cuda-graph-max-bs-decode', '4', '--cuda-graph-bs-decode', '1', '2', '4', '--mamba-ssm-dtype', 'bfloat16', '--max-mamba-cache-size', '16', '--mamba-radix-cache-strategy', 'extra_buffer', '--mamba-track-interval', '64', '--mamba-backend', 'flashinfer', '--linear-attn-decode-backend', 'flashinfer', '--linear-attn-prefill-backend', 'flashinfer', '--moe-runner-backend', 'auto', '--ple-offload-embedding', '--trust-remote-code', '--mm-feature-transport', 'cpu', '--image-processor-backend', 'pil', '--reasoning-parser', 'qwen3', '--tool-call-parser', 'qwen3_coder', '--default-chat-template-kwargs', '{"preserve_thinking":true}', '--watchdog-timeout', '1800', '--schedule-policy', 'lpm', '--warmups', 'structured_output', '--enable-cache-report', '--enable-metrics', '--enable-request-time-stats-logging', '--weight-loader-drop-cache-after-load', '--chat-template', '/tmp/models/arc3/run-prt66a56/target/chat_template.jinja', '--gdn-mtp-cache-mode', 'none', '--speculative-algorithm', 'NEXTN', '--speculative-num-steps', '3', '--speculative-eagle-topk', '1', '--speculative-num-draft-tokens', '4', '--speculative-draft-model-path', '/tmp/arc3-pennyroyal-5421240a93a0dd61/draft-view-0a9ad38c95ccdb5e', '--speculative-draft-model-quantization', 'compressed-tensors', '--speculative-moe-runner-backend', 'auto', '--speculative-draft-kv-cache-dtype', 'fp8_e4m3', '--speculative-accept-threshold-single', '1.0', '--speculative-accept-threshold-acc', '1.0', '--speculative-token-map', '/kaggle/input/pennyroyal-v253/hot_tokens_64k.pt']
