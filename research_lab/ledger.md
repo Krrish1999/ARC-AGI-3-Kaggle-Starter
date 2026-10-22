@@ -198,6 +198,30 @@ has no completed shard after 570 startup seconds; record its final outcome
 as unknown when superseded, rather than calling this an observed timeout.
 Receipt: `research_lab/traces/three_shard_staging_deployment.json`.
 
+**Deployment rejection.** The next `make submit` returned exit 0 and printed
+Pushed, but Kaggle's actual response was **Maximum batch GPU session count
+of 2 reached**. Pull still returns version-12 build c5e21ca4933c5e51; the
+three-slot candidate has **not** been deployed. Both earlier owned trials
+retain their 2,400-second limits. Wait for a slot rather than claiming a new
+run from the make footer.
+
+**[EDIT] submission-result guard.** While waiting, make the project CLI's
+standard push path inspect the structured SDK response and fail on errors,
+missing version confirmation or rejected data sources. Other CLI commands
+keep their existing behavior. Also ensure the two-slot ablation retains a
+single copier; three slots enable three producers. Both default paths still
+use sequential per-file reads. Test rejected/accepted push responses and
+rerun final gates before retrying the exact new source build.
+
+**Guard verification.** **300/300 pytest cases** pass, with five push-response
+cases covering quota rejection, empty response, rejected required dataset,
+missing version and confirmed success. Ruff/pyright and containment **20/20**
+pass. Rebuilt three-file notebook **6c412ec9516aedcb** matches source; two-slot
+ablation keeps one producer, the default three-slot path keeps three. The
+wrapper has no credential-output change. Pending deployment receipt:
+`research_lab/traces/guarded_three_shard_deployment.json`. Retry after a slot
+frees; a rejected API response is not a deployment or startup measurement.
+
 ## [EDIT] Working-volume staging and cleanup-error isolation — 2026-10-21
 
 Requested skill: `phd-systems`; continue PR #14 / `feat/local-model-staging`.

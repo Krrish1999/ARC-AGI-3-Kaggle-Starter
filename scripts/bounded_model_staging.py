@@ -359,7 +359,7 @@ def weights_iterator(hf_weights_files: list[str], disable_mmap: bool = False,
             slots = plan['cache_slots']
             if slots not in (2, 3):
                 raise ValueError('invalid bounded cache slots')
-            with ThreadPoolExecutor(max_workers=slots) as pool:
+            with ThreadPoolExecutor(max_workers=3 if slots == 3 else 1) as pool:
                 remaining = iter(entries)
                 pending = deque()
                 for _ in range(slots):
