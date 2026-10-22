@@ -12,7 +12,7 @@
   "observed_maximum_shard_bytes": 5370927288,
   "phase_b_submitted": false,
   "hidden_score": null,
-  "status": "PREPARED",
+  "status": "COMPLETE",
   "prepared_at_utc": "2026-10-22T16:15:56.990038+00:00",
   "engineering_parent": "e5f4bc4",
   "build_id": "e8d4cc5d22a4713b",
@@ -50,9 +50,9 @@
     "source_build_sync": true,
     "agent_sources_unchanged": true
   },
-  "model_ready": null,
-  "time_to_model_ready_seconds": null,
-  "startup_attempt_duration_seconds": null,
+  "model_ready": true,
+  "time_to_model_ready_seconds": 2188.0407373840003,
+  "startup_attempt_duration_seconds": 2188.044,
   "sha256": {
     "agent/my_agent.py": "5e6a76bc2376407c045fed7f4a7eed0e254e658009955b0c304c89b281826bc9",
     "agent/arclog.py": "0c119b81ad71aa39e84069dbbbabba7562aa462c94f5f19e5a2177a957c0375e",
@@ -68,5 +68,21 @@
     "tests/fixtures/pennyroyal_loader_contract.json": "6fffcc91add7f419e375a8655c01b22708002a70d736d5fb4d7f5ffc6f37c8c2",
     "scripts/kaggle_cli.py": "9e2d9ab9bda5e9167a71ea534c7ae0be83152b690b71bb3142acbaf08040f854",
     "tests/test_kaggle_push_result.py": "369093be8632cf239b480e09f1788ae0b020906cf676ff9756d7a8a6e4922293"
-  }
+  },
+  "saved_version": 14,
+  "source_commit": "509e6bab62e9abc658b83d45938f3d4841bf455b",
+  "source_pull_matches": true,
+  "last_status_check_at_utc": "2026-10-22T16:18:33.533479+00:00",
+  "model_ready_at_utc": "2026-10-22 16:54:04.719Z",
+  "observed_completed_at_utc": "2026-10-22T16:54:25.839766+00:00",
+  "all_indexed_shards_verified_and_consumed": true,
+  "verified_shards": 40,
+  "verified_shard_bytes": 185336100936,
+  "cache_accounted_high_water_bytes": 21482183592,
+  "cache_accounting": "sum of in-flight inventory sizes; conservative bound, not allocated blocks",
+  "owned_transaction_cleaned": true,
+  "server_stopped_after_ready": true,
+  "completion_source_check": true,
+  "runtime_evidence": "research_lab/traces/four_shard_staging_runtime_evidence.json",
+  "runtime_evidence_sha256": "7f6e77b83fbee7996d1afede5626c30497e6c9bb898186b781141c1d37e76728"
 }

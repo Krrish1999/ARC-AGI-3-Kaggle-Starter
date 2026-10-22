@@ -265,6 +265,44 @@ is prepared. Receipts:
 `research_lab/traces/guarded_three_shard_runtime_evidence.json` and
 `research_lab/traces/four_shard_staging_deployment.json`.
 
+### Version 14 — COMPLETE; model readiness verified within 40 minutes
+
+The guarded push saved **version 14**, source **509e6bab62e9abc658b83d45938f3d4841bf455b**,
+build **e8d4cc5d22a4713b**. Initial and completed pulls match every cell source
+and all three datasets; GPU on/internet off accepted. The runtime GPU probe
+identifies NVIDIA RTX PRO 6000. Containment/framework preflight pass.
+
+**Measured startup: 2,188.040737384 seconds (36 minutes 28.041 seconds)**
+to the owned loopback `/v1/models` endpoint advertising `flashnext`. The event
+is at **2026-10-22 22:24:04.719 Asia/Calcutta**. This leaves **211.959 seconds**
+under the unchanged 2,400-second limit. The enclosing startup stage is
+2,188.044 seconds; use the readiness event for model-startup latency.
+
+All **38 target + 2 draft** indexed shards, **185,336,100,936 bytes**, were
+copied, synced, digest-checked and consumed; all 40 source-stream/local hashes
+match. Native file/tensor order is retained. The root is `/tmp/models/arc3`
+on the local overlay. Maximum conservative in-flight inventory accounting is
+**21,482,183,592 bytes**, below the **21,483,709,152-byte** configured bound,
+with 4 GiB headroom. This counter is not a physical-block measurement; local
+fixtures separately test physical block bounds and mmap-independent tensors.
+Actual rolling copies succeeded beyond the earlier full-copy storage failure.
+
+`make status` first reports **COMPLETE at 2026-10-22 22:24:25.840
+Asia/Calcutta**. NOT_EVALUATED follows readiness with zero hidden gameplay
+rows; the owned server receives normal termination and its exact nonce-owned
+ephemeral transaction is removed. A final stopped server is expected for a
+completed save and does not undo the readiness milestone. No Phase B request,
+hidden RHAE lift, cache-hit rate or level-completion improvement is claimed.
+
+Final source gates remain **306/306 pytest**, ruff/pyright pass, containment
+**20/20**, and the built notebook matches sources and both completed pulls.
+Agent policy/security source bytes match the prior Gen-3 parent. README and
+offline inventory now describe the measured bounded path; source code did
+not change after this deployment. Evidence:
+`research_lab/traces/four_shard_staging_runtime_evidence.json`, bound by the
+deployment receipt's source/artifact hashes. Earlier partial controls retain
+unknown final outcomes rather than borrowing this run's readiness result.
+
 ## [EDIT] Working-volume staging and cleanup-error isolation — 2026-10-21
 
 Requested skill: `phd-systems`; continue PR #14 / `feat/local-model-staging`.
