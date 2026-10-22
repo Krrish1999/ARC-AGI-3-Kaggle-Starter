@@ -102,13 +102,13 @@ def test_metadata_only_does_not_publish_placeholder_or_source_link(setup):
 
 
 def test_loader_waits_for_complete_copy_before_first_open(setup, monkeypatch):
-    original = bounded._stage_file
+    original = bounded.stage_shard
     entered, release = threading.Event(), threading.Event()
-    def blocking(item, destination):
+    def blocking(item, destination, **kwargs):
         entered.set()
         assert release.wait(5)
-        return original(item, destination)
-    monkeypatch.setattr(bounded, '_stage_file', blocking)
+        return original(item, destination, **kwargs)
+    monkeypatch.setattr(bounded, 'stage_shard', blocking)
     with concurrent.futures.ThreadPoolExecutor() as executor:
         result = executor.submit(lambda: list(bounded.weights_iterator(files(setup)[:1])))
         assert entered.wait(5) and not result.done()
@@ -119,16 +119,16 @@ def test_loader_waits_for_complete_copy_before_first_open(setup, monkeypatch):
 @pytest.mark.parametrize('failure', ['fsync', 'digest', 'size'])
 def test_corrupt_or_incomplete_copy_never_reaches_safetensors_open(setup, monkeypatch, failure):
     import safetensors
-    original = bounded._stage_file
+    original = bounded.stage_shard
     opened = []
     monkeypatch.setattr(safetensors, 'safe_open', lambda *args, **kwargs: opened.append(args))
-    def fail(item, destination):
+    def fail(item, destination, **kwargs):
         if failure == 'fsync':
             raise OSError('synthetic ENOSPC at fsync')
-        result = original(item, destination)
+        result = original(item, destination, **kwargs)
         (destination / item[1]).write_bytes(b'bad' if failure == 'size' else b'x'*item[2])
         return result
-    monkeypatch.setattr(bounded, '_stage_file', fail)
+    monkeypatch.setattr(bounded, 'stage_shard', fail)
     with pytest.raises((OSError, ValueError)):
         list(bounded.weights_iterator(files(setup)[:1]))
     assert not opened and not list((setup.transaction / 'cache').iterdir())
@@ -136,12 +136,12 @@ def test_corrupt_or_incomplete_copy_never_reaches_safetensors_open(setup, monkey
 
 
 def test_next_copy_failure_cleans_cache_and_propagates(setup, monkeypatch):
-    original = bounded._stage_file
-    def fail_next(item, destination):
+    original = bounded.stage_shard
+    def fail_next(item, destination, **kwargs):
         if item[1].name == 'model-01.safetensors':
             raise OSError('synthetic next-copy failure')
-        return original(item, destination)
-    monkeypatch.setattr(bounded, '_stage_file', fail_next)
+        return original(item, destination, **kwargs)
+    monkeypatch.setattr(bounded, 'stage_shard', fail_next)
     iterator = bounded.weights_iterator(files(setup)[:2])
     next(iterator)
     with pytest.raises(OSError, match='next-copy'):
@@ -159,7 +159,7 @@ def test_cancellation_joins_prefetch_then_reclaims_both_slots(setup):
 
 
 def test_target_and_draft_iterators_share_interprocess_lock(setup, monkeypatch):
-    original = bounded._stage_file
+    original = bounded.stage_shard
     entered, release, draft_attempted = threading.Event(), threading.Event(), threading.Event()
     calls = []
     flock = bounded.fcntl.flock
@@ -168,12 +168,12 @@ def test_target_and_draft_iterators_share_interprocess_lock(setup, monkeypatch):
             draft_attempted.set()
         return flock(fd, operation)
     monkeypatch.setattr(bounded.fcntl, 'flock', observed_lock)
-    def blocking(item, destination):
+    def blocking(item, destination, **kwargs):
         calls.append(item[0].parent.name)
         entered.set()
         assert release.wait(5)
-        return original(item, destination)
-    monkeypatch.setattr(bounded, '_stage_file', blocking)
+        return original(item, destination, **kwargs)
+    monkeypatch.setattr(bounded, 'stage_shard', blocking)
     with concurrent.futures.ThreadPoolExecutor() as pool:
         target = pool.submit(lambda: list(bounded.weights_iterator(files(setup)[:1])))
         assert entered.wait(5)
@@ -215,6 +215,78 @@ def test_growing_source_cannot_exceed_manifest_disk_bound(tmp_path):
     with pytest.raises(OSError, match='grew beyond'):
         bounded._stage_file((source, Path('shard'), 8), destination)
     assert (destination / 'shard').stat().st_size == 8
+
+
+def test_parallel_ranges_preserve_order_with_bounded_inflight_reads(tmp_path, monkeypatch):
+    source = tmp_path / 'source'; payload = bytes(range(256))*128
+    source.write_bytes(payload)
+    cache = tmp_path / 'cache'; cache.mkdir()
+    original = bounded.os.preadv
+    lock, first_waiting, later_finished = threading.Lock(), threading.Event(), threading.Event()
+    active, peak = 0, 0
+    completed = []
+    def reordered(fd, buffers, offset):
+        nonlocal active, peak
+        with lock:
+            active += 1
+            peak = max(peak, active)
+        try:
+            if offset == 0:
+                first_waiting.set()
+                assert later_finished.wait(5)
+            else:
+                assert first_waiting.wait(5)
+            count = original(fd, buffers, offset)
+            completed.append(offset)
+            if offset != 0:
+                later_finished.set()
+            return count
+        finally:
+            with lock:
+                active -= 1
+    monkeypatch.setattr(bounded.os, 'preadv', reordered)
+    result = bounded.stage_shard((source, Path('shard'), len(payload)), cache,
+                                  read_workers=4, chunk_bytes=1024)
+    assert 2 <= peak <= 4 and completed[0] != 0
+    assert (cache / 'shard').read_bytes() == payload
+    assert result['source_stream_sha256'] == hashlib.sha256(payload).hexdigest()
+
+
+def test_parallel_ranges_retry_partial_reads_without_data_loss(tmp_path, monkeypatch):
+    source = tmp_path / 'source'; payload = bytes(range(100))*100
+    source.write_bytes(payload)
+    cache = tmp_path / 'cache'; cache.mkdir()
+    original = bounded.os.preadv
+    monkeypatch.setattr(bounded.os, 'preadv', lambda fd, buffers, offset:
+                        original(fd, [buffers[0][:31]], offset))
+    result = bounded.stage_shard((source, Path('shard'), len(payload)), cache, chunk_bytes=1024)
+    assert (cache / 'shard').read_bytes() == payload
+    assert result['source_stream_sha256'] == hashlib.sha256(payload).hexdigest()
+
+
+@pytest.mark.parametrize('failure', ['truncated', 'grown', 'fsync'])
+def test_parallel_range_failure_never_publishes_completed_copy(tmp_path, monkeypatch, failure):
+    source = tmp_path / 'source'; source.write_bytes(b'x'*8192)
+    cache = tmp_path / 'cache'; cache.mkdir()
+    expected = 8192
+    if failure == 'truncated':
+        expected += 32
+    elif failure == 'grown':
+        expected -= 32
+    else:
+        def fail(fd):
+            raise OSError('synthetic fsync ENOSPC')
+        monkeypatch.setattr(bounded.os, 'fsync', fail)
+    with pytest.raises(OSError):
+        bounded.stage_shard((source, Path('shard'), expected), cache, chunk_bytes=1024)
+    assert (cache / 'shard').stat().st_size <= expected
+
+
+def test_parallel_read_ablation_uses_serial_control(setup, monkeypatch):
+    monkeypatch.setenv('ENABLE_PARALLEL_SHARD_READS', '0')
+    list(bounded.weights_iterator(files(setup)[:1]))
+    report = json.loads(setup.report_path.read_text())
+    assert report['shards'][0]['read_workers'] == 1
 
 
 @pytest.mark.parametrize('packaged_lookahead', [False, True])

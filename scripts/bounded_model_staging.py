@@ -15,6 +15,7 @@ import shutil
 import tempfile
 import time
 import zipfile
+from collections import deque
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -25,6 +26,65 @@ except ImportError:
 
 PINNED_LOADER_SHA256 = '1016b2c6c2d7eb50ef25e0a731e20096e4b79239bccb6fea26aa59d3f29bf8fe'
 PINNED_WHEEL_SHA256 = 'd0620216732b82b6efd4f8a78cc9b5f55343a4d3837fdfa3bcbb841b7718a225'
+
+
+def stage_shard(item: tuple[Path, Path, int], destination: Path, *,
+                 read_workers: int = 4, chunk_bytes: int = 8 * 1024**2) -> dict:
+    """Overlap bounded FUSE range reads; hash/write bytes in original order.
+
+    At most read_workers requests and (read_workers+1)*chunk_bytes of Python
+    data are live. Disk still contains only current + next indexed shard.
+    """
+    if not 1 <= read_workers <= 8 or not 1 <= chunk_bytes <= 8 * 1024**2:
+        raise ValueError('invalid bounded range-read configuration')
+    if read_workers == 1:
+        return dict(_stage_file(item, destination), read_workers=1)
+    source, relative, expected = item
+    target = destination / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    digest = hashlib.sha256()
+    count = 0
+    with source.open('rb', buffering=0) as reader, target.open('xb') as writer:
+        def read_range(offset: int) -> bytearray:
+            block = bytearray(min(chunk_bytes, expected-offset))
+            view = memoryview(block)
+            filled = 0
+            while filled < len(block):
+                count = os.preadv(reader.fileno(), [view[filled:]], offset+filled)
+                if not count:
+                    raise OSError('source shard truncated during bounded range read')
+                filled += count
+            return block
+
+        offsets = iter(range(0, expected, chunk_bytes))
+        pending = deque()
+        with ThreadPoolExecutor(max_workers=read_workers) as pool:
+            try:
+                for _ in range(read_workers):
+                    offset = next(offsets, None)
+                    if offset is not None:
+                        pending.append(pool.submit(read_range, offset))
+                while pending:
+                    block = pending.popleft().result()
+                    writer.write(block)
+                    digest.update(block)
+                    count += len(block)
+                    del block
+                    offset = next(offsets, None)
+                    if offset is not None:
+                        pending.append(pool.submit(read_range, offset))
+            except BaseException:
+                for future in pending:
+                    future.cancel()
+                raise
+        if os.pread(reader.fileno(), 1, expected):
+            raise OSError('source grew beyond bounded shard inventory')
+        writer.flush()
+        os.fsync(writer.fileno())
+    if count != expected or target.stat().st_size != expected:
+        raise OSError('incomplete bounded shard copy')
+    return {'name': str(relative), 'bytes': count, 'read_workers': read_workers,
+            'source_stream_sha256': digest.hexdigest()}
 
 
 def _bounded_save(path: Path, value: dict) -> None:
@@ -282,7 +342,8 @@ def weights_iterator(hf_weights_files: list[str], disable_mmap: bool = False,
             if shutil.disk_usage(cache).free < expected + plan['headroom_bytes']:
                 raise OSError('bounded cache headroom exhausted')
             started = time.monotonic()
-            result = _stage_file(item, cache)
+            result = stage_shard(item, cache,
+                read_workers=4 if os.getenv('ENABLE_PARALLEL_SHARD_READS', '1') == '1' else 1)
             destination = cache / relative
             with destination.open('rb') as stream:
                 local_hash = hashlib.file_digest(stream, 'sha256').hexdigest()

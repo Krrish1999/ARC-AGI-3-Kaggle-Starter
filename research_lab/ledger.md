@@ -129,6 +129,46 @@ packaged lookahead argument and reject an unknown argument; no permissive
 `**kwargs` fallback is introduced. Receipt:
 `research_lab/traces/iterator_bounded_staging_deployment.json`.
 
+### [EDIT] Bounded concurrent range reads — performance ticket
+
+Version 11 / **79f942481dc996e6**, source `76ff46a`, is still running.
+Its first 2,899,311,784-byte shard is copied/synced/digest-verified in
+**97.714 seconds** and consumed successfully. The observed sequential-source
+rate is about 29.7 MB/s; applying that rate to all 185.4 GB would exceed the
+2,400-second deadline. This projection motivates a concurrency experiment;
+it is not a measured final startup result.
+
+Continue from engineering parent `76ff46a`, preserving agent policy and
+archived parent. **[EDIT]** default-on `ENABLE_PARALLEL_SHARD_READS=1` adds four
+bounded concurrent positional reads inside the single active shard copier.
+Write and hash chunks in original order, retain the same two-file disk bound,
+and cap read buffers to a small fixed window. Toggle 0 keeps the measured
+serial-copy control. Test forced out-of-order completion, partial reads,
+truncation, fsync failure, ordered digest equality and in-flight buffer bounds
+before another deployment. The active version-11 control continues while
+this independent repair is developed; do not overwrite its outcome or claim
+that a projection establishes measured deadline failure.
+
+**Control progress.** Three target shards were consumed, including 5.37 GB
+copies taking **184.348** and **186.609 seconds**. Maximum logical cache
+accounting is **10,741,458,608 bytes**, within the two-slot limit. The serial
+control remains RUNNING; its final startup duration/readiness is unknown.
+Partial build-bound evidence is preserved in
+`research_lab/traces/iterator_bounded_staging_runtime_evidence.json` before
+superseding the latest notebook with the concurrent-read trial.
+
+**Range candidate verification.** **292/292 pytest cases** pass, including
+six new parallel-read cases: reordered completion with 2..4 concurrent reads,
+partial-read retry, truncation/growth/fsync failure, and the serial ablation.
+Ruff, pyright and containment **20/20** pass. Four positional reads fill fixed
+8 MiB buffers; a four-item window hashes/writes original byte order without
+reading a whole shard into RAM. At most 40 MiB of shard buffers are live;
+the two-file disk bound and 4 GiB headroom are unchanged. Notebook
+**c5e21ca4933c5e51** matches source. Receipt:
+`research_lab/traces/range_bounded_staging_deployment.json`. The active control
+and the new rehearsal each retain the 2,400-second startup deadline; neither
+is a Phase B evaluation or a measured RHAE result.
+
 ## [EDIT] Working-volume staging and cleanup-error isolation — 2026-10-21
 
 Requested skill: `phd-systems`; continue PR #14 / `feat/local-model-staging`.
