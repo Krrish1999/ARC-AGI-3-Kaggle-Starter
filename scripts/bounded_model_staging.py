@@ -1,4 +1,4 @@
-"""Two-slot local shard pipeline for the pinned Pennyroyal safetensors loader.
+"""Bounded local shard pipeline for the pinned Pennyroyal safetensors loader.
 
 Only the copier reads input weights. SGLang sees local metadata and consumes
 synced, digest-checked local shards. CPU clones detach tensors from file mmaps
@@ -33,7 +33,7 @@ def stage_shard(item: tuple[Path, Path, int], destination: Path, *,
     """Overlap bounded FUSE range reads; hash/write bytes in original order.
 
     At most read_workers requests and (read_workers+1)*chunk_bytes of Python
-    data are live. Disk still contains only current + next indexed shard.
+    data are live. Disk still respects the manifest's indexed shard window.
     """
     if not 1 <= read_workers <= 8 or not 1 <= chunk_bytes <= 8 * 1024**2:
         raise ValueError('invalid bounded range-read configuration')
@@ -95,10 +95,12 @@ def _bounded_save(path: Path, value: dict) -> None:
 
 def prepare_bounded_checkpoints(assets: dict, root: Path, report_path: Path, *,
                                 headroom_bytes: int = 4 * 1024**3,
-                                owner_token: str) -> dict:
+                                owner_token: str, cache_slots: int = 3) -> dict:
     """Copy metadata only; no absent shard is represented as a ready file."""
     if type(headroom_bytes) is not int or headroom_bytes < 0 or not owner_token:
         raise ValueError('bounded staging needs nonnegative headroom and an owner')
+    if type(cache_slots) is not int or cache_slots not in (2, 3):
+        raise ValueError('bounded staging needs two or three slots')
     root = root.resolve()
     models = {kind: model for kind, model in assets.items() if kind in ('target', 'draft')}
     if ('target' not in models or root.is_relative_to(Path('/kaggle/input'))
@@ -107,7 +109,7 @@ def prepare_bounded_checkpoints(assets: dict, root: Path, report_path: Path, *,
     report_path.parent.mkdir(parents=True, exist_ok=True)
     root.mkdir(parents=True, exist_ok=True)
     report = {'mode': 'bounded_shards', 'status': 'preparing', 'root': str(root),
-              'models': {}, 'headroom_bytes': headroom_bytes, 'cache_slots': 2}
+              'models': {}, 'headroom_bytes': headroom_bytes, 'cache_slots': cache_slots}
     _bounded_save(report_path, report)
     transaction = None
     try:
@@ -119,7 +121,7 @@ def prepare_bounded_checkpoints(assets: dict, root: Path, report_path: Path, *,
         maximum = max(sizes)
         metadata_bytes = sum(size for files, _ in inventories.values() for _, rel, size in files
                              if rel.suffix != '.safetensors')
-        cache_bound = 2 * maximum
+        cache_bound = cache_slots * maximum
         profile = _storage_profile(root)
         report.update(storage=profile, cache_bound_bytes=cache_bound, metadata_bytes=metadata_bytes)
         filesystem = profile.get('filesystem', '')
@@ -127,7 +129,7 @@ def prepare_bounded_checkpoints(assets: dict, root: Path, report_path: Path, *,
                 or filesystem in ('tmpfs', 'ramfs', 'nfs', 'nfs4', 'cifs', '9p')):
             raise OSError('bounded checkpoint cache needs writable local disk')
         if profile['disk_free_before'] < metadata_bytes + cache_bound + headroom_bytes:
-            raise OSError('insufficient disk for two shards plus metadata and headroom')
+            raise OSError('insufficient disk for bounded shards plus metadata and headroom')
         if profile.get('total_inodes', 0) and profile['free_inodes'] < 64 + sum(
                 len(files) for files, _ in inventories.values()):
             raise OSError('insufficient cache inodes')
@@ -137,7 +139,7 @@ def prepare_bounded_checkpoints(assets: dict, root: Path, report_path: Path, *,
         _bounded_save(report_path, report)
         plan = {'transaction': str(transaction), 'owner': owner_token, 'models': {},
                 'aliases': {}, 'cache_bound_bytes': cache_bound, 'headroom_bytes': headroom_bytes,
-                'report_path': str(report_path), 'schema': 1}
+                'report_path': str(report_path), 'schema': 1, 'cache_slots': cache_slots}
         for kind, model in models.items():
             source = Path(model['path']).resolve(strict=True)
             local = transaction / kind
@@ -303,7 +305,7 @@ def install_bounded_loader(venv: Path, support_dir: Path, bounded_source: str,
 def weights_iterator(hf_weights_files: list[str], disable_mmap: bool = False,
                      prefetch: bool = False, prefetch_num_threads: int = 4,
                      drop_cache_after_load: bool = False):
-    """At most current + next shard, shared across all managed model iterators."""
+    """At most manifest.cache_slots files across all managed model iterators."""
     # Imports occur only in the serving venv, never in the agent REPL.
     import safetensors
 
@@ -324,7 +326,7 @@ def weights_iterator(hf_weights_files: list[str], disable_mmap: bool = False,
     if not entries or len({item[0] for item in entries}) != len(entries):
         raise ValueError('empty or duplicate bounded shard list')
     # One lock covers the whole iterator: concurrent target/draft or child
-    # processes cannot exceed the aggregate two-slot bound.
+    # processes cannot exceed the aggregate slot/byte bound.
     with (transaction / 'cache.lock').open('a+b') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         if any(cache.iterdir()):
@@ -343,7 +345,7 @@ def weights_iterator(hf_weights_files: list[str], disable_mmap: bool = False,
                 raise OSError('bounded cache headroom exhausted')
             started = time.monotonic()
             result = stage_shard(item, cache,
-                read_workers=4 if os.getenv('ENABLE_PARALLEL_SHARD_READS', '1') == '1' else 1)
+                read_workers=4 if os.getenv('ENABLE_PARALLEL_SHARD_READS', '0') == '1' else 1)
             destination = cache / relative
             with destination.open('rb') as stream:
                 local_hash = hashlib.file_digest(stream, 'sha256').hexdigest()
@@ -354,19 +356,27 @@ def weights_iterator(hf_weights_files: list[str], disable_mmap: bool = False,
             return result
 
         try:
-            with ThreadPoolExecutor(max_workers=1) as pool:
-                pending = pool.submit(copy, entries[0])
-                for index, item in enumerate(entries):
-                    result = pending.result()  # Complete copy/fsync/digest barrier.
+            slots = plan['cache_slots']
+            if slots not in (2, 3):
+                raise ValueError('invalid bounded cache slots')
+            with ThreadPoolExecutor(max_workers=slots) as pool:
+                remaining = iter(entries)
+                pending = deque()
+                for _ in range(slots):
+                    item = next(remaining, None)
+                    if item is not None:
+                        pending.append((item, pool.submit(copy, item)))
+                save(status='copying', active_shards=[item[1].name for item, _ in pending])
+                while pending:
+                    item, future = pending.popleft()
+                    result = future.result()  # Complete copy/fsync/digest barrier.
                     current = cache / item[1]
-                    # Bound accounting includes the next shard's complete size
-                    # even while its worker is still writing it.
-                    active_bytes = item[2] + (entries[index+1][2] if index+1 < len(entries) else 0)
+                    # Count every in-flight file's complete size, including
+                    # producers still writing, before opening the current one.
+                    active_bytes = item[2] + sum(entry[2] for entry, _ in pending)
                     if active_bytes > plan['cache_bound_bytes']:
                         raise ValueError('bounded cache size invariant violated')
                     high = max(report['cache_high_water_bytes'], active_bytes)
-                    if index+1 < len(entries):
-                        pending = pool.submit(copy, entries[index+1])
                     save(status='loading', current_shard=item[1].name,
                          copied_shards=report['copied_shards']+1, cache_high_water_bytes=high)
                     with safetensors.safe_open(current, framework='pt', device='cpu') as opened:
@@ -379,11 +389,16 @@ def weights_iterator(hf_weights_files: list[str], disable_mmap: bool = False,
                     current.unlink()
                     report.setdefault('shards', []).append(result)
                     save(loaded_shards=report['loaded_shards']+1)
+                    # Unlink before replenishing: a consumed file and its
+                    # replacement must never occupy an extra disk slot.
+                    item = next(remaining, None)
+                    if item is not None:
+                        pending.append((item, pool.submit(copy, item)))
             save(status='iterator_complete', current_shard=None)
         except BaseException as error:
             save(status='failed', error=f'{type(error).__name__}: {error}')
             raise
         finally:
-            # Pool shutdown joins the sole writer before cancellation cleanup.
+            # Pool shutdown joins every writer before cancellation cleanup.
             for path in cache.iterdir():
                 path.unlink()

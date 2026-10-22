@@ -135,7 +135,8 @@ def extract_launcher(*, local_model_root: str = '/kaggle/working/.arc3-models',
         f'if {bounded_guard}:\n'
         '    staging_report = prepare_bounded_checkpoints(asset_report,\n'
         f'        Path({local_model_root!r}), WORKING_DIR / "diagnostics/model_staging.json",\n'
-        f'        headroom_bytes={bounded_model_headroom_bytes!r}, owner_token=os.environ["ARC3_MODEL_OWNER"])\n'
+        f'        headroom_bytes={bounded_model_headroom_bytes!r}, owner_token=os.environ["ARC3_MODEL_OWNER"],\n'
+        '        cache_slots=3 if os.getenv("ENABLE_THREE_SHARD_WINDOW", "1") == "1" else 2)\n'
         '    os.environ["ARC3_BOUNDED_MANIFEST"] = staging_report["manifest"]\n'
         '    os.environ["ARC3_BOUNDED_MANIFEST_SHA256"] = hashlib.sha256(Path(staging_report["manifest"]).read_bytes()).hexdigest()\n'
         '    MODEL_DIR = staging_report["models"]["target"]["path"]\n'
@@ -170,10 +171,11 @@ def extract_launcher(*, local_model_root: str = '/kaggle/working/.arc3-models',
         'upstream_commit': 'd00d88efc8d6281b12be4f4073126aec95038c55',
         'sglang_wheel': 'sglang-0.5.19+gd00d88efc8d6-cp312-cp312-linux_x86_64.whl',
         'served_model': 'flashnext', 'startup_seconds': 2400,
-        'prefetch': 'Cell 7 wheel prewarm; bounded model copier pipelines one next shard behind a synced digest barrier. Whole-model prefetch is disabled on the bounded path.',
+        'prefetch': 'Cell 7 wheel prewarm; bounded model pipeline overlaps three sequential shard copies behind per-shard synced digest barriers. Whole-model prefetch is disabled.',
         'bounded_model_staging': {'toggle': 'ENABLE_BOUNDED_MODEL_STAGING', 'default': '1',
-            'cache_slots': 2, 'root': local_model_root, 'headroom_bytes': bounded_model_headroom_bytes,
-            'read_toggle': 'ENABLE_PARALLEL_SHARD_READS', 'read_default': '1',
+            'cache_slots': 3, 'slot_toggle': 'ENABLE_THREE_SHARD_WINDOW', 'slot_default': '1',
+            'root': local_model_root, 'headroom_bytes': bounded_model_headroom_bytes,
+            'read_toggle': 'ENABLE_PARALLEL_SHARD_READS', 'read_default': '0',
             'read_workers': 4, 'read_chunk_bytes': 8 * 1024**2,
             'barrier': 'per shard: close, fsync, byte count and local digest match before safe_open',
             'eviction': 'CPU tensor clones detach mmap; unlink after consumption; target/draft interprocess lock',

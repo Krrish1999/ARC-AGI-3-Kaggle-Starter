@@ -27,7 +27,7 @@ from scripts.llm_assets import checkpoint_report
 
 
 @pytest.fixture
-def setup(tmp_path, monkeypatch):
+def setup(tmp_path, monkeypatch, request):
     torch = pytest.importorskip('torch')
     safetensors = pytest.importorskip('safetensors.torch')
     monkeypatch.setenv('ARC3_MODEL_OWNER', 'synthetic-owner')
@@ -55,7 +55,7 @@ def setup(tmp_path, monkeypatch):
     root = tmp_path / 'working' / '.arc3-models'
     report_path = tmp_path / 'working' / 'diagnostics' / 'model_staging.json'
     report = bounded.prepare_bounded_checkpoints(assets, root, report_path,
-        headroom_bytes=4096, owner_token='synthetic-owner')
+        headroom_bytes=4096, owner_token='synthetic-owner', cache_slots=getattr(request, 'param', 2))
     manifest = Path(report['manifest'])
     monkeypatch.setenv('ARC3_BOUNDED_MANIFEST', str(manifest))
     monkeypatch.setenv('ARC3_BOUNDED_MANIFEST_SHA256', hashlib.sha256(manifest.read_bytes()).hexdigest())
@@ -67,6 +67,7 @@ def files(setup, kind='target'):
     return bounded.managed_weights(setup.report['models'][kind]['path'])
 
 
+@pytest.mark.parametrize('setup', [2, 3], indirect=True)
 def test_all_38_plus_2_shards_match_and_retained_tensors_survive_eviction(setup, monkeypatch):
     import safetensors
     opened = safetensors.safe_open
@@ -74,9 +75,9 @@ def test_all_38_plus_2_shards_match_and_retained_tensors_survive_eviction(setup,
     def local_open(path, *args, **kwargs):
         cache = setup.transaction / 'cache'
         assert Path(path).parent == cache
-        assert len(list(cache.iterdir())) <= 2
+        assert len(list(cache.iterdir())) <= setup.report['cache_slots']
         physical_bytes = sum(p.stat().st_blocks * 512 for p in cache.iterdir())
-        assert physical_bytes <= setup.report['cache_bound_bytes'] + 2 * os.statvfs(cache).f_frsize
+        assert physical_bytes <= setup.report['cache_bound_bytes'] + setup.report['cache_slots'] * os.statvfs(cache).f_frsize
         observations.append(sum(p.stat().st_size for p in cache.iterdir()))
         return opened(path, *args, **kwargs)
     monkeypatch.setattr(safetensors, 'safe_open', local_open)
@@ -149,7 +150,8 @@ def test_next_copy_failure_cleans_cache_and_propagates(setup, monkeypatch):
     assert not list((setup.transaction / 'cache').iterdir())
 
 
-def test_cancellation_joins_prefetch_then_reclaims_both_slots(setup):
+@pytest.mark.parametrize('setup', [2, 3], indirect=True)
+def test_cancellation_joins_prefetch_then_reclaims_all_slots(setup):
     iterator = bounded.weights_iterator(files(setup))
     _, tensor = next(iterator)
     iterator.close()
@@ -204,7 +206,7 @@ def test_fail_closed_on_drift_and_unsupported_paths(setup, monkeypatch, failure)
 def test_capacity_rejection_reads_no_weight_bytes(setup, tmp_path, monkeypatch):
     monkeypatch.setattr(bounded, '_storage_profile', lambda root: {'disk_free_before': 1})
     monkeypatch.setattr(bounded, '_stage_file', lambda *args: pytest.fail('must reject before copying'))
-    with pytest.raises(OSError, match='two shards'):
+    with pytest.raises(OSError, match='bounded shards'):
         bounded.prepare_bounded_checkpoints(setup.assets, tmp_path / 'small', tmp_path / 'report.json',
                                             headroom_bytes=4096, owner_token='owner')
 
@@ -356,7 +358,29 @@ def test_exact_generated_handoff_and_native_loader_consume_local_cache(setup, tm
     assert len(draft_loaded) == 2
     for name, tensor in draft_loaded.items():
         assert setup.torch.equal(tensor, setup.expected[name])
-    assert manifest['bounded_model_staging']['cache_slots'] == 2
+    assert manifest['bounded_model_staging']['cache_slots'] == 3
+
+
+@pytest.mark.parametrize('setup', [3], indirect=True)
+def test_three_independent_shard_copies_overlap_without_an_extra_disk_slot(setup, monkeypatch):
+    original = bounded.stage_shard
+    entered, release, lock = threading.Event(), threading.Event(), threading.Lock()
+    active = []
+    def blocking(item, destination, **kwargs):
+        with lock:
+            active.append(item[1].name)
+            if len(active) == 3:
+                entered.set()
+        assert release.wait(5)
+        return original(item, destination, **kwargs)
+    monkeypatch.setattr(bounded, 'stage_shard', blocking)
+    with concurrent.futures.ThreadPoolExecutor() as pool:
+        loaded = pool.submit(lambda: list(bounded.weights_iterator(files(setup)[:3])))
+        assert entered.wait(5) and not loaded.done()
+        assert len(set(active)) == 3
+        release.set()
+        assert len(loaded.result(timeout=5)) == 3
+    assert not list((setup.transaction / 'cache').iterdir())
 
 
 def test_loader_hash_change_rejected_before_patch(tmp_path):

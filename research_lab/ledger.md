@@ -169,6 +169,35 @@ the two-file disk bound and 4 GiB headroom are unchanged. Notebook
 and the new rehearsal each retain the 2,400-second startup deadline; neither
 is a Phase B evaluation or a measured RHAE result.
 
+### [EDIT] Three-shard sequential-copy window — systems ticket
+
+Engineering parent `09a84e3`; retain all checkpoint and policy identities.
+Version 12 remains RUNNING at 390 startup seconds with no completed first
+copy, whereas the serial control completed it near 267 startup seconds.
+Within-file positional reads have not shown a throughput benefit on this
+FUSE mount; no final failure duration is claimed. Preserve that candidate
+behind `ENABLE_PARALLEL_SHARD_READS` with default 0.
+
+Default-on `ENABLE_THREE_SHARD_WINDOW=1` instead overlaps three independent
+sequential shard copies. Inventory checks require **3 * 5,370,927,288 +
+64,194,294 metadata + 4,294,967,296 headroom = 20,471,943,454 bytes**, below
+the observed 20,937,408,512-byte free working volume. Reject before launch if
+the next run cannot meet this bound. Replenish a slot only after consumption,
+file close and unlink; keep target/draft serialization and CPU tensor clones.
+Toggle 0 keeps the measured two-slot pipeline. Test 2- and 3-slot pipelines,
+simultaneous independent copies, cancellation and physical high-water bounds;
+run full gates and one final bounded startup rehearsal. No timeout increase
+or smaller/different checkpoint is authorized.
+
+**Three-window verification.** **295/295 pytest cases** pass, including
+both 2/3-slot full 38+2-shard tensor fixtures, both cancellation paths, and a
+barrier proving three distinct source copies overlap. Physical cache block
+bounds and unlink-before-replenish are verified. Ruff, pyright and containment
+**20/20** pass. Notebook **fa9152ca54532566** matches source. Version 12 still
+has no completed shard after 570 startup seconds; record its final outcome
+as unknown when superseded, rather than calling this an observed timeout.
+Receipt: `research_lab/traces/three_shard_staging_deployment.json`.
+
 ## [EDIT] Working-volume staging and cleanup-error isolation — 2026-10-21
 
 Requested skill: `phd-systems`; continue PR #14 / `feat/local-model-staging`.
