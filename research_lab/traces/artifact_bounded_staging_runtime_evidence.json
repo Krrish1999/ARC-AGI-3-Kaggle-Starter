@@ -1,0 +1,759 @@
+{
+  "kernel_id": "aanchal009/arc-agi-3-runtime-check",
+  "saved_version": 10,
+  "build_id": "75c1403830052f18",
+  "events": [
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 0.0,
+      "event": "stage_started",
+      "stage": "startup",
+      "at_utc": "2026-10-22 15:06:03.888Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "diagnostics": "/kaggle/working/diagnostics",
+      "elapsed_seconds": 0.001,
+      "event": "execution_mode",
+      "existing_submission": false,
+      "kernel_run_type": "Batch",
+      "mode": "SAVE_OR_INTERACTIVE",
+      "python": "3.12.13",
+      "rerun_flag": "",
+      "submission_policy": "gateway-only",
+      "at_utc": "2026-10-22 15:06:03.889Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 0.014,
+      "event": "gpu_probe",
+      "output": "NVIDIA RTX PRO 6000 Blackwell Server Edition, 97887 MiB\n",
+      "returncode": 0,
+      "at_utc": "2026-10-22 15:06:03.902Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "duration_seconds": 0.014,
+      "elapsed_seconds": 0.014,
+      "event": "stage_completed",
+      "stage": "startup",
+      "at_utc": "2026-10-22 15:06:03.902Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 0.026,
+      "event": "stage_started",
+      "stage": "offline_dependencies",
+      "at_utc": "2026-10-22 15:06:03.914Z"
+    },
+    {
+      "args": [
+        "/usr/bin/python3",
+        "-m",
+        "pip",
+        "install",
+        "--no-index",
+        "--find-links",
+        "/kaggle/input/competitions/arc-prize-2026-arc-agi-3/arc_agi_3_wheels",
+        "arc-agi",
+        "python-dotenv"
+      ],
+      "build_id": "75c1403830052f18",
+      "command": "pip",
+      "elapsed_seconds": 0.026,
+      "event": "command_started",
+      "log": "/kaggle/working/diagnostics/pip.log",
+      "at_utc": "2026-10-22 15:06:03.914Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "command": "pip",
+      "elapsed_seconds": 3.194,
+      "event": "command_completed",
+      "returncode": 0,
+      "at_utc": "2026-10-22 15:06:07.083Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 3.2,
+      "event": "dependency_versions",
+      "versions": {
+        "arc-agi": "0.9.8",
+        "arcengine": "0.9.3",
+        "python-dotenv": "1.2.2"
+      },
+      "at_utc": "2026-10-22 15:06:07.088Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "duration_seconds": 3.175,
+      "elapsed_seconds": 3.2,
+      "event": "stage_completed",
+      "stage": "offline_dependencies",
+      "at_utc": "2026-10-22 15:06:07.088Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 3.469,
+      "event": "stage_started",
+      "stage": "bundle_verification",
+      "at_utc": "2026-10-22 15:06:07.357Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 3.493,
+      "event": "bundle_verified",
+      "modules": 18,
+      "at_utc": "2026-10-22 15:06:07.381Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "duration_seconds": 0.025,
+      "elapsed_seconds": 3.494,
+      "event": "stage_completed",
+      "stage": "bundle_verification",
+      "at_utc": "2026-10-22 15:06:07.382Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 3.52,
+      "event": "stage_started",
+      "stage": "framework_setup",
+      "at_utc": "2026-10-22 15:06:07.408Z"
+    },
+    {
+      "args": [
+        "/usr/bin/python3",
+        "-m",
+        "venv",
+        "--without-pip",
+        "/kaggle/working/.venv_agent_sandbox"
+      ],
+      "build_id": "75c1403830052f18",
+      "command": "sandbox_setup",
+      "elapsed_seconds": 6.406,
+      "event": "command_started",
+      "log": "/kaggle/working/diagnostics/sandbox_setup.log",
+      "at_utc": "2026-10-22 15:06:10.294Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "command": "sandbox_setup",
+      "elapsed_seconds": 6.478,
+      "event": "command_completed",
+      "returncode": 0,
+      "at_utc": "2026-10-22 15:06:10.366Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "duration_seconds": 2.959,
+      "elapsed_seconds": 6.479,
+      "event": "stage_completed",
+      "stage": "framework_setup",
+      "at_utc": "2026-10-22 15:06:10.367Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 6.479,
+      "event": "stage_started",
+      "stage": "containment_audit",
+      "at_utc": "2026-10-22 15:06:10.367Z"
+    },
+    {
+      "args": [
+        "/usr/bin/python3",
+        "/tmp/submission_audit.py"
+      ],
+      "build_id": "75c1403830052f18",
+      "command": "containment",
+      "elapsed_seconds": 6.479,
+      "event": "command_started",
+      "log": "/kaggle/working/diagnostics/containment.log",
+      "at_utc": "2026-10-22 15:06:10.367Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "command": "containment",
+      "elapsed_seconds": 22.015,
+      "event": "command_completed",
+      "returncode": 0,
+      "at_utc": "2026-10-22 15:06:25.903Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "duration_seconds": 15.537,
+      "elapsed_seconds": 22.016,
+      "event": "stage_completed",
+      "stage": "containment_audit",
+      "at_utc": "2026-10-22 15:06:25.904Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 22.017,
+      "event": "stage_started",
+      "stage": "agent_registration",
+      "at_utc": "2026-10-22 15:06:25.905Z"
+    },
+    {
+      "action_log": "/kaggle/working/scratch",
+      "agent": "myagent",
+      "backend": "exploration",
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 22.017,
+      "event": "agent_registered",
+      "operation_mode": "competition",
+      "at_utc": "2026-10-22 15:06:25.905Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "duration_seconds": 0.001,
+      "elapsed_seconds": 22.017,
+      "event": "stage_completed",
+      "stage": "agent_registration",
+      "at_utc": "2026-10-22 15:06:25.905Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 22.018,
+      "event": "stage_started",
+      "stage": "framework_imports",
+      "at_utc": "2026-10-22 15:06:25.906Z"
+    },
+    {
+      "args": [
+        "/usr/bin/python3",
+        "-c",
+        "import os\nos.environ['ENABLE_OFFLINE_BACKEND'] = '0'\nfrom pathlib import Path\nimport numpy as np\nfrom agents import AVAILABLE_AGENTS\nfrom agents.agent import Agent\nfrom arcengine import FrameDataRaw, GameAction, GameState\nagent_class = AVAILABLE_AGENTS['myagent']\nassert issubclass(agent_class, Agent)\nprint('FRAMEWORK_IMPORTS_OK', flush=True)\n# Synthetic public API data only; never instantiate an\n# Arcade or read environment source during this check.\nclass Fixture:\n    def __init__(self):\n        self.observation_space = FrameDataRaw(\n            game_id='runtime-fixture', frame=[np.zeros((4, 4), dtype=np.int8)],\n            state=GameState.NOT_PLAYED, win_levels=1, available_actions=[1])\n    def step(self, action, data=None, reasoning=None):\n        assert action is GameAction.RESET\n        self.observation_space.state = GameState.WIN\n        self.observation_space.levels_completed = 1\n        return self.observation_space\nos.environ['ARC3_LOG_DIR'] = str(Path.cwd().parent / 'diagnostics/synthetic-agent')\nagent = agent_class(card_id='fixture', game_id='runtime-fixture',\n                    agent_name='fixture', ROOT_URL='', record=False,\n                    arc_env=Fixture())\nagent.main()\nassert agent.action_counter == 1 and not agent._recovery_mode\nprint('FRAMEWORK_RUNTIME_OK synthetic_actions=1 gateway_actions=0', flush=True)\n"
+      ],
+      "build_id": "75c1403830052f18",
+      "command": "framework_imports",
+      "elapsed_seconds": 22.018,
+      "event": "command_started",
+      "log": "/kaggle/working/diagnostics/framework_imports.log",
+      "at_utc": "2026-10-22 15:06:25.906Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "command": "framework_imports",
+      "elapsed_seconds": 23.586,
+      "event": "command_completed",
+      "returncode": 0,
+      "at_utc": "2026-10-22 15:06:27.474Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "duration_seconds": 1.569,
+      "elapsed_seconds": 23.586,
+      "event": "stage_completed",
+      "stage": "framework_imports",
+      "at_utc": "2026-10-22 15:06:27.474Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 23.587,
+      "event": "save_preflight_passed",
+      "gameplay_actions": 0,
+      "gateway_contacted": false,
+      "at_utc": "2026-10-22 15:06:27.475Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 23.643,
+      "event": "stage_started",
+      "stage": "llm_startup",
+      "at_utc": "2026-10-22 15:06:27.531Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 23.646,
+      "event": "llm_started",
+      "launcher_sha256": "a635902d9c82a0c8d549a7976690f67588c8be218dac0184c0f3c2d4788886c0",
+      "pid": 249,
+      "at_utc": "2026-10-22 15:06:27.534Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 30.014135520999986,
+      "event": "llm_startup_wait",
+      "at_utc": "2026-10-22 15:06:57.547Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 60.02931907999999,
+      "event": "llm_startup_wait",
+      "at_utc": "2026-10-22 15:07:27.563Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 106.184,
+      "event": "model_staging",
+      "report": {
+        "cache_bound_bytes": 10741854576,
+        "cache_slots": 2,
+        "headroom_bytes": 4294967296,
+        "metadata_bytes": 64194294,
+        "mode": "bounded_shards",
+        "models": {},
+        "root": "/kaggle/working/.arc3-models",
+        "status": "preparing",
+        "storage": {
+          "block_size": 4096,
+          "device": 1794,
+          "disk_free_before": 20937404416,
+          "filesystem": "ext4",
+          "free_inodes": 1310522,
+          "mount": "/kaggle/working",
+          "read_only": false,
+          "total_inodes": 1310720
+        },
+        "transaction": "/kaggle/working/.arc3-models/run-mnru2dwc"
+      },
+      "at_utc": "2026-10-22 15:07:50.072Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 90.04222703600001,
+      "event": "llm_startup_wait",
+      "at_utc": "2026-10-22 15:07:57.575Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 115.689,
+      "event": "model_staging",
+      "report": {
+        "cache_bound_bytes": 10741854576,
+        "cache_high_water_bytes": 0,
+        "cache_slots": 2,
+        "copied_shards": 0,
+        "headroom_bytes": 4294967296,
+        "loaded_shards": 0,
+        "manifest": "/kaggle/working/.arc3-models/run-mnru2dwc/bounded-manifest.json",
+        "metadata_bytes": 64194294,
+        "mode": "bounded_shards",
+        "models": {
+          "draft": {
+            "metadata_files": [
+              {
+                "bytes": 8952,
+                "name": "chat_template.jinja",
+                "source_stream_sha256": "c3cf9e34abf4f9e36c2d72165aa9c132d3e2a725b6c2586aaa3a8af9d7a81041"
+              },
+              {
+                "bytes": 563,
+                "name": "compact_sources.json",
+                "source_stream_sha256": "6978a6dfa0a2a1602203904ae2a67c259e813bd0563a1c16de069f4cedc3849b"
+              },
+              {
+                "bytes": 4915,
+                "name": "config.json",
+                "source_stream_sha256": "8e3846487f4f0144a968e2a24f5c31efd7d36687b2b112ed51e14e4ab8ab9c58"
+              },
+              {
+                "bytes": 202,
+                "name": "generation_config.json",
+                "source_stream_sha256": "e70c136c1b78ddc1fb0905bac8e733a4dc448d4f852a5dd75143fffc70be550e"
+              },
+              {
+                "bytes": 451501,
+                "name": "model.safetensors.index.json",
+                "source_stream_sha256": "a3e600dae46c7f32e2ff42e6c40f46f75fb71ae7d5b73011b666664e5d54f6a2"
+              },
+              {
+                "bytes": 390,
+                "name": "preprocessor_config.json",
+                "source_stream_sha256": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516"
+              },
+              {
+                "bytes": 12809320,
+                "name": "tokenizer.json",
+                "source_stream_sha256": "0997f410c57a1f4e53b09e4be8f4a172d90edd9564368fb0847030937229b9f3"
+              },
+              {
+                "bytes": 17928,
+                "name": "tokenizer_config.json",
+                "source_stream_sha256": "b11349aafa7cdc6a320767cf7ceb29ed82f7eda5d65e8e0819e76f0ce947bf27"
+              },
+              {
+                "bytes": 385,
+                "name": "video_preprocessor_config.json",
+                "source_stream_sha256": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13"
+              },
+              {
+                "bytes": 6722759,
+                "name": "vocab.json",
+                "source_stream_sha256": "ce99b4cb2983d118806ce0a8b777a35b093e2000a503ebde25853284c9dfa003"
+              }
+            ],
+            "path": "/kaggle/working/.arc3-models/run-mnru2dwc/draft",
+            "shard_count": 2,
+            "source": "/kaggle/input/albucino-qwen3-8-flash-next-drafter"
+          },
+          "target": {
+            "metadata_files": [
+              {
+                "bytes": 1635,
+                "name": ".gitattributes",
+                "source_stream_sha256": "d1a8f4a1d2e3787c5956393d9306365ebefe1912cb76828870682b1ab16f5c27"
+              },
+              {
+                "bytes": 2418,
+                "name": "README.md",
+                "source_stream_sha256": "00798492330afbb7285fd9c0deee4fc7ac01bbc197eb49d1d5c868ceafe54293"
+              },
+              {
+                "bytes": 8952,
+                "name": "chat_template.jinja",
+                "source_stream_sha256": "c3cf9e34abf4f9e36c2d72165aa9c132d3e2a725b6c2586aaa3a8af9d7a81041"
+              },
+              {
+                "bytes": 266426,
+                "name": "config.json",
+                "source_stream_sha256": "0fabfa21fab8bfe69f02234f7ae8df4ed91b785fca2e22011c1230f6a07e5329"
+              },
+              {
+                "bytes": 214,
+                "name": "generation_config.json",
+                "source_stream_sha256": "6ef70d6670f24f03a9041724c7663ef26bc1e678d10f79c93fe11c192ba14b7d"
+              },
+              {
+                "bytes": 23794973,
+                "name": "model.safetensors.index.json",
+                "source_stream_sha256": "32732da58649d48911ae5f7efaf9d400d7e573d03a241aa483095f817ba7bd61"
+              },
+              {
+                "bytes": 16582,
+                "name": "ple_reshard_manifest.json",
+                "source_stream_sha256": "5dd264d7c1a109c0da7196c53e987a80025f529c5299d1bafacf67b4c92925cf"
+              },
+              {
+                "bytes": 443,
+                "name": "preprocessor_config.json",
+                "source_stream_sha256": "3a159dfec9978a186a72ba085e0ad6a050f3968d8b364218d7bd13f5c89381f2"
+              },
+              {
+                "bytes": 1220,
+                "name": "processor_config.json",
+                "source_stream_sha256": "bfbc24af59a3e73a9cd0653b8d4ae758dfaec4e3e6c15dfb1c6c8ee8d5683c85"
+              },
+              {
+                "bytes": 94026,
+                "name": "quantization_config.json",
+                "source_stream_sha256": "2371a9d0bed1ff619622ac57aa0e6e5b39688bb834b48d761e90d5834f4cab4b"
+              },
+              {
+                "bytes": 19989325,
+                "name": "tokenizer.json",
+                "source_stream_sha256": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523"
+              },
+              {
+                "bytes": 1165,
+                "name": "tokenizer_config.json",
+                "source_stream_sha256": "792fa3f0cb88b111e54ef3134c873531008c4df471d108da17903426e308aa7b"
+              }
+            ],
+            "path": "/kaggle/working/.arc3-models/run-mnru2dwc/target",
+            "shard_count": 38,
+            "source": "/kaggle/input/intel-qwen3-8-flash-next-w4a16-autoround"
+          }
+        },
+        "root": "/kaggle/working/.arc3-models",
+        "status": "metadata_ready",
+        "storage": {
+          "block_size": 4096,
+          "device": 1794,
+          "disk_free_before": 20937404416,
+          "filesystem": "ext4",
+          "free_inodes": 1310522,
+          "mount": "/kaggle/working",
+          "read_only": false,
+          "total_inodes": 1310720
+        },
+        "transaction": "/kaggle/working/.arc3-models/run-mnru2dwc"
+      },
+      "at_utc": "2026-10-22 15:07:59.577Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 120.056271667,
+      "event": "llm_startup_wait",
+      "at_utc": "2026-10-22 15:08:27.589Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 152.206,
+      "event": "model_staging",
+      "report": {
+        "cache_bound_bytes": 10741854576,
+        "cache_high_water_bytes": 0,
+        "cache_slots": 2,
+        "copied_shards": 0,
+        "headroom_bytes": 4294967296,
+        "loaded_shards": 0,
+        "loader_adapter": {
+          "contract": "/kaggle/working/diagnostics/loader_contract.json",
+          "method_sha256": {
+            "_get_weights_iterator": "66ad457b99705d8ce502839220015aa6c5341df041b39998815a0ca9607d514f",
+            "_prepare_weights": "078eccb9dfd360aba03d7f0d0edd8ca30e4c8b9be2e41309ff3dfeb5ca1439d8"
+          },
+          "original_sha256": "d12e619c9a334f1af61d79d1958c59554e0931986da4942b1f570562d0752bb1",
+          "patched_sha256": "f8fc65d10ad6b222675a6f6ec44098d65c430b9dc79b677cd45345bbc5e55781",
+          "wheel_sha256": "d0620216732b82b6efd4f8a78cc9b5f55343a4d3837fdfa3bcbb841b7718a225"
+        },
+        "manifest": "/kaggle/working/.arc3-models/run-mnru2dwc/bounded-manifest.json",
+        "metadata_bytes": 64194294,
+        "mode": "bounded_shards",
+        "models": {
+          "draft": {
+            "metadata_files": [
+              {
+                "bytes": 8952,
+                "name": "chat_template.jinja",
+                "source_stream_sha256": "c3cf9e34abf4f9e36c2d72165aa9c132d3e2a725b6c2586aaa3a8af9d7a81041"
+              },
+              {
+                "bytes": 563,
+                "name": "compact_sources.json",
+                "source_stream_sha256": "6978a6dfa0a2a1602203904ae2a67c259e813bd0563a1c16de069f4cedc3849b"
+              },
+              {
+                "bytes": 4915,
+                "name": "config.json",
+                "source_stream_sha256": "8e3846487f4f0144a968e2a24f5c31efd7d36687b2b112ed51e14e4ab8ab9c58"
+              },
+              {
+                "bytes": 202,
+                "name": "generation_config.json",
+                "source_stream_sha256": "e70c136c1b78ddc1fb0905bac8e733a4dc448d4f852a5dd75143fffc70be550e"
+              },
+              {
+                "bytes": 451501,
+                "name": "model.safetensors.index.json",
+                "source_stream_sha256": "a3e600dae46c7f32e2ff42e6c40f46f75fb71ae7d5b73011b666664e5d54f6a2"
+              },
+              {
+                "bytes": 390,
+                "name": "preprocessor_config.json",
+                "source_stream_sha256": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516"
+              },
+              {
+                "bytes": 12809320,
+                "name": "tokenizer.json",
+                "source_stream_sha256": "0997f410c57a1f4e53b09e4be8f4a172d90edd9564368fb0847030937229b9f3"
+              },
+              {
+                "bytes": 17928,
+                "name": "tokenizer_config.json",
+                "source_stream_sha256": "b11349aafa7cdc6a320767cf7ceb29ed82f7eda5d65e8e0819e76f0ce947bf27"
+              },
+              {
+                "bytes": 385,
+                "name": "video_preprocessor_config.json",
+                "source_stream_sha256": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13"
+              },
+              {
+                "bytes": 6722759,
+                "name": "vocab.json",
+                "source_stream_sha256": "ce99b4cb2983d118806ce0a8b777a35b093e2000a503ebde25853284c9dfa003"
+              }
+            ],
+            "path": "/kaggle/working/.arc3-models/run-mnru2dwc/draft",
+            "shard_count": 2,
+            "source": "/kaggle/input/albucino-qwen3-8-flash-next-drafter"
+          },
+          "target": {
+            "metadata_files": [
+              {
+                "bytes": 1635,
+                "name": ".gitattributes",
+                "source_stream_sha256": "d1a8f4a1d2e3787c5956393d9306365ebefe1912cb76828870682b1ab16f5c27"
+              },
+              {
+                "bytes": 2418,
+                "name": "README.md",
+                "source_stream_sha256": "00798492330afbb7285fd9c0deee4fc7ac01bbc197eb49d1d5c868ceafe54293"
+              },
+              {
+                "bytes": 8952,
+                "name": "chat_template.jinja",
+                "source_stream_sha256": "c3cf9e34abf4f9e36c2d72165aa9c132d3e2a725b6c2586aaa3a8af9d7a81041"
+              },
+              {
+                "bytes": 266426,
+                "name": "config.json",
+                "source_stream_sha256": "0fabfa21fab8bfe69f02234f7ae8df4ed91b785fca2e22011c1230f6a07e5329"
+              },
+              {
+                "bytes": 214,
+                "name": "generation_config.json",
+                "source_stream_sha256": "6ef70d6670f24f03a9041724c7663ef26bc1e678d10f79c93fe11c192ba14b7d"
+              },
+              {
+                "bytes": 23794973,
+                "name": "model.safetensors.index.json",
+                "source_stream_sha256": "32732da58649d48911ae5f7efaf9d400d7e573d03a241aa483095f817ba7bd61"
+              },
+              {
+                "bytes": 16582,
+                "name": "ple_reshard_manifest.json",
+                "source_stream_sha256": "5dd264d7c1a109c0da7196c53e987a80025f529c5299d1bafacf67b4c92925cf"
+              },
+              {
+                "bytes": 443,
+                "name": "preprocessor_config.json",
+                "source_stream_sha256": "3a159dfec9978a186a72ba085e0ad6a050f3968d8b364218d7bd13f5c89381f2"
+              },
+              {
+                "bytes": 1220,
+                "name": "processor_config.json",
+                "source_stream_sha256": "bfbc24af59a3e73a9cd0653b8d4ae758dfaec4e3e6c15dfb1c6c8ee8d5683c85"
+              },
+              {
+                "bytes": 94026,
+                "name": "quantization_config.json",
+                "source_stream_sha256": "2371a9d0bed1ff619622ac57aa0e6e5b39688bb834b48d761e90d5834f4cab4b"
+              },
+              {
+                "bytes": 19989325,
+                "name": "tokenizer.json",
+                "source_stream_sha256": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523"
+              },
+              {
+                "bytes": 1165,
+                "name": "tokenizer_config.json",
+                "source_stream_sha256": "792fa3f0cb88b111e54ef3134c873531008c4df471d108da17903426e308aa7b"
+              }
+            ],
+            "path": "/kaggle/working/.arc3-models/run-mnru2dwc/target",
+            "shard_count": 38,
+            "source": "/kaggle/input/intel-qwen3-8-flash-next-w4a16-autoround"
+          }
+        },
+        "root": "/kaggle/working/.arc3-models",
+        "status": "metadata_ready",
+        "storage": {
+          "block_size": 4096,
+          "device": 1794,
+          "disk_free_before": 20937404416,
+          "filesystem": "ext4",
+          "free_inodes": 1310522,
+          "mount": "/kaggle/working",
+          "read_only": false,
+          "total_inodes": 1310720
+        },
+        "transaction": "/kaggle/working/.arc3-models/run-mnru2dwc"
+      },
+      "at_utc": "2026-10-22 15:08:36.094Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 150.069362069,
+      "event": "llm_startup_wait",
+      "at_utc": "2026-10-22 15:08:57.603Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 193.724,
+      "event": "llm_stopped",
+      "returncode": 247,
+      "at_utc": "2026-10-22 15:09:17.612Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 193.726,
+      "event": "model_staging_cleaned",
+      "transaction": "/kaggle/working/.arc3-models/run-mnru2dwc",
+      "at_utc": "2026-10-22 15:09:17.614Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 193.727,
+      "event": "llm_startup_log",
+      "file": "llm_launcher.log",
+      "tail": "Precaching: Started...\nPrecaching: loaded 211 files (6.70 GB) in 73.80 seconds.\n\n=== installing Pennyroyal (offline) ===\n$ /tmp/arc3-pennyroyal-a635902d9c82a0c8/bin/uv venv --python /usr/bin/python3 /tmp/arc3-pennyroyal-a635902d9c82a0c8/venv\n$ /tmp/arc3-pennyroyal-a635902d9c82a0c8/bin/uv pip install --python /tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/bin/python --no-index --only-binary :all: --find-links /kaggle/input/pennyroyal-v253/wheels -r /kaggle/input/pennyroyal-v253/requirements.lock\n$ /tmp/arc3-pennyroyal-a635902d9c82a0c8/bin/uv pip install --python /tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/bin/python --no-index --only-binary :all: --find-links /kaggle/input/pennyroyal-v253/wheels --reinstall --no-deps /kaggle/input/pennyroyal-v253/wheels/sglang-0.5.19+gd00d88efc8d6-cp312-cp312-linux_x86_64.whl\nHost GPU driver libcuda: /usr/local/nvidia/lib64/libcuda.so.580.178.04 (from 3 candidates: ['/usr/local/nvidia/lib64/libcuda.so.580.178.04', '/usr/local/nvidia/lib64/libcuda.so.1', '/usr/local/nvidia/lib64/libcuda.so'])\nSymlinked /tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcuda.so -> /usr/local/nvidia/lib64/libcuda.so.580.178.04\nSymlinked /tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcuda.so.1 -> /usr/local/nvidia/lib64/libcuda.so.580.178.04\n$ /tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/lib/python3.12/site-packages/nvidia/cu13/bin/nvcc --version\nnvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\nHost compiler: g++-11\n$ /tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/bin/python -c 'import os, pathlib, sglang, subprocess, torch\nprint(\"sglang\", sglang.__version__, \"| torch\", torch.__version__)\nprint(\"CUDA_VISIBLE_DEVICES:\", os.environ.get(\"CUDA_VISIBLE_DEVICES\"))\nprint(\"LD_LIBRARY_PATH:\", os.environ.get(\"LD_LIBRARY_PATH\"))\ntry:\n    res = subprocess.run([\"nvidia-smi\"], capture_output=True, text=True, check=False)\n    if res.stdout:\n        print(\"nvidia-smi:\")\n        print(res.stdout)\n    if res.stderr:\n        print(\"nvidia-smi stderr:\")\n        print(res.stderr)\nexcept Exception as e:\n    print(\"nvidia-smi exec error:\", e)\n\ntry:\n    torch.cuda.init()\n    print(\"torch.cuda.init() succeeded! Device count:\", torch.cuda.device_count())\nexcept Exception as e:\n    print(\"torch.cuda.init() error:\", repr(e))\n\nif not torch.cuda.is_available():\n    raise RuntimeError(f\"CUDA is unavailable! Device count={torch.cuda.device_count()}\")\nprint(\"GPU:\", torch.cuda.get_device_name(0), \"capability:\", torch.cuda.get_device_capability(0))\n'\nsglang 0.5.19+gd00d88efc8d6 | torch 2.13.0+cu130\nCUDA_VISIBLE_DEVICES: None\nLD_LIBRARY_PATH: /tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/lib/python3.12/site-packages/nvidia/cu13/lib64:/tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/lib/python3.12/site-packages/nvidia/cu13/lib:/usr/local/nvidia/lib64:/usr/lib/x86_64-linux-gnu:/usr/local/nvidia/lib64:/usr/local/cuda/lib64:/usr/local/cuda/lib64\nnvidia-smi:\nThu Oct 22 15:08:34 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA RTX PRO 6000 Blac...    Off |   00000000:05:00.0 Off |                    0 |\n| N/A   31C    P0             48W /  600W |       3MiB /  97887MiB |      0%      Default |\n|                                         |                        |             Disabled |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+\n\ntorch.cuda.init() succeeded! Device count: 1\nGPU: NVIDIA RTX PRO 6000 Blackwell Server Edition capability: (12, 0)\nTarget: /kaggle/working/.arc3-models/run-mnru2dwc/target | shards: 38 | PLE dtype: checkpoint default (typically BF16)\nDraft source: /kaggle/working/.arc3-models/run-mnru2dwc/draft\nSGLang draft view: /tmp/arc3-pennyroyal-a635902d9c82a0c8/draft-view-9cbc4a5cb5e1c817 (2 linked weight shards)\nSGLang launch: ['/tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/bin/sglang', 'serve', '--model-path', '/kaggle/working/.arc3-models/run-mnru2dwc/target', '--load-format', 'safetensors', '--model-loader-extra-config', '{\"enable_multithread_load\":false}', '--served-model-name', 'flashnext', '--host', '127.0.0.1', '--port', '8001', '--tensor-parallel-size', '1', '--dtype', 'bfloat16', '--quantization', 'auto-round', '--kv-cache-dtype', 'fp8_e4m3', '--mem-fraction-static', '0.88', '--context-length', '65536', '--page-size', '64', '--max-running-requests', '4', '--chunked-prefill-size', '8192', '--max-prefill-tokens', '16384', '--cuda-graph-max-bs-decode', '4', '--cuda-graph-bs-decode', '1', '2', '4', '--mamba-ssm-dtype', 'bfloat16', '--max-mamba-cache-size', '16', '--mamba-radix-cache-strategy', 'extra_buffer', '--mamba-track-interval', '64', '--mamba-backend', 'flashinfer', '--linear-attn-decode-backend', 'flashinfer', '--linear-attn-prefill-backend', 'flashinfer', '--moe-runner-backend', 'auto', '--ple-offload-embedding', '--trust-remote-code', '--mm-feature-transport', 'cpu', '--image-processor-backend', 'pil', '--reasoning-parser', 'qwen3', '--tool-call-parser', 'qwen3_coder', '--default-chat-template-kwargs', '{\"preserve_thinking\":true}', '--watchdog-timeout', '1800', '--schedule-policy', 'lpm', '--warmups', 'structured_output', '--enable-cache-report', '--enable-metrics', '--enable-request-time-stats-logging', '--weight-loader-drop-cache-after-load', '--chat-template', '/kaggle/working/.arc3-models/run-mnru2dwc/target/chat_template.jinja', '--gdn-mtp-cache-mode', 'none', '--speculative-algorithm', 'NEXTN', '--speculative-num-steps', '3', '--speculative-eagle-topk', '1', '--speculative-num-draft-tokens', '4', '--speculative-draft-model-path', '/tmp/arc3-pennyroyal-a635902d9c82a0c8/draft-view-9cbc4a5cb5e1c817', '--speculative-draft-model-quantization', 'compressed-tensors', '--speculative-moe-runner-backend', 'auto', '--speculative-draft-kv-cache-dtype', 'fp8_e4m3', '--speculative-accept-threshold-single', '1.0', '--speculative-accept-threshold-acc', '1.0', '--speculative-token-map', '/kaggle/input/pennyroyal-v253/hot_tokens_64k.pt']\n",
+      "at_utc": "2026-10-22 15:09:17.615Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 193.727,
+      "event": "llm_startup_log",
+      "file": "serve.log",
+      "tail": " 6144, 6656, 7168, 7680, 8192], 'tc_compiler': 'eager', 'full_prefill_max_req': None, 'full_prefill_prefix_chunk_tokens': None}}, 'cuda_graph_backend_decode': None, 'cuda_graph_backend_prefill': None, 'cuda_graph_max_bs_decode': 4, 'cuda_graph_max_bs_prefill': None, 'cuda_graph_bs_decode': [1, 2, 4], 'cuda_graph_bs_prefill': None, 'cuda_graph_tc_compiler': None, 'disable_prefill_cuda_graph': False, 'disable_decode_cuda_graph': False, 'disable_cuda_graph': False, 'disable_cuda_graph_padding': False, 'enable_profile_cuda_graph': False, 'enable_cudagraph_gc': False, 'debug_cuda_graph': False, 'enable_layerwise_nvtx_marker': False, 'enable_nccl_nvls': False, 'enable_symm_mem': False, 'triton_attention_reduce_in_fp32': False, 'triton_attention_num_kv_splits': 8, 'triton_attention_split_tile_size': None, 'flashinfer_mla_disable_ragged': False, 'enable_fused_qk_norm_rope': False, 'enable_precise_embedding_interpolation': False, 'enable_fused_moe_sum_all_reduce': False, 'enable_deepseek_v4_fp4_indexer': False, 'disable_custom_all_reduce': False, 'enable_mscclpp': False, 'enable_torch_symm_mem': False, 'enable_scattered_sconv': False, 'pre_warm_nccl': False, 'enable_quant_communications': False, 'enable_flashinfer_allreduce_fusion': False, 'enforce_disable_flashinfer_allreduce_fusion': False, 'flashinfer_allreduce_fusion_backend': None, 'enable_aiter_allreduce_fusion': False, 'enable_torch_compile': False, 'enable_torch_compile_debug_mode': False, 'torch_compile_max_bs': 32, 'speculative_algorithm': 'EAGLE', 'speculative_draft_model_path': '/tmp/arc3-pennyroyal-a635902d9c82a0c8/draft-view-9cbc4a5cb5e1c817', 'speculative_draft_model_revision': 'main', 'speculative_draft_model_override_args': None, 'speculative_draft_load_format': None, 'speculative_num_steps': 3, 'speculative_eagle_topk': 1, 'speculative_num_draft_tokens': 4, 'speculative_dflash_block_size': None, 'speculative_dspark_block_size': None, 'speculative_dspark_sps_table_path': None, 'speculative_dspark_confidence_sts_path': None, 'speculative_dspark_align_verify_tokens_to_graph_tier': False, 'speculative_accept_threshold_single': 1.0, 'speculative_accept_threshold_acc': 1.0, 'speculative_use_rejection_sampling': False, 'speculative_token_map': '/kaggle/input/pennyroyal-v253/hot_tokens_64k.pt', 'speculative_attention_mode': 'prefill', 'speculative_draft_attention_backend': None, 'speculative_dsa_topk_backend': 'sgl-kernel', 'speculative_draft_kv_cache_dtype': 'fp8_e4m3', 'speculative_draft_window_size': None, 'speculative_moe_runner_backend': 'auto', 'speculative_moe_a2a_backend': None, 'speculative_draft_model_quantization': 'compressed-tensors', '_speculative_draft_quantization_explicitly_set': True, 'speculative_skip_dp_mlp_sync': False, 'enable_multi_layer_eagle': False, 'speculative_adaptive': False, 'speculative_adaptive_config': None, 'decoupled_spec_bind_endpoint': None, 'decoupled_spec_connect_endpoints': None, 'decoupled_spec_rank': None, 'decoupled_spec_role': 'null', 'spec_trace_dir': None, 'speculative_ngram_min_bfs_breadth': 1, 'speculative_ngram_max_bfs_breadth': 10, 'speculative_ngram_match_type': 'BFS', 'speculative_ngram_max_trie_depth': 18, 'speculative_ngram_capacity': 10000000, 'speculative_ngram_external_corpus_path': None, 'speculative_ngram_external_sam_budget': 0, 'speculative_ngram_external_corpus_max_tokens': 10000000, 'ep_size': 1, 'moe_a2a_backend': 'none', 'enable_w4a4_mxfp4_megamoe': False, 'moe_runner_backend': 'auto', 'flashinfer_mxfp4_moe_precision': 'default', 'deepep_mode': 'auto', 'fuseep_mode': 2, 'deepep_dispatcher_output_dtype': 'auto', 'ep_num_redundant_experts': 0, 'ep_dispatch_algorithm': None, 'init_expert_location': 'trivial', 'enable_eplb': False, 'eplb_algorithm': 'auto', 'eplb_rebalance_num_iterations': 1000, 'eplb_rebalance_layers_per_chunk': None, 'eplb_min_rebalancing_utilization_threshold': 1.0, 'expert_distribution_recorder_mode': None, 'expert_distribution_recorder_buffer_size': 1000, 'expert_balancedness_report_mode': 'off', 'deepep_config': None, 'moe_dense_tp_size': None, 'elastic_ep_backend': None, 'enable_elastic_expert_backup': False, 'mooncake_ib_device': None, 'enable_waterfill': False, 'ep_join_mode': None, 'ep_join_rank_offset': 0, 'elastic_ep_initial_size': None, 'max_ep_size': None, 'elastic_ep_scale_timeout': 600, 'elastic_ep_rejoin': False, 'disable_flashinfer_cutlass_moe_fp4_allgather': False, 'disable_shared_experts_fusion': False, 'enforce_shared_experts_fusion': False, 'max_mamba_cache_size': 16, 'mamba_ssm_dtype': 'bfloat16', 'mamba_max_states_per_path': -1, 'enable_mamba_cache_stochastic_rounding': False, 'mamba_cache_philox_rounds': 0, 'mamba_full_memory_ratio': 0.9, 'mamba_radix_cache_strategy': 'extra_buffer', 'uses_mamba_radix_cache': True, 'mamba_track_interval': 64, 'gdn_mtp_cache_mode': 'none', 'enable_int8_mamba_checkpoint': False, 'int8_mamba_ckpt_size': None, 'linear_attn_backend': 'triton', 'linear_attn_decode_backend': 'flashinfer', 'linear_attn_prefill_backend': 'flashinfer', 'ple_offload_embedding': True, 'linear_attn_verify_backend': None, 'enable_linear_replayssm': False, 'linear_replayssm_cache_len': 16, 'enable_linear_replayssm_spec': False, 'enable_hierarchical_cache': False, 'hicache_host_memory_mode': 'cache', 'hicache_ratio': 2.0, 'hicache_size': 0, 'hicache_write_policy': 'write_through', 'hicache_io_backend': 'kernel', 'hicache_mem_layout': 'page_first', 'hicache_storage_backend': None, 'hicache_storage_prefetch_policy': 'timeout', 'hicache_storage_backend_extra_config': None, 'enable_hisparse': False, 'hisparse_config': None, 'enable_broadcast_mm_inputs_process': False, 'enable_prefix_mm_cache': False, 'mm_enable_dp_encoder': False, 'mm_process_config': {}, 'mm_processor_worker_num': 0, 'mm_io_worker_num': 0, 'allowed_media_domains': [], 'media_url_max_file_size_mb': 64, 'mm_preprocess_cache_size_mb': None, 'trust_mm_content_hashes': False, 'limit_mm_data_per_request': None, 'enable_mm_global_cache': False, 'image_processor_backend': 'pil', 'mm_global_cache_backend': 'mooncake', 'disable_fast_image_processor': False, 'mm_feature_transport': 'cpu', 'keep_mm_feature_on_device': False, 'enable_lora': None, 'enable_lora_overlap_loading': None, 'max_lora_rank': None, 'lora_target_modules': None, 'lora_paths': None, 'max_loaded_loras': None, 'max_loras_per_batch': 8, 'lora_eviction_policy': 'lru', 'lora_backend': 'csgmv', 'max_lora_chunk_size': 16, 'experts_shared_outer_loras': None, 'lora_use_virtual_experts': False, 'lora_strict_loading': False, 'lora_drain_wait_threshold': 0.0, 'enable_two_batch_overlap': False, 'enable_single_batch_overlap': False, 'tbo_token_distribution_threshold': 0.48, 'cpu_offload_gb': 0, 'offload_group_size': -1, 'offload_num_in_group': 1, 'offload_prefetch_step': 1, 'offload_mode': 'cpu', 'enable_lmcache': False, 'lmcache_config_file': None, 'enable_flexkv': False, 'flexkv_config_file': None, 'kt_weight_path': None, 'kt_method': 'AMXINT4', 'kt_cpuinfer': None, 'kt_threadpool_count': 2, 'kt_num_gpu_experts': None, 'kt_max_deferred_experts_per_token': None, 'dllm_algorithm': None, 'dllm_algorithm_config': None, 'dllm_fdfo': True, 'disaggregation_mode': 'null', 'disaggregation_transfer_backend': 'mooncake', 'disaggregation_bootstrap_port': 8998, 'disaggregation_ib_device': None, 'disaggregation_decode_enable_radix_cache': False, 'disaggregation_decode_enable_offload_kvcache': False, 'disaggregation_decode_retraction_backup': None, 'num_reserved_decode_tokens': 512, 'disaggregation_decode_extra_slots': None, 'disaggregation_decode_polling_interval': 1, 'optimistic_prefill_attempts': 0, 'encoder_only': False, 'language_only': False, 'language_model_only': False, 'encoder_transfer_backend': 'zmq_to_scheduler', 'encoder_urls': [], 'encoder_bootstrap_port': 8997, 'encoder_register_urls': [], 'enable_adaptive_dispatch_to_encoder': False, 'enable_pdmux': False, 'pdmux_config_path': None, 'sm_group_num': 8, 'startup_weight_load_mode': 'serial', 'custom_weight_loader': [], 'weight_loader_disable_mmap': False, 'weight_loader_prefetch_checkpoints': False, 'weight_loader_prefetch_num_threads': 4, 'weight_loader_drop_cache_after_load': True, 'remote_instance_weight_loader_seed_instance_ip': None, 'remote_instance_weight_loader_seed_instance_service_port': None, 'remote_instance_weight_loader_send_weights_group_ports': None, 'remote_instance_weight_loader_backend': 'nccl', 'remote_instance_weight_loader_start_seed_via_transfer_engine': False, 'engine_info_bootstrap_port': 6789, 'modelexpress_config': None, 'download_dir': None, 'model_checksum': None, 'delete_ckpt_after_loading': False, 'decrypted_config_file': None, 'decrypted_draft_config_file': None, 'checkpoint_engine_wait_weights_before_ready': False, 'enable_prefill_delayer': False, 'prefill_delayer_max_delay_passes': 30, 'prefill_delayer_token_usage_low_watermark': None, 'prefill_delayer_forward_passes_buckets': None, 'prefill_delayer_wait_seconds_buckets': None, 'prefill_delayer_queue_min_ratio': None, 'prefill_delayer_max_delay_ms': None, 'min_free_slots_delay': None, 'enable_deterministic_inference': False, 'rl_on_policy_target': None, 'kv_canary': 'none', 'kv_canary_real_data': 'none', 'kv_canary_sweep_interval': 0, 'enable_dynamic_batch_tokenizer': False, 'dynamic_batch_tokenizer_batch_size': 32, 'dynamic_batch_tokenizer_batch_timeout': 0.002, 'enable_tokenizer_batch_encode': False, 'disable_tokenizer_batch_decode': False, 'debug_tensor_dump_output_folder': None, 'debug_tensor_dump_layers': None, 'debug_tensor_dump_input_file': None, 'enable_memory_saver': False, 'enable_weights_cpu_backup': False, 'enable_draft_weights_cpu_backup': False, 'enable_custom_logit_processor': False, 'enable_return_hidden_states': False, 'return_hidden_states_mode': None, 'enable_return_routed_experts': False, 'enable_return_indexer_topk': False, 'disable_outlines_disk_cache': False, 'enable_mis': False, 'weight_cache_mode': 'off', 'weight_cache_socket': None, 'weight_cache_timeout': 1800, 'forward_hooks': None, 'msprobe_dump_config': None}\n[transformers] Unrecognized keys in `rope_parameters` for 'rope_type'='default': {'mrope_section', 'mrope_interleaved'}\n[transformers] Unrecognized keys in `rope_parameters` for 'rope_type'='default': {'mrope_section', 'mrope_interleaved'}\n[transformers] Unrecognized keys in `rope_parameters` for 'rope_type'='default': {'mrope_section', 'mrope_interleaved'}\n[transformers] Unrecognized keys in `rope_parameters` for 'rope_type'='default': {'mrope_section', 'mrope_interleaved'}\n[2026-10-22 15:08:53] Multimodal data loading enabled with 16 worker threads (auto).\n[2026-10-22 15:08:53] SM120 low-M BF16 GEMM path enabled\n[transformers] Unrecognized keys in `rope_parameters` for 'rope_type'='default': {'mrope_section', 'mrope_interleaved'}\n[transformers] Unrecognized keys in `rope_parameters` for 'rope_type'='default': {'mrope_section', 'mrope_interleaved'}\n[2026-10-22 15:08:53] Init torch distributed begin.\n[transformers] Unrecognized keys in `rope_parameters` for 'rope_type'='default': {'mrope_interleaved', 'mrope_section'}\n[transformers] Unrecognized keys in `rope_parameters` for 'rope_type'='default': {'mrope_interleaved', 'mrope_section'}\n[transformers] Unrecognized keys in `rope_parameters` for 'rope_type'='default': {'mrope_interleaved', 'mrope_section'}\n[2026-10-22 15:08:57] Multimodal data loading enabled with 16 worker threads (auto).\n[2026-10-22 15:08:58] Multimodal processor concurrency enabled with 2 isolated worker threads (auto).\n[2026-10-22 15:08:58] Loading chat template from argument: /kaggle/working/.arc3-models/run-mnru2dwc/target/chat_template.jinja\n[2026-10-22 15:08:58] Detected user specified Jinja chat template with content format: openai\n[2026-10-22 15:08:59] Auto-detected template features: reasoning_config=ReasoningToggleConfig(toggle_param='enable_thinking', default_enabled=True, special_case=None, effort_kwarg=None), reasoning_parser=qwen3, tool_call_parser=qwen3_coder\n[W1022 15:09:01.209356141 socket.cpp:207] [c10d] The hostname of the client socket cannot be retrieved. err=-3\n[2026-10-22 15:09:01] Init torch distributed ends. elapsed=8.07 s, mem usage=0.09 GB\n[2026-10-22 15:09:02] Load weight begin. avail mem=94.17 GB\n[2026-10-22 15:09:02] Multimodal attention backend not set. Use triton_attn.\n[2026-10-22 15:09:02] Using triton_attn as multimodal attention backend.\n[2026-10-22 15:09:02] AutoRound GPTQ config does not specify lm_head_quantized, desc_act, dynamic, checkpoint_format, true_sequential, static_groups; using SGLang defaults {'lm_head_quantized': False, 'desc_act': False, 'dynamic': {}, 'checkpoint_format': '', 'true_sequential': False, 'static_groups': False}.\n[2026-10-22 15:09:02] FlashInfer TRTLLM MoE deferred finalize is disabled (moe_runner_backend=auto, quant_method=GPTQMarlinMoEMethod).\n[2026-10-22 15:09:11] using attn output gate!\n[2026-10-22 15:09:17] Scheduler hit an exception: Traceback (most recent call last):\n  File \"/tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/lib/python3.12/site-packages/sglang/srt/managers/scheduler.py\", line 5243, in run_scheduler_process\n    scheduler = Scheduler(\n                ^^^^^^^^^^\n  File \"/tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/lib/python3.12/site-packages/sglang/srt/managers/scheduler.py\", line 526, in __init__\n    self.init_model_worker()\n  File \"/tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/lib/python3.12/site-packages/sglang/srt/managers/scheduler.py\", line 1011, in init_model_worker\n    self.init_tp_model_worker()\n  File \"/tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/lib/python3.12/site-packages/sglang/srt/managers/scheduler.py\", line 937, in init_tp_model_worker\n    self.tp_worker = TpModelWorker(**worker_kwargs)\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/lib/python3.12/site-packages/sglang/srt/managers/tp_worker.py\", line 344, in __init__\n    self._init_model_runner()\n  File \"/tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/lib/python3.12/site-packages/sglang/srt/managers/tp_worker.py\", line 473, in _init_model_runner\n    self._model_runner = ModelRunner(\n                         ^^^^^^^^^^^^\n  File \"/tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/lib/python3.12/site-packages/sglang/srt/model_executor/model_runner.py\", line 454, in __init__\n    self.initialize()\n  File \"/tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/lib/python3.12/site-packages/sglang/srt/model_executor/model_runner.py\", line 649, in initialize\n    self.load_model()\n  File \"/tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/lib/python3.12/site-packages/sglang/srt/model_executor/model_runner.py\", line 1150, in load_model\n    loaded = load_model_with_memory_saver(\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/lib/python3.12/site-packages/sglang/srt/model_executor/model_runner_components/load_model_utils.py\", line 332, in load_model_with_memory_saver\n    model = loader.load_model(\n            ^^^^^^^^^^^^^^^^^^\n  File \"/tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/lib/python3.12/site-packages/sglang/srt/model_loader/loader.py\", line 968, in load_model\n    self.load_weights_and_postprocess(\n  File \"/tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/lib/python3.12/site-packages/sglang/srt/model_loader/loader.py\", line 1020, in load_weights_and_postprocess\n    model.load_weights(weights)\n  File \"/tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/lib/python3.12/site-packages/sglang/srt/models/qwen4_exp.py\", line 2204, in load_weights\n    for name, loaded_weight in weights:\n                               ^^^^^^^\n  File \"/tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/lib/python3.12/site-packages/sglang/srt/model_loader/loader.py\", line 715, in _get_all_weights\n    yield from self._get_weights_iterator(primary_weights)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/arc3-pennyroyal-a635902d9c82a0c8/venv/lib/python3.12/site-packages/sglang/srt/model_loader/loader.py\", line 658, in _get_weights_iterator\n    weights_iterator = __import__(\"arc3_bounded_loader\").weights_iterator(\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: weights_iterator() got an unexpected keyword argument 'prefetch_lookahead'\n\n[2026-10-22 15:09:17] Received sigquit from a child process. It usually means the child failed.\n[2026-10-22 15:09:17] kill_process_tree called: parent_pid=612, include_parent=True, pid=612\n",
+      "at_utc": "2026-10-22 15:09:17.615Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 193.727,
+      "event": "llm_fallback",
+      "mode": "exploration",
+      "reason": "RuntimeError: launcher_exited:247",
+      "at_utc": "2026-10-22 15:09:17.615Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "duration_seconds": 170.084,
+      "elapsed_seconds": 193.727,
+      "event": "stage_completed",
+      "stage": "llm_startup",
+      "at_utc": "2026-10-22 15:09:17.615Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 193.861,
+      "evaluated": false,
+      "event": "submission_bootstrap",
+      "path": "/kaggle/working/submission.parquet",
+      "purpose": "Kaggle code submission output selector",
+      "rows": 0,
+      "at_utc": "2026-10-22 15:09:17.749Z"
+    },
+    {
+      "build_id": "75c1403830052f18",
+      "elapsed_seconds": 193.862,
+      "event": "not_evaluated",
+      "message": "Save & Run All does not play hidden games. No gameplay rows were generated. The competition gateway runs during Submit to Competition.",
+      "at_utc": "2026-10-22 15:09:17.750Z"
+    }
+  ],
+  "status_polls": [
+    {
+      "at_utc": "2026-10-22T15:07:12.056367+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\"",
+      "stderr": ""
+    },
+    {
+      "at_utc": "2026-10-22T15:07:57.726032+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\"",
+      "stderr": ""
+    },
+    {
+      "at_utc": "2026-10-22T15:08:43.401645+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\"",
+      "stderr": ""
+    },
+    {
+      "at_utc": "2026-10-22T15:09:29.348390+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\"",
+      "stderr": ""
+    },
+    {
+      "at_utc": "2026-10-22T15:10:15.116555+00:00",
+      "status": "COMPLETE",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.COMPLETE\"",
+      "stderr": ""
+    }
+  ],
+  "model_ready": false,
+  "server_launch_reached": true,
+  "weight_shards_read": 0,
+  "reason": "Packaged loader passes prefetch_lookahead; adapter signature rejected it before opening weights",
+  "log_sha256": "1e5a1ccc0aa54e8926a8086701c3a3d647f4f94f397f19a809c0b819fd6a25e7"
+}

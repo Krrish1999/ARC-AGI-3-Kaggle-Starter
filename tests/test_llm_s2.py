@@ -71,6 +71,9 @@ def test_readiness_precedes_backend_enable_and_cleanup_owns_all_children(daemon)
     assert os.environ['ARC3_LLM_READY'] == '0'
     status = json.loads((supervisor.working / 'diagnostics/llm_status.json').read_text())
     assert status['ever_ready'] and not status['ready']
+    assert status['startup_elapsed_seconds'] == 1800
+    heartbeats = [call for call in daemon.event.call_args_list if call.args[0] == 'llm_startup_wait']
+    assert heartbeats and all(call.kwargs['elapsed_seconds'] < 2400 for call in heartbeats)
 
 
 @pytest.mark.parametrize('failure', ['deadline', 'exit', 'occupied', 'disabled'])

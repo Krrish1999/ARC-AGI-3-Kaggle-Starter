@@ -5,13 +5,17 @@ import hashlib
 import http.client
 import json
 import os
+import shutil
 import signal
 import subprocess
 import sys
 import time
+import uuid
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
+
+EPHEMERAL_MODEL_ROOT = Path('/tmp/models/arc3')
 
 
 class LLMDaemon:
@@ -25,7 +29,10 @@ class LLMDaemon:
         self.ready = False
         self.ever_ready = False
         self.reason = 'not_started'
+        self.startup_elapsed_seconds: float | None = None
         self.log: Any = None
+        self._staging_signature: tuple[int, int] | None = None
+        self._staging_owner = uuid.uuid4().hex
 
     def models_ready(self, timeout: float) -> bool:
         connection = http.client.HTTPConnection('127.0.0.1', 8001, timeout=timeout)
@@ -49,7 +56,8 @@ class LLMDaemon:
                                   'reason': self.reason,
                                   'endpoint': 'http://127.0.0.1:8001/v1',
                                   'mode': 'llm' if self.ready else 'exploration',
-                                  'startup_seconds': self.startup_seconds}, indent=2) + '\n')
+                                  'startup_seconds': self.startup_seconds,
+                                  'startup_elapsed_seconds': self.startup_elapsed_seconds}, indent=2) + '\n')
 
     def startup_logs(self) -> None:
         """Keep this run's own startup failures visible in its notebook log."""
@@ -67,6 +75,22 @@ class LLMDaemon:
                 if tail:
                     self.event('llm_startup_log', file=path.name, tail=tail)
 
+    def staging_report(self) -> None:
+        path = self.working / 'diagnostics/model_staging.json'
+        try:
+            stat = path.stat()
+            signature = (stat.st_mtime_ns, stat.st_size)
+            if signature == self._staging_signature:
+                return
+            report = json.loads(path.read_text())
+        except FileNotFoundError:
+            return
+        except (OSError, ValueError) as error:
+            self.event('model_staging_report_error', error=str(error))
+        else:
+            self._staging_signature = signature
+            self.event('model_staging', report=report)
+
     def start(self) -> bool:
         os.environ['ARC3_LLM_READY'] = '0'
         os.environ.pop('ARC3_LLM_FAILURE', None)
@@ -77,6 +101,7 @@ class LLMDaemon:
             return False
         began = time.monotonic()
         deadline = began + self.startup_seconds
+        next_heartbeat = began + 30.0
         try:
             # An occupied port is not evidence that our model is running. Never
             # adopt or terminate another service, including gateway:8001.
@@ -87,8 +112,10 @@ class LLMDaemon:
                     raise RuntimeError('loopback_port_occupied')
             digest = hashlib.sha256(self.launcher.read_bytes()).hexdigest()
             (self.working / 'diagnostics').mkdir(parents=True, exist_ok=True)
+            (self.working / 'diagnostics/model_staging.json').unlink(missing_ok=True)
             self.log = (self.working / 'diagnostics/llm_launcher.log').open('ab', buffering=0)
             environment = dict(os.environ, ARC3_LLM_WORKING=str(self.working),
+                               ARC3_MODEL_OWNER=self._staging_owner,
                                ARC3_LLM_PREFIX=f'/tmp/arc3-pennyroyal-{digest[:16]}',
                                HF_HUB_OFFLINE='1', TRANSFORMERS_OFFLINE='1', UV_OFFLINE='1',
                                UV_PYTHON_DOWNLOADS='never')
@@ -97,6 +124,10 @@ class LLMDaemon:
                                             stderr=subprocess.STDOUT, start_new_session=True)
             self.event('llm_started', pid=self.process.pid, launcher_sha256=digest)
             while time.monotonic() < deadline:
+                self.staging_report()
+                if time.monotonic() >= next_heartbeat:
+                    self.event('llm_startup_wait', elapsed_seconds=time.monotonic()-began)
+                    next_heartbeat = time.monotonic() + 30.0
                 if self.process.poll() is not None:
                     raise RuntimeError(f'launcher_exited:{self.process.returncode}')
                 remaining = deadline - time.monotonic()
@@ -106,10 +137,11 @@ class LLMDaemon:
                     if self.models_ready(min(2.0, remaining)):
                         self.ready, self.ever_ready = True, True
                         self.reason = 'models_endpoint_ready'
+                        self.startup_elapsed_seconds = time.monotonic() - began
                         os.environ['ARC3_LLM_READY'] = '1'
                         os.environ['ARC3_LLM_MODEL'] = 'flashnext'
                         self.record()
-                        self.event('llm_ready', elapsed_seconds=time.monotonic() - began)
+                        self.event('llm_ready', elapsed_seconds=self.startup_elapsed_seconds)
                         return True
                 except (OSError, ValueError, TypeError, AttributeError, http.client.HTTPException):
                     pass
@@ -118,8 +150,10 @@ class LLMDaemon:
         except (OSError, ValueError, RuntimeError, TypeError, AttributeError,
                 subprocess.SubprocessError, http.client.HTTPException) as error:
             self.reason = f'{type(error).__name__}: {error}'
+            self.startup_elapsed_seconds = time.monotonic() - began
             self.stop()
             self.record()
+            self.staging_report()
             self.startup_logs()
             os.environ['ARC3_LLM_FAILURE'] = self.reason
             self.event('llm_fallback', reason=self.reason, mode='exploration')
@@ -129,6 +163,34 @@ class LLMDaemon:
             # or detached CUDA workers consuming resources.
             self.stop()
             raise
+
+    def cleanup_output_staging(self) -> None:
+        """Never save model copies as outputs; remove only our stopped run."""
+        try:
+            report = json.loads((self.working / 'diagnostics/model_staging.json').read_text())
+            paths = report.get('orphaned_transactions', [])
+            if 'transaction' in report:
+                paths = [report['transaction'], *paths]
+            roots = {(self.working / '.arc3-models').resolve(), EPHEMERAL_MODEL_ROOT.resolve()}
+            for path in paths:
+                try:
+                    transaction = Path(path)
+                    if (transaction.is_symlink() or transaction.parent.resolve() not in roots
+                            or not transaction.name.startswith('run-')):
+                        continue
+                    marker = transaction / '.arc3-owner'
+                    if marker.is_symlink() or marker.read_text() != self._staging_owner:
+                        continue
+                    shutil.rmtree(transaction)
+                    self.event('model_staging_cleaned', transaction=str(transaction))
+                except FileNotFoundError:
+                    continue
+                except (OSError, ValueError, TypeError) as error:
+                    self.event('model_staging_cleanup_error', error=str(error))
+        except (FileNotFoundError, KeyError):
+            pass
+        except (OSError, ValueError, TypeError) as error:
+            self.event('model_staging_cleanup_error', error=str(error))
 
     def stop(self) -> None:
         self.ready = False
@@ -150,6 +212,7 @@ class LLMDaemon:
         if self.log is not None:
             self.log.close()
             self.log = None
+        self.cleanup_output_staging()
         if self.ever_ready:
             self.reason = 'stopped_after_ready'
             self.record()

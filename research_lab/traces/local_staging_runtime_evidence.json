@@ -1,0 +1,583 @@
+{
+  "kernel_id": "aanchal009/arc-agi-3-runtime-check",
+  "saved_version": 6,
+  "build_id": "8e291c0a90d1533a",
+  "scope": "Phase A notebook save/startup only; no hidden-game evaluation",
+  "events": [
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 0.0,
+      "event": "stage_started",
+      "stage": "startup",
+      "at_utc": "2026-10-21 11:56:59.671Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "diagnostics": "/kaggle/working/diagnostics",
+      "elapsed_seconds": 0.001,
+      "event": "execution_mode",
+      "existing_submission": false,
+      "kernel_run_type": "Batch",
+      "mode": "SAVE_OR_INTERACTIVE",
+      "python": "3.12.13",
+      "rerun_flag": "",
+      "submission_policy": "gateway-only",
+      "at_utc": "2026-10-21 11:56:59.672Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 0.014,
+      "event": "gpu_probe",
+      "output": "NVIDIA RTX PRO 6000 Blackwell Server Edition, 97887 MiB\n",
+      "returncode": 0,
+      "at_utc": "2026-10-21 11:56:59.685Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "duration_seconds": 0.014,
+      "elapsed_seconds": 0.014,
+      "event": "stage_completed",
+      "stage": "startup",
+      "at_utc": "2026-10-21 11:56:59.685Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 0.025,
+      "event": "stage_started",
+      "stage": "offline_dependencies",
+      "at_utc": "2026-10-21 11:56:59.696Z"
+    },
+    {
+      "args": [
+        "/usr/bin/python3",
+        "-m",
+        "pip",
+        "install",
+        "--no-index",
+        "--find-links",
+        "/kaggle/input/competitions/arc-prize-2026-arc-agi-3/arc_agi_3_wheels",
+        "arc-agi",
+        "python-dotenv"
+      ],
+      "build_id": "8e291c0a90d1533a",
+      "command": "pip",
+      "elapsed_seconds": 0.025,
+      "event": "command_started",
+      "log": "/kaggle/working/diagnostics/pip.log",
+      "at_utc": "2026-10-21 11:56:59.696Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "command": "pip",
+      "elapsed_seconds": 2.893,
+      "event": "command_completed",
+      "returncode": 0,
+      "at_utc": "2026-10-21 11:57:02.564Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 2.898,
+      "event": "dependency_versions",
+      "versions": {
+        "arc-agi": "0.9.8",
+        "arcengine": "0.9.3",
+        "python-dotenv": "1.2.2"
+      },
+      "at_utc": "2026-10-21 11:57:02.569Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "duration_seconds": 2.874,
+      "elapsed_seconds": 2.898,
+      "event": "stage_completed",
+      "stage": "offline_dependencies",
+      "at_utc": "2026-10-21 11:57:02.570Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 3.149,
+      "event": "stage_started",
+      "stage": "bundle_verification",
+      "at_utc": "2026-10-21 11:57:02.820Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 3.174,
+      "event": "bundle_verified",
+      "modules": 18,
+      "at_utc": "2026-10-21 11:57:02.845Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "duration_seconds": 0.025,
+      "elapsed_seconds": 3.174,
+      "event": "stage_completed",
+      "stage": "bundle_verification",
+      "at_utc": "2026-10-21 11:57:02.845Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 3.198,
+      "event": "stage_started",
+      "stage": "framework_setup",
+      "at_utc": "2026-10-21 11:57:02.869Z"
+    },
+    {
+      "args": [
+        "/usr/bin/python3",
+        "-m",
+        "venv",
+        "--without-pip",
+        "/kaggle/working/.venv_agent_sandbox"
+      ],
+      "build_id": "8e291c0a90d1533a",
+      "command": "sandbox_setup",
+      "elapsed_seconds": 3.654,
+      "event": "command_started",
+      "log": "/kaggle/working/diagnostics/sandbox_setup.log",
+      "at_utc": "2026-10-21 11:57:03.325Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "command": "sandbox_setup",
+      "elapsed_seconds": 3.738,
+      "event": "command_completed",
+      "returncode": 0,
+      "at_utc": "2026-10-21 11:57:03.409Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "duration_seconds": 0.54,
+      "elapsed_seconds": 3.738,
+      "event": "stage_completed",
+      "stage": "framework_setup",
+      "at_utc": "2026-10-21 11:57:03.409Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 3.738,
+      "event": "stage_started",
+      "stage": "containment_audit",
+      "at_utc": "2026-10-21 11:57:03.410Z"
+    },
+    {
+      "args": [
+        "/usr/bin/python3",
+        "/tmp/submission_audit.py"
+      ],
+      "build_id": "8e291c0a90d1533a",
+      "command": "containment",
+      "elapsed_seconds": 3.738,
+      "event": "command_started",
+      "log": "/kaggle/working/diagnostics/containment.log",
+      "at_utc": "2026-10-21 11:57:03.410Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "command": "containment",
+      "elapsed_seconds": 19.272,
+      "event": "command_completed",
+      "returncode": 0,
+      "at_utc": "2026-10-21 11:57:18.943Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "duration_seconds": 15.535,
+      "elapsed_seconds": 19.273,
+      "event": "stage_completed",
+      "stage": "containment_audit",
+      "at_utc": "2026-10-21 11:57:18.945Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 19.274,
+      "event": "stage_started",
+      "stage": "agent_registration",
+      "at_utc": "2026-10-21 11:57:18.945Z"
+    },
+    {
+      "action_log": "/kaggle/working/scratch",
+      "agent": "myagent",
+      "backend": "exploration",
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 19.274,
+      "event": "agent_registered",
+      "operation_mode": "competition",
+      "at_utc": "2026-10-21 11:57:18.945Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "duration_seconds": 0.001,
+      "elapsed_seconds": 19.274,
+      "event": "stage_completed",
+      "stage": "agent_registration",
+      "at_utc": "2026-10-21 11:57:18.945Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 19.274,
+      "event": "stage_started",
+      "stage": "framework_imports",
+      "at_utc": "2026-10-21 11:57:18.945Z"
+    },
+    {
+      "args": [
+        "/usr/bin/python3",
+        "-c",
+        "import os\nos.environ['ENABLE_OFFLINE_BACKEND'] = '0'\nfrom pathlib import Path\nimport numpy as np\nfrom agents import AVAILABLE_AGENTS\nfrom agents.agent import Agent\nfrom arcengine import FrameDataRaw, GameAction, GameState\nagent_class = AVAILABLE_AGENTS['myagent']\nassert issubclass(agent_class, Agent)\nprint('FRAMEWORK_IMPORTS_OK', flush=True)\n# Synthetic public API data only; never instantiate an\n# Arcade or read environment source during this check.\nclass Fixture:\n    def __init__(self):\n        self.observation_space = FrameDataRaw(\n            game_id='runtime-fixture', frame=[np.zeros((4, 4), dtype=np.int8)],\n            state=GameState.NOT_PLAYED, win_levels=1, available_actions=[1])\n    def step(self, action, data=None, reasoning=None):\n        assert action is GameAction.RESET\n        self.observation_space.state = GameState.WIN\n        self.observation_space.levels_completed = 1\n        return self.observation_space\nos.environ['ARC3_LOG_DIR'] = str(Path.cwd().parent / 'diagnostics/synthetic-agent')\nagent = agent_class(card_id='fixture', game_id='runtime-fixture',\n                    agent_name='fixture', ROOT_URL='', record=False,\n                    arc_env=Fixture())\nagent.main()\nassert agent.action_counter == 1 and not agent._recovery_mode\nprint('FRAMEWORK_RUNTIME_OK synthetic_actions=1 gateway_actions=0', flush=True)\n"
+      ],
+      "build_id": "8e291c0a90d1533a",
+      "command": "framework_imports",
+      "elapsed_seconds": 19.275,
+      "event": "command_started",
+      "log": "/kaggle/working/diagnostics/framework_imports.log",
+      "at_utc": "2026-10-21 11:57:18.946Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "command": "framework_imports",
+      "elapsed_seconds": 20.992,
+      "event": "command_completed",
+      "returncode": 0,
+      "at_utc": "2026-10-21 11:57:20.663Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "duration_seconds": 1.719,
+      "elapsed_seconds": 20.993,
+      "event": "stage_completed",
+      "stage": "framework_imports",
+      "at_utc": "2026-10-21 11:57:20.664Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 20.993,
+      "event": "save_preflight_passed",
+      "gameplay_actions": 0,
+      "gateway_contacted": false,
+      "at_utc": "2026-10-21 11:57:20.664Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 21.038,
+      "event": "stage_started",
+      "stage": "llm_startup",
+      "at_utc": "2026-10-21 11:57:20.709Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 21.04,
+      "event": "llm_started",
+      "launcher_sha256": "89cebe84c119ec32b0604f883940d4d7aeb57e73e82b8c0de140198cef958657",
+      "pid": 248,
+      "at_utc": "2026-10-21 11:57:20.711Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 29.544,
+      "event": "model_staging",
+      "report": {
+        "bytes_required": 185400295230,
+        "disk_free_before": 1145972953088,
+        "mode": "local_copy",
+        "models": {},
+        "root": "/kaggle/temp/arc3-models",
+        "status": "copying",
+        "workers": 4
+      },
+      "at_utc": "2026-10-21 11:57:29.216Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 299.707,
+      "event": "model_staging",
+      "report": {
+        "bytes_required": 185400295230,
+        "disk_free_before": 1145972953088,
+        "elapsed_seconds": 270.003,
+        "error": "[Errno 28] No space left on device",
+        "error_type": "OSError",
+        "mode": "local_copy",
+        "models": {},
+        "root": "/kaggle/temp/arc3-models",
+        "status": "failed",
+        "workers": 4
+      },
+      "at_utc": "2026-10-21 12:01:59.378Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 299.715,
+      "event": "llm_stopped",
+      "returncode": 1,
+      "at_utc": "2026-10-21 12:01:59.386Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 299.716,
+      "event": "llm_startup_log",
+      "file": "llm_launcher.log",
+      "tail": "Precaching: Started...\nPrecaching: loaded 211 files (6.70 GB) in 4.16 seconds.\n\nTraceback (most recent call last):\n  File \"/tmp/arc3_llm_launcher.py\", line 314, in <module>\n    staging_report = stage_checkpoints(Path(asset_report[\"target\"][\"path\"]),\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/arc3_llm_launcher.py\", line 285, in stage_checkpoints\n    copied = [future.result() for future in futures]\n              ^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/concurrent/futures/_base.py\", line 456, in result\n    return self.__get_result()\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/concurrent/futures/_base.py\", line 401, in __get_result\n    raise self._exception\n  File \"/usr/lib/python3.12/concurrent/futures/thread.py\", line 59, in run\n    result = self.fn(*self.args, **self.kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/arc3_llm_launcher.py\", line 231, in _stage_file\n    os.fsync(writer.fileno())\nOSError: [Errno 28] No space left on device\n",
+      "at_utc": "2026-10-21 12:01:59.387Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 299.716,
+      "event": "llm_fallback",
+      "mode": "exploration",
+      "reason": "RuntimeError: launcher_exited:1",
+      "at_utc": "2026-10-21 12:01:59.387Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "duration_seconds": 278.679,
+      "elapsed_seconds": 299.716,
+      "event": "stage_completed",
+      "stage": "llm_startup",
+      "at_utc": "2026-10-21 12:01:59.387Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 299.864,
+      "evaluated": false,
+      "event": "submission_bootstrap",
+      "path": "/kaggle/working/submission.parquet",
+      "purpose": "Kaggle code submission output selector",
+      "rows": 0,
+      "at_utc": "2026-10-21 12:01:59.536Z"
+    },
+    {
+      "build_id": "8e291c0a90d1533a",
+      "elapsed_seconds": 299.865,
+      "event": "not_evaluated",
+      "message": "Save & Run All does not play hidden games. No gameplay rows were generated. The competition gateway runs during Submit to Competition.",
+      "at_utc": "2026-10-21 12:01:59.536Z"
+    }
+  ],
+  "status_observations": [
+    {
+      "at_utc": "2026-10-21T11:58:24.522950+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T11:59:10.534562+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T11:59:56.253820+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T12:00:42.147075+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T12:01:27.883228+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T12:02:13.780040+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T12:02:59.777968+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T12:03:45.533740+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T12:04:31.279015+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T12:05:17.018142+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T12:06:02.699587+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T12:06:48.489248+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T12:07:34.254051+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\""
+    },
+    {
+      "at_utc": "2026-10-21T12:08:20.083223+00:00",
+      "status": "COMPLETE",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.COMPLETE\""
+    }
+  ],
+  "model_ready": false,
+  "model_startup_duration_seconds": 278.679,
+  "local_copy_duration_seconds": 270.003,
+  "caution": "COMPLETE is the Kaggle save status. The measured 278.679 seconds is a failed startup attempt, not model readiness or completed weight loading.",
+  "model_startup_result": "failed_before_server_launch",
+  "local_copy_completed": false,
+  "time_to_model_ready_seconds": null,
+  "staging_report": {
+    "status": "failed",
+    "mode": "local_copy",
+    "root": "/kaggle/temp/arc3-models",
+    "workers": 4,
+    "models": {},
+    "bytes_required": 185400295230,
+    "disk_free_before": 1145972953088,
+    "error_type": "OSError",
+    "error": "[Errno 28] No space left on device",
+    "elapsed_seconds": 270.003
+  },
+  "llm_status": {
+    "ready": false,
+    "ever_ready": false,
+    "reason": "RuntimeError: launcher_exited:1",
+    "endpoint": "http://127.0.0.1:8001/v1",
+    "mode": "exploration",
+    "startup_seconds": 2400
+  },
+  "notebook_status": {
+    "status": "NOT_EVALUATED",
+    "elapsed_seconds": 299.865,
+    "build_id": "8e291c0a90d1533a",
+    "competition_rerun": false,
+    "stage": "competition_dispatch",
+    "reason": "Competition rerun flag is not enabled; gameplay gateway is unavailable"
+  },
+  "uploaded_diagnostics": {
+    "provenance": "User-supplied version 6 diagnostic files; build/launcher/event consistency checked against the deployed artifact. File hashes bind these received bytes, not independent remote authenticity.",
+    "raw_local_directory": "work/local-staging/uploaded-v6",
+    "files": {
+      "containment.log": {
+        "sha256": "0c1b1b894cf654b746cbfa79cd3e95149897ef62b168c9f6585681124de31527",
+        "bytes": 4754
+      },
+      "events.jsonl": {
+        "sha256": "d873b26d8bd720b0cccb80066ff5cc1933c953fbfbce621df188573bd6213479",
+        "bytes": 8852
+      },
+      "containment.json": {
+        "sha256": "0c1b1b894cf654b746cbfa79cd3e95149897ef62b168c9f6585681124de31527",
+        "bytes": 4754
+      },
+      "framework_imports.log": {
+        "sha256": "4c1a18c4a3151cb8592549bc1c879b1c6ddd1369aa69302ada9fc6671e7287b1",
+        "bytes": 80
+      },
+      "llm_assets.json": {
+        "sha256": "f2bafdfd5370a0eb14c5162b7293766124178eff6f9a9bb6e6f03bfe30ae5963",
+        "bytes": 30181
+      },
+      "model_staging.json": {
+        "sha256": "6452e8305e586662b99e607ab989eed677c0986a6f3c6916a0f5d279da79b3eb",
+        "bytes": 296
+      },
+      "llm_launcher.log": {
+        "sha256": "05b21a526622d74b5f7986c0f633e17f8c82fc8a10fd94642bdbba7d8f74c49e",
+        "bytes": 1033
+      },
+      "llm_status.json": {
+        "sha256": "044db302ca492f2cdf31f602dbf58a8a692d879de92452c0398d32f364fb2e84",
+        "bytes": 185
+      },
+      "notebook.log": {
+        "sha256": "cef77e21d6cc225a3e18de8e2f5b1492add5411d87130d8b5ab65871edf92600",
+        "bytes": 19906
+      },
+      "pip.log": {
+        "sha256": "f7abca557e1246e2c5177c5ef03e4f14cd886cca6e900ba7a947e2c304341e0a",
+        "bytes": 4949
+      },
+      "status.json": {
+        "sha256": "be3567c9a6d1e1138facc14a0f5632163cdd7eafc92cdac88fc2e7751e5a73a0",
+        "bytes": 247
+      }
+    },
+    "events_match_notebook_log": true,
+    "launcher_matches_build": true
+  },
+  "asset_summary": {
+    "target": {
+      "path": "/kaggle/input/intel-qwen3-8-flash-next-w4a16-autoround",
+      "config_sha256": "0fabfa21fab8bfe69f02234f7ae8df4ed91b785fca2e22011c1230f6a07e5329",
+      "index_sha256": "32732da58649d48911ae5f7efaf9d400d7e573d03a241aa483095f817ba7bd61",
+      "shard_content_hashes": "not independently supplied; Kaggle input provenance is recorded separately",
+      "shard_count": 38,
+      "indexed_shard_bytes": 181196006784
+    },
+    "draft": {
+      "path": "/kaggle/input/albucino-qwen3-8-flash-next-drafter",
+      "config_sha256": "8e3846487f4f0144a968e2a24f5c31efd7d36687b2b112ed51e14e4ab8ab9c58",
+      "index_sha256": "a3e600dae46c7f32e2ff42e6c40f46f75fb71ae7d5b73011b666664e5d54f6a2",
+      "shard_content_hashes": "not independently supplied; Kaggle input provenance is recorded separately",
+      "shard_count": 2,
+      "indexed_shard_bytes": 4140094152
+    }
+  },
+  "containment": {
+    "containment_passed": true,
+    "checks": {
+      "deployed_sources_present": true,
+      "sandbox_present": true,
+      "engine_import_denied": true,
+      "absolute_read": true,
+      "traversal_read": true,
+      "symlink_read": true,
+      "write": true,
+      "symlink_write": true,
+      "directory_list": true,
+      "subprocess_escape": true,
+      "fork_escape": true,
+      "exec_escape": true,
+      "native_open": true,
+      "canary_unchanged": true,
+      "write_not_created": true,
+      "compute_works": true,
+      "memory_capped": true,
+      "planner_failure_visible": true,
+      "loop_terminated": true,
+      "missing_worker_fails": true
+    }
+  },
+  "launcher_log": "Precaching: Started...\nPrecaching: loaded 211 files (6.70 GB) in 4.16 seconds.\n\nTraceback (most recent call last):\n  File \"/tmp/arc3_llm_launcher.py\", line 314, in <module>\n    staging_report = stage_checkpoints(Path(asset_report[\"target\"][\"path\"]),\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/arc3_llm_launcher.py\", line 285, in stage_checkpoints\n    copied = [future.result() for future in futures]\n              ^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/concurrent/futures/_base.py\", line 456, in result\n    return self.__get_result()\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.12/concurrent/futures/_base.py\", line 401, in __get_result\n    raise self._exception\n  File \"/usr/lib/python3.12/concurrent/futures/thread.py\", line 59, in run\n    result = self.fn(*self.args, **self.kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/arc3_llm_launcher.py\", line 231, in _stage_file\n    os.fsync(writer.fileno())\nOSError: [Errno 28] No space left on device\n",
+  "conclusion": "Local checkpoint staging failed at fsync with ENOSPC after 270.003 seconds. Supervisor startup attempt ended after 278.679 seconds; no checkpoint was published and SGLang was not launched. No ready model or hidden-game evaluation.",
+  "remaining_uncertainty": "The logs do not capture the effective writable capacity, mount type, inode exhaustion or quota/backing-store limit causing ENOSPC despite 1.15 TB reported free.",
+  "initial_logging_limitation": {
+    "live_console": "Captured startup, GPU, containment/framework preflight and copying event; subsequent live stream ended.",
+    "completed_log_api": "kernels logs and session stream return an empty JSON list despite COMPLETE status; rechecked after source pull.",
+    "saved_diagnostics": "Kaggle returns signed output URLs on www.kaggleusercontent.com, blocked by the enforced cloud network allowlist (proxy CONNECT 403). No signed URLs retained.",
+    "source_binding": "Every downloaded notebook cell source matches the local artifact; all three expected dataset attachments accepted."
+  },
+  "logging_resolution": "User uploaded all 11 diagnostic files; startup outcome is now established without access to the blocked output hostname."
+}

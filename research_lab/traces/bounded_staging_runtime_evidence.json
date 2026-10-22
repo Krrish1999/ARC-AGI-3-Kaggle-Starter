@@ -1,0 +1,572 @@
+{
+  "kernel_id": "aanchal009/arc-agi-3-runtime-check",
+  "saved_version": 9,
+  "build_id": "f68cb1c9e817f9fe",
+  "events": [
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 0.0,
+      "event": "stage_started",
+      "stage": "startup",
+      "at_utc": "2026-10-22 14:57:14.506Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "diagnostics": "/kaggle/working/diagnostics",
+      "elapsed_seconds": 0.003,
+      "event": "execution_mode",
+      "existing_submission": false,
+      "kernel_run_type": "Batch",
+      "mode": "SAVE_OR_INTERACTIVE",
+      "python": "3.12.13",
+      "rerun_flag": "",
+      "submission_policy": "gateway-only",
+      "at_utc": "2026-10-22 14:57:14.509Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 0.016,
+      "event": "gpu_probe",
+      "output": "NVIDIA RTX PRO 6000 Blackwell Server Edition, 97887 MiB\n",
+      "returncode": 0,
+      "at_utc": "2026-10-22 14:57:14.522Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "duration_seconds": 0.016,
+      "elapsed_seconds": 0.016,
+      "event": "stage_completed",
+      "stage": "startup",
+      "at_utc": "2026-10-22 14:57:14.523Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 0.028,
+      "event": "stage_started",
+      "stage": "offline_dependencies",
+      "at_utc": "2026-10-22 14:57:14.534Z"
+    },
+    {
+      "args": [
+        "/usr/bin/python3",
+        "-m",
+        "pip",
+        "install",
+        "--no-index",
+        "--find-links",
+        "/kaggle/input/competitions/arc-prize-2026-arc-agi-3/arc_agi_3_wheels",
+        "arc-agi",
+        "python-dotenv"
+      ],
+      "build_id": "f68cb1c9e817f9fe",
+      "command": "pip",
+      "elapsed_seconds": 0.029,
+      "event": "command_started",
+      "log": "/kaggle/working/diagnostics/pip.log",
+      "at_utc": "2026-10-22 14:57:14.535Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "command": "pip",
+      "elapsed_seconds": 3.197,
+      "event": "command_completed",
+      "returncode": 0,
+      "at_utc": "2026-10-22 14:57:17.703Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 3.202,
+      "event": "dependency_versions",
+      "versions": {
+        "arc-agi": "0.9.8",
+        "arcengine": "0.9.3",
+        "python-dotenv": "1.2.2"
+      },
+      "at_utc": "2026-10-22 14:57:17.708Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "duration_seconds": 3.174,
+      "elapsed_seconds": 3.202,
+      "event": "stage_completed",
+      "stage": "offline_dependencies",
+      "at_utc": "2026-10-22 14:57:17.709Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 3.469,
+      "event": "stage_started",
+      "stage": "bundle_verification",
+      "at_utc": "2026-10-22 14:57:17.975Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 3.493,
+      "event": "bundle_verified",
+      "modules": 18,
+      "at_utc": "2026-10-22 14:57:17.999Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "duration_seconds": 0.025,
+      "elapsed_seconds": 3.494,
+      "event": "stage_completed",
+      "stage": "bundle_verification",
+      "at_utc": "2026-10-22 14:57:18.000Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 3.52,
+      "event": "stage_started",
+      "stage": "framework_setup",
+      "at_utc": "2026-10-22 14:57:18.026Z"
+    },
+    {
+      "args": [
+        "/usr/bin/python3",
+        "-m",
+        "venv",
+        "--without-pip",
+        "/kaggle/working/.venv_agent_sandbox"
+      ],
+      "build_id": "f68cb1c9e817f9fe",
+      "command": "sandbox_setup",
+      "elapsed_seconds": 7.044,
+      "event": "command_started",
+      "log": "/kaggle/working/diagnostics/sandbox_setup.log",
+      "at_utc": "2026-10-22 14:57:21.550Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "command": "sandbox_setup",
+      "elapsed_seconds": 7.124,
+      "event": "command_completed",
+      "returncode": 0,
+      "at_utc": "2026-10-22 14:57:21.630Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "duration_seconds": 3.605,
+      "elapsed_seconds": 7.125,
+      "event": "stage_completed",
+      "stage": "framework_setup",
+      "at_utc": "2026-10-22 14:57:21.631Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 7.125,
+      "event": "stage_started",
+      "stage": "containment_audit",
+      "at_utc": "2026-10-22 14:57:21.631Z"
+    },
+    {
+      "args": [
+        "/usr/bin/python3",
+        "/tmp/submission_audit.py"
+      ],
+      "build_id": "f68cb1c9e817f9fe",
+      "command": "containment",
+      "elapsed_seconds": 7.126,
+      "event": "command_started",
+      "log": "/kaggle/working/diagnostics/containment.log",
+      "at_utc": "2026-10-22 14:57:21.632Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "command": "containment",
+      "elapsed_seconds": 22.66,
+      "event": "command_completed",
+      "returncode": 0,
+      "at_utc": "2026-10-22 14:57:37.166Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "duration_seconds": 15.536,
+      "elapsed_seconds": 22.661,
+      "event": "stage_completed",
+      "stage": "containment_audit",
+      "at_utc": "2026-10-22 14:57:37.167Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 22.661,
+      "event": "stage_started",
+      "stage": "agent_registration",
+      "at_utc": "2026-10-22 14:57:37.168Z"
+    },
+    {
+      "action_log": "/kaggle/working/scratch",
+      "agent": "myagent",
+      "backend": "exploration",
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 22.662,
+      "event": "agent_registered",
+      "operation_mode": "competition",
+      "at_utc": "2026-10-22 14:57:37.168Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "duration_seconds": 0.001,
+      "elapsed_seconds": 22.662,
+      "event": "stage_completed",
+      "stage": "agent_registration",
+      "at_utc": "2026-10-22 14:57:37.168Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 22.662,
+      "event": "stage_started",
+      "stage": "framework_imports",
+      "at_utc": "2026-10-22 14:57:37.168Z"
+    },
+    {
+      "args": [
+        "/usr/bin/python3",
+        "-c",
+        "import os\nos.environ['ENABLE_OFFLINE_BACKEND'] = '0'\nfrom pathlib import Path\nimport numpy as np\nfrom agents import AVAILABLE_AGENTS\nfrom agents.agent import Agent\nfrom arcengine import FrameDataRaw, GameAction, GameState\nagent_class = AVAILABLE_AGENTS['myagent']\nassert issubclass(agent_class, Agent)\nprint('FRAMEWORK_IMPORTS_OK', flush=True)\n# Synthetic public API data only; never instantiate an\n# Arcade or read environment source during this check.\nclass Fixture:\n    def __init__(self):\n        self.observation_space = FrameDataRaw(\n            game_id='runtime-fixture', frame=[np.zeros((4, 4), dtype=np.int8)],\n            state=GameState.NOT_PLAYED, win_levels=1, available_actions=[1])\n    def step(self, action, data=None, reasoning=None):\n        assert action is GameAction.RESET\n        self.observation_space.state = GameState.WIN\n        self.observation_space.levels_completed = 1\n        return self.observation_space\nos.environ['ARC3_LOG_DIR'] = str(Path.cwd().parent / 'diagnostics/synthetic-agent')\nagent = agent_class(card_id='fixture', game_id='runtime-fixture',\n                    agent_name='fixture', ROOT_URL='', record=False,\n                    arc_env=Fixture())\nagent.main()\nassert agent.action_counter == 1 and not agent._recovery_mode\nprint('FRAMEWORK_RUNTIME_OK synthetic_actions=1 gateway_actions=0', flush=True)\n"
+      ],
+      "build_id": "f68cb1c9e817f9fe",
+      "command": "framework_imports",
+      "elapsed_seconds": 22.663,
+      "event": "command_started",
+      "log": "/kaggle/working/diagnostics/framework_imports.log",
+      "at_utc": "2026-10-22 14:57:37.169Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "command": "framework_imports",
+      "elapsed_seconds": 24.23,
+      "event": "command_completed",
+      "returncode": 0,
+      "at_utc": "2026-10-22 14:57:38.736Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "duration_seconds": 1.568,
+      "elapsed_seconds": 24.231,
+      "event": "stage_completed",
+      "stage": "framework_imports",
+      "at_utc": "2026-10-22 14:57:38.737Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 24.231,
+      "event": "save_preflight_passed",
+      "gameplay_actions": 0,
+      "gateway_contacted": false,
+      "at_utc": "2026-10-22 14:57:38.737Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 24.287,
+      "event": "stage_started",
+      "stage": "llm_startup",
+      "at_utc": "2026-10-22 14:57:38.793Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 24.29,
+      "event": "llm_started",
+      "launcher_sha256": "9214619dd3a5a997c2646cf4aba01653bba7dc9bdafd89e570c398b04eb77992",
+      "pid": 248,
+      "at_utc": "2026-10-22 14:57:38.796Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 30.01372639200008,
+      "event": "llm_startup_wait",
+      "at_utc": "2026-10-22 14:58:08.809Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 60.02609768700006,
+      "event": "llm_startup_wait",
+      "at_utc": "2026-10-22 14:58:38.821Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 108.326,
+      "event": "model_staging",
+      "report": {
+        "cache_bound_bytes": 10741854576,
+        "cache_slots": 2,
+        "headroom_bytes": 4294967296,
+        "metadata_bytes": 64194294,
+        "mode": "bounded_shards",
+        "models": {},
+        "root": "/kaggle/working/.arc3-models",
+        "status": "preparing",
+        "storage": {
+          "block_size": 4096,
+          "device": 1794,
+          "disk_free_before": 20937408512,
+          "filesystem": "ext4",
+          "free_inodes": 1310522,
+          "mount": "/kaggle/working",
+          "read_only": false,
+          "total_inodes": 1310720
+        },
+        "transaction": "/kaggle/working/.arc3-models/run-5u9vtaub"
+      },
+      "at_utc": "2026-10-22 14:59:02.832Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 90.0398741890001,
+      "event": "llm_startup_wait",
+      "at_utc": "2026-10-22 14:59:08.835Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 118.331,
+      "event": "model_staging",
+      "report": {
+        "cache_bound_bytes": 10741854576,
+        "cache_high_water_bytes": 0,
+        "cache_slots": 2,
+        "copied_shards": 0,
+        "headroom_bytes": 4294967296,
+        "loaded_shards": 0,
+        "manifest": "/kaggle/working/.arc3-models/run-5u9vtaub/bounded-manifest.json",
+        "metadata_bytes": 64194294,
+        "mode": "bounded_shards",
+        "models": {
+          "draft": {
+            "metadata_files": [
+              {
+                "bytes": 8952,
+                "name": "chat_template.jinja",
+                "source_stream_sha256": "c3cf9e34abf4f9e36c2d72165aa9c132d3e2a725b6c2586aaa3a8af9d7a81041"
+              },
+              {
+                "bytes": 563,
+                "name": "compact_sources.json",
+                "source_stream_sha256": "6978a6dfa0a2a1602203904ae2a67c259e813bd0563a1c16de069f4cedc3849b"
+              },
+              {
+                "bytes": 4915,
+                "name": "config.json",
+                "source_stream_sha256": "8e3846487f4f0144a968e2a24f5c31efd7d36687b2b112ed51e14e4ab8ab9c58"
+              },
+              {
+                "bytes": 202,
+                "name": "generation_config.json",
+                "source_stream_sha256": "e70c136c1b78ddc1fb0905bac8e733a4dc448d4f852a5dd75143fffc70be550e"
+              },
+              {
+                "bytes": 451501,
+                "name": "model.safetensors.index.json",
+                "source_stream_sha256": "a3e600dae46c7f32e2ff42e6c40f46f75fb71ae7d5b73011b666664e5d54f6a2"
+              },
+              {
+                "bytes": 390,
+                "name": "preprocessor_config.json",
+                "source_stream_sha256": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516"
+              },
+              {
+                "bytes": 12809320,
+                "name": "tokenizer.json",
+                "source_stream_sha256": "0997f410c57a1f4e53b09e4be8f4a172d90edd9564368fb0847030937229b9f3"
+              },
+              {
+                "bytes": 17928,
+                "name": "tokenizer_config.json",
+                "source_stream_sha256": "b11349aafa7cdc6a320767cf7ceb29ed82f7eda5d65e8e0819e76f0ce947bf27"
+              },
+              {
+                "bytes": 385,
+                "name": "video_preprocessor_config.json",
+                "source_stream_sha256": "7768af27c1fafa9cc9011c1dc20067e03f8915e03b63504550e11d5066986d13"
+              },
+              {
+                "bytes": 6722759,
+                "name": "vocab.json",
+                "source_stream_sha256": "ce99b4cb2983d118806ce0a8b777a35b093e2000a503ebde25853284c9dfa003"
+              }
+            ],
+            "path": "/kaggle/working/.arc3-models/run-5u9vtaub/draft",
+            "shard_count": 2,
+            "source": "/kaggle/input/albucino-qwen3-8-flash-next-drafter"
+          },
+          "target": {
+            "metadata_files": [
+              {
+                "bytes": 1635,
+                "name": ".gitattributes",
+                "source_stream_sha256": "d1a8f4a1d2e3787c5956393d9306365ebefe1912cb76828870682b1ab16f5c27"
+              },
+              {
+                "bytes": 2418,
+                "name": "README.md",
+                "source_stream_sha256": "00798492330afbb7285fd9c0deee4fc7ac01bbc197eb49d1d5c868ceafe54293"
+              },
+              {
+                "bytes": 8952,
+                "name": "chat_template.jinja",
+                "source_stream_sha256": "c3cf9e34abf4f9e36c2d72165aa9c132d3e2a725b6c2586aaa3a8af9d7a81041"
+              },
+              {
+                "bytes": 266426,
+                "name": "config.json",
+                "source_stream_sha256": "0fabfa21fab8bfe69f02234f7ae8df4ed91b785fca2e22011c1230f6a07e5329"
+              },
+              {
+                "bytes": 214,
+                "name": "generation_config.json",
+                "source_stream_sha256": "6ef70d6670f24f03a9041724c7663ef26bc1e678d10f79c93fe11c192ba14b7d"
+              },
+              {
+                "bytes": 23794973,
+                "name": "model.safetensors.index.json",
+                "source_stream_sha256": "32732da58649d48911ae5f7efaf9d400d7e573d03a241aa483095f817ba7bd61"
+              },
+              {
+                "bytes": 16582,
+                "name": "ple_reshard_manifest.json",
+                "source_stream_sha256": "5dd264d7c1a109c0da7196c53e987a80025f529c5299d1bafacf67b4c92925cf"
+              },
+              {
+                "bytes": 443,
+                "name": "preprocessor_config.json",
+                "source_stream_sha256": "3a159dfec9978a186a72ba085e0ad6a050f3968d8b364218d7bd13f5c89381f2"
+              },
+              {
+                "bytes": 1220,
+                "name": "processor_config.json",
+                "source_stream_sha256": "bfbc24af59a3e73a9cd0653b8d4ae758dfaec4e3e6c15dfb1c6c8ee8d5683c85"
+              },
+              {
+                "bytes": 94026,
+                "name": "quantization_config.json",
+                "source_stream_sha256": "2371a9d0bed1ff619622ac57aa0e6e5b39688bb834b48d761e90d5834f4cab4b"
+              },
+              {
+                "bytes": 19989325,
+                "name": "tokenizer.json",
+                "source_stream_sha256": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523"
+              },
+              {
+                "bytes": 1165,
+                "name": "tokenizer_config.json",
+                "source_stream_sha256": "792fa3f0cb88b111e54ef3134c873531008c4df471d108da17903426e308aa7b"
+              }
+            ],
+            "path": "/kaggle/working/.arc3-models/run-5u9vtaub/target",
+            "shard_count": 38,
+            "source": "/kaggle/input/intel-qwen3-8-flash-next-w4a16-autoround"
+          }
+        },
+        "root": "/kaggle/working/.arc3-models",
+        "status": "metadata_ready",
+        "storage": {
+          "block_size": 4096,
+          "device": 1794,
+          "disk_free_before": 20937408512,
+          "filesystem": "ext4",
+          "free_inodes": 1310522,
+          "mount": "/kaggle/working",
+          "read_only": false,
+          "total_inodes": 1310720
+        },
+        "transaction": "/kaggle/working/.arc3-models/run-5u9vtaub"
+      },
+      "at_utc": "2026-10-22 14:59:12.837Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 120.05371898700002,
+      "event": "llm_startup_wait",
+      "at_utc": "2026-10-22 14:59:38.849Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 155.348,
+      "event": "llm_stopped",
+      "returncode": 1,
+      "at_utc": "2026-10-22 14:59:49.854Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 155.35,
+      "event": "model_staging_cleaned",
+      "transaction": "/kaggle/working/.arc3-models/run-5u9vtaub",
+      "at_utc": "2026-10-22 14:59:49.857Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 155.351,
+      "event": "llm_startup_log",
+      "file": "llm_launcher.log",
+      "tail": "Precaching: Started...\nPrecaching: loaded 211 files (6.70 GB) in 75.41 seconds.\n\n=== installing Pennyroyal (offline) ===\n$ /tmp/arc3-pennyroyal-9214619dd3a5a997/bin/uv venv --python /usr/bin/python3 /tmp/arc3-pennyroyal-9214619dd3a5a997/venv\n$ /tmp/arc3-pennyroyal-9214619dd3a5a997/bin/uv pip install --python /tmp/arc3-pennyroyal-9214619dd3a5a997/venv/bin/python --no-index --only-binary :all: --find-links /kaggle/input/pennyroyal-v253/wheels -r /kaggle/input/pennyroyal-v253/requirements.lock\n$ /tmp/arc3-pennyroyal-9214619dd3a5a997/bin/uv pip install --python /tmp/arc3-pennyroyal-9214619dd3a5a997/venv/bin/python --no-index --only-binary :all: --find-links /kaggle/input/pennyroyal-v253/wheels --reinstall --no-deps /kaggle/input/pennyroyal-v253/wheels/sglang-0.5.19+gd00d88efc8d6-cp312-cp312-linux_x86_64.whl\nHost GPU driver libcuda: /usr/local/nvidia/lib64/libcuda.so.580.178.04 (from 3 candidates: ['/usr/local/nvidia/lib64/libcuda.so.580.178.04', '/usr/local/nvidia/lib64/libcuda.so.1', '/usr/local/nvidia/lib64/libcuda.so'])\nSymlinked /tmp/arc3-pennyroyal-9214619dd3a5a997/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcuda.so -> /usr/local/nvidia/lib64/libcuda.so.580.178.04\nSymlinked /tmp/arc3-pennyroyal-9214619dd3a5a997/venv/lib/python3.12/site-packages/nvidia/cu13/lib/libcuda.so.1 -> /usr/local/nvidia/lib64/libcuda.so.580.178.04\n$ /tmp/arc3-pennyroyal-9214619dd3a5a997/venv/lib/python3.12/site-packages/nvidia/cu13/bin/nvcc --version\nnvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\nHost compiler: g++-11\n$ /tmp/arc3-pennyroyal-9214619dd3a5a997/venv/bin/python -c 'import os, pathlib, sglang, subprocess, torch\nprint(\"sglang\", sglang.__version__, \"| torch\", torch.__version__)\nprint(\"CUDA_VISIBLE_DEVICES:\", os.environ.get(\"CUDA_VISIBLE_DEVICES\"))\nprint(\"LD_LIBRARY_PATH:\", os.environ.get(\"LD_LIBRARY_PATH\"))\ntry:\n    res = subprocess.run([\"nvidia-smi\"], capture_output=True, text=True, check=False)\n    if res.stdout:\n        print(\"nvidia-smi:\")\n        print(res.stdout)\n    if res.stderr:\n        print(\"nvidia-smi stderr:\")\n        print(res.stderr)\nexcept Exception as e:\n    print(\"nvidia-smi exec error:\", e)\n\ntry:\n    torch.cuda.init()\n    print(\"torch.cuda.init() succeeded! Device count:\", torch.cuda.device_count())\nexcept Exception as e:\n    print(\"torch.cuda.init() error:\", repr(e))\n\nif not torch.cuda.is_available():\n    raise RuntimeError(f\"CUDA is unavailable! Device count={torch.cuda.device_count()}\")\nprint(\"GPU:\", torch.cuda.get_device_name(0), \"capability:\", torch.cuda.get_device_capability(0))\n'\nsglang 0.5.19+gd00d88efc8d6 | torch 2.13.0+cu130\nCUDA_VISIBLE_DEVICES: None\nLD_LIBRARY_PATH: /tmp/arc3-pennyroyal-9214619dd3a5a997/venv/lib/python3.12/site-packages/nvidia/cu13/lib64:/tmp/arc3-pennyroyal-9214619dd3a5a997/venv/lib/python3.12/site-packages/nvidia/cu13/lib:/usr/local/nvidia/lib64:/usr/lib/x86_64-linux-gnu:/usr/local/nvidia/lib64:/usr/local/cuda/lib64:/usr/local/cuda/lib64\nnvidia-smi:\nThu Oct 22 14:59:48 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA RTX PRO 6000 Blac...    Off |   00000000:05:00.0 Off |                    0 |\n| N/A   34C    P0             50W /  600W |       3MiB /  97887MiB |      0%      Default |\n|                                         |                        |             Disabled |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+\n\ntorch.cuda.init() succeeded! Device count: 1\nGPU: NVIDIA RTX PRO 6000 Blackwell Server Edition capability: (12, 0)\nTarget: /kaggle/working/.arc3-models/run-5u9vtaub/target | shards: 38 | PLE dtype: checkpoint default (typically BF16)\nDraft source: /kaggle/working/.arc3-models/run-5u9vtaub/draft\nSGLang draft view: /tmp/arc3-pennyroyal-9214619dd3a5a997/draft-view-a568647c69d29a51 (2 linked weight shards)\nTraceback (most recent call last):\n  File \"/tmp/arc3_llm_launcher.py\", line 1103, in <module>\n    adapter = install_bounded_loader(Path(VENV), clean_py_dir, BOUNDED_SOURCE, STAGING_SOURCE)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/arc3_llm_launcher.py\", line 612, in install_bounded_loader\n    patched = patch_bounded_loader(path.read_text())\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/arc3_llm_launcher.py\", line 573, in patch_bounded_loader\n    raise ValueError('Pennyroyal loader hash differs from pinned upstream')\nValueError: Pennyroyal loader hash differs from pinned upstream\n",
+      "at_utc": "2026-10-22 14:59:49.857Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 155.351,
+      "event": "llm_fallback",
+      "mode": "exploration",
+      "reason": "RuntimeError: launcher_exited:1",
+      "at_utc": "2026-10-22 14:59:49.857Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "duration_seconds": 131.064,
+      "elapsed_seconds": 155.351,
+      "event": "stage_completed",
+      "stage": "llm_startup",
+      "at_utc": "2026-10-22 14:59:49.858Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 155.435,
+      "evaluated": false,
+      "event": "submission_bootstrap",
+      "path": "/kaggle/working/submission.parquet",
+      "purpose": "Kaggle code submission output selector",
+      "rows": 0,
+      "at_utc": "2026-10-22 14:59:49.941Z"
+    },
+    {
+      "build_id": "f68cb1c9e817f9fe",
+      "elapsed_seconds": 155.436,
+      "event": "not_evaluated",
+      "message": "Save & Run All does not play hidden games. No gameplay rows were generated. The competition gateway runs during Submit to Competition.",
+      "at_utc": "2026-10-22 14:59:49.942Z"
+    }
+  ],
+  "status_polls": [
+    {
+      "at_utc": "2026-10-22T14:58:21.865502+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\"",
+      "stderr": ""
+    },
+    {
+      "at_utc": "2026-10-22T14:59:07.557266+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\"",
+      "stderr": ""
+    },
+    {
+      "at_utc": "2026-10-22T14:59:53.214613+00:00",
+      "status": "RUNNING",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.RUNNING\"",
+      "stderr": ""
+    },
+    {
+      "at_utc": "2026-10-22T15:00:38.938589+00:00",
+      "status": "COMPLETE",
+      "returncode": 0,
+      "output": "aanchal009/arc-agi-3-runtime-check has status \"KernelWorkerStatus.COMPLETE\"",
+      "stderr": ""
+    }
+  ],
+  "model_ready": false,
+  "server_launch_reached": false,
+  "weight_shards_read": 0,
+  "reason": "Installed loader differs from pinned upstream full source; adapter refused to patch",
+  "log_sha256": "0f7206cd85a5e64944f4e456fe6471a62c5eb69d1d6c31178892fb3fea633c2c"
+}

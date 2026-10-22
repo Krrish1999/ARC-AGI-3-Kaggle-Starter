@@ -13,7 +13,11 @@ WEIGHT_DATASETS = {
 }
 
 
-def extract_launcher() -> tuple[str, dict]:
+def extract_launcher(*, local_model_root: str = '/kaggle/working/.arc3-models',
+                     local_model_fallback_roots: tuple[str, ...] = (),
+                     local_model_headroom_bytes: int = 16 * 1024**3,
+                     bounded_model_headroom_bytes: int = 4 * 1024**3,
+                     bounded_model_root: str = '/tmp/models/arc3') -> tuple[str, dict]:
     path = ROOT / 'research_lab/top_programs/baseline_28_score.ipynb'
     raw = path.read_bytes()
     expected = json.loads((ROOT / 'agent/baseline/manifest.json').read_text())['notebook_sha256']
@@ -56,9 +60,10 @@ def extract_launcher() -> tuple[str, dict]:
                 'precache_model_thread = None\n'
                 'if os.getenv("ENABLE_BASELINE_PREFETCH", "1") == "1":\n'
                 '    precache(WHEELHOUSE_DIR)\n'
-                '    precache_model_thread = threading.Thread(target=precache,\n'
-                '        args=(MODEL_DIR, DRAFT_MODEL_DIR) if os.getenv("ENABLE_SPECULATIVE_DRAFT", "1") == "1" else (MODEL_DIR,),\n'
-                '        kwargs={"delay": 60, "threads": 3}, daemon=True)\n')
+                '    if os.getenv("ENABLE_LOCAL_MODEL_STAGING", "1") != "1":\n'
+                '        precache_model_thread = threading.Thread(target=precache,\n'
+                '            args=(MODEL_DIR, DRAFT_MODEL_DIR) if os.getenv("ENABLE_SPECULATIVE_DRAFT", "1") == "1" else (MODEL_DIR,),\n'
+                '            kwargs={"delay": 60, "threads": 3}, daemon=True)\n')
     marker = '# ---- launch detached and wait for health ----'
     if serving.count(marker) != 1:
         raise ValueError('Baseline serving boundary changed')
@@ -73,14 +78,38 @@ def extract_launcher() -> tuple[str, dict]:
         '    SPEC=True,': '    SPEC=os.getenv("ENABLE_SPECULATIVE_DRAFT", "1") == "1",',
         '"--no-index", "--find-links", str(WHEELS)':
             '"--no-index", "--only-binary", ":all:", "--find-links", str(WHEELS)',
+        '"--model-path", MODEL_DIR,': '"--model-path", str(LOCAL_MODEL_DIR),',
     }
     for before, after in edits.items():
         if serving.count(before) != 1:
             raise ValueError(f'Baseline launcher fragment changed: {before}')
         serving = serving.replace(before, after)
+    bounded_guard = ('os.getenv("ENABLE_LOCAL_MODEL_STAGING", "1") == "1" and '
+                     'os.getenv("ENABLE_BOUNDED_MODEL_STAGING", "1") == "1"')
+    serving = serving.replace('def indexed_shards(root):\n',
+        'def indexed_shards(root):\n'
+        f'    if {bounded_guard}:\n'
+        '        return bounded_indexed_shards(root)\n')
+    serving = serving.replace('links = {name: source / name for name in shards}',
+        f'links = {{}} if {bounded_guard} else {{name: source / name for name in shards}}')
+    # Avoid the original all-checkpoint page-cache pass competing with our
+    # bounded copier. The adapter rejects unexpected prefetch/loader modes.
+    serving = serving.replace('# ---- assemble Pennyroyal / AutoRound launch arguments ----',
+        f'if {bounded_guard}:\n'
+        '    CFG["PREFETCH_CHECKPOINTS"] = False\n'
+        '    if DRAFT_VIEW is not None:\n'
+        '        register_bounded_alias(Path(staging_report["manifest"]), Path(DRAFT_VIEW), Path(DRAFT_MODEL_DIR))\n'
+        '    env.update({key: os.environ[key] for key in\n'
+        '        ("ARC3_BOUNDED_MANIFEST", "ARC3_BOUNDED_MANIFEST_SHA256")})\n'
+        '# ---- assemble Pennyroyal / AutoRound launch arguments ----')
     # Keep install + server in the supervisor's process group. The parent owns
     # the single bounded readiness deadline, termination and reaping.
-    tail = ('\nif precache_model_thread is not None:\n    precache_model_thread.start()\n'
+    tail = (f'\nif {bounded_guard}:\n'
+            '    adapter = install_bounded_loader(Path(VENV), clean_py_dir, BOUNDED_SOURCE, STAGING_SOURCE,\n'
+            '        wheel, WORKING_DIR / "diagnostics/loader_contract.json")\n'
+            '    staging_report["loader_adapter"] = adapter\n'
+            '    _bounded_save(WORKING_DIR / "diagnostics/model_staging.json", staging_report)\n'
+            'if precache_model_thread is not None:\n    precache_model_thread.start()\n'
             'print("SGLang launch:", args, flush=True)\n'
             'with open(LOG, "ab", buffering=0) as logf:\n'
             '    proc = subprocess.Popen(args, env=env, stdout=logf, stderr=subprocess.STDOUT)\n'
@@ -92,7 +121,47 @@ def extract_launcher() -> tuple[str, dict]:
         'asset_report_path = WORKING_DIR / "diagnostics/llm_assets.json"\n'
         'asset_report_path.parent.mkdir(parents=True, exist_ok=True)\n'
         'asset_report_path.write_text(json.dumps(asset_report, indent=2) + "\\n")\n')
-    source = header + prefetch + assets_source + inspection + serving + tail
+    staging_source = (ROOT / 'scripts/model_staging.py').read_text().replace('from __future__ import annotations\n', '')
+    bounded_source = (ROOT / 'scripts/bounded_model_staging.py').read_text()
+    # Embed reviewed repository sources in the primary launcher, and write
+    # identical support modules into the isolated serving Python directory.
+    imports = ('try:\n'
+               '    from .model_staging import _stage_file, _staging_files, _storage_profile\n'
+               'except ImportError:\n'
+               '    from arc3_model_staging import _stage_file, _staging_files, _storage_profile\n')
+    bounded_embedded = bounded_source.replace('from __future__ import annotations\n', '').replace(imports, '', 1)
+    support_sources = f'\nBOUNDED_SOURCE = {bounded_source!r}\nSTAGING_SOURCE = {staging_source!r}\n'
+    staging = (
+        '\n# Bounded per-shard barriers; toggle 0 retains the full-copy control.\n'
+        f'if {bounded_guard}:\n'
+        '    staging_report = prepare_bounded_checkpoints(asset_report,\n'
+        f'        Path({bounded_model_root!r} if os.getenv("ENABLE_FOUR_SHARD_WINDOW", "1") == "1" else {local_model_root!r}),\n'
+        '        WORKING_DIR / "diagnostics/model_staging.json",\n'
+        f'        headroom_bytes={bounded_model_headroom_bytes!r}, owner_token=os.environ["ARC3_MODEL_OWNER"],\n'
+        '        cache_slots=4 if os.getenv("ENABLE_FOUR_SHARD_WINDOW", "1") == "1" else\n'
+        '            (3 if os.getenv("ENABLE_THREE_SHARD_WINDOW", "1") == "1" else 2))\n'
+        '    os.environ["ARC3_BOUNDED_MANIFEST"] = staging_report["manifest"]\n'
+        '    os.environ["ARC3_BOUNDED_MANIFEST_SHA256"] = hashlib.sha256(Path(staging_report["manifest"]).read_bytes()).hexdigest()\n'
+        '    MODEL_DIR = staging_report["models"]["target"]["path"]\n'
+        '    DRAFT_MODEL_DIR = staging_report["models"].get("draft", {}).get("path", DRAFT_MODEL_DIR)\n'
+        'elif os.getenv("ENABLE_LOCAL_MODEL_STAGING", "1") == "1":\n'
+        '    staging_report = stage_checkpoints(Path(asset_report["target"]["path"]),\n'
+        '        Path(asset_report["draft"]["path"]) if "draft" in asset_report else None,\n'
+        f'        Path({local_model_root!r}), WORKING_DIR / "diagnostics/model_staging.json",\n'
+        '        reserve=os.getenv("ENABLE_STAGING_CAPACITY_RESERVATION", "1") == "1",\n'
+        f'        fallback_roots=tuple(Path(path) for path in {local_model_fallback_roots!r}),\n'
+        f'        headroom_bytes={local_model_headroom_bytes!r},\n'
+        '        owner_token=os.environ["ARC3_MODEL_OWNER"])\n'
+        '    for kind, model in staging_report["models"].items():\n'
+        '        local_report = checkpoint_report(Path(model["path"]))\n'
+        '        for field in ("config_sha256", "index_sha256", "shard_sizes"):\n'
+        '            if local_report[field] != asset_report[kind][field]:\n'
+        '                raise ValueError("Staged checkpoint verification failed: " + kind + ":" + field)\n'
+        '    MODEL_DIR = staging_report["models"]["target"]["path"]\n'
+        '    DRAFT_MODEL_DIR = staging_report["models"].get("draft", {}).get("path", DRAFT_MODEL_DIR)\n'
+        'LOCAL_MODEL_DIR = Path(MODEL_DIR)\n')
+    source = (header + prefetch + assets_source + inspection + staging_source
+              + bounded_embedded + support_sources + staging + serving + tail)
     compile(source, '<extracted-pennyroyal-launcher>', 'exec')
     provenance = {
         'baseline_notebook_sha256': expected,
@@ -105,7 +174,24 @@ def extract_launcher() -> tuple[str, dict]:
         'upstream_commit': 'd00d88efc8d6281b12be4f4073126aec95038c55',
         'sglang_wheel': 'sglang-0.5.19+gd00d88efc8d6-cp312-cp312-linux_x86_64.whl',
         'served_model': 'flashnext', 'startup_seconds': 2400,
-        'prefetch': 'Cell 7 wheel prewarm (16 readers); Cell 13 model-prefetch start (3 readers, 60s delay); best-effort I/O only, mandatory asset validation retained',
+        'prefetch': 'Cell 7 wheel prewarm; bounded model pipeline overlaps four sequential shard copies behind per-shard synced digest barriers. Whole-model prefetch is disabled.',
+        'bounded_model_staging': {'toggle': 'ENABLE_BOUNDED_MODEL_STAGING', 'default': '1',
+            'cache_slots': 4, 'slot_toggle': 'ENABLE_FOUR_SHARD_WINDOW', 'slot_default': '1',
+            'control_root': local_model_root, 'control_slot_toggle': 'ENABLE_THREE_SHARD_WINDOW',
+            'root': bounded_model_root, 'headroom_bytes': bounded_model_headroom_bytes,
+            'read_toggle': 'ENABLE_PARALLEL_SHARD_READS', 'read_default': '0',
+            'read_workers': 4, 'read_chunk_bytes': 8 * 1024**2,
+            'barrier': 'per shard: close, fsync, byte count and local digest match before safe_open',
+            'eviction': 'CPU tensor clones detach mmap; unlink after consumption; target/draft interprocess lock',
+            'upstream_loader_reference_sha256': '1016b2c6c2d7eb50ef25e0a731e20096e4b79239bccb6fea26aa59d3f29bf8fe',
+            'wheel_sha256': 'd0620216732b82b6efd4f8a78cc9b5f55343a4d3837fdfa3bcbb841b7718a225',
+            'binding': 'exact approved wheel digest and identical installed loader member; AST-scoped boundary checks'},
+        'local_model_staging': {'root': local_model_root, 'toggle': 'ENABLE_LOCAL_MODEL_STAGING',
+                                'default': '1', 'workers': 4, 'copy_barrier': 'all files closed/fsynced; target and draft validated before args/Popen',
+                                'capacity_toggle': 'ENABLE_STAGING_CAPACITY_RESERVATION',
+                                'capacity_default': '1', 'fallback_roots': list(local_model_fallback_roots),
+                                'headroom_bytes': local_model_headroom_bytes,
+                                'reservation': 'posix_fallocate and fsync every destination file plus headroom before FUSE reads; retain extents during copy'},
         'radix_cache': 'enabled by server default; schedule-policy=lpm; cache reporting enabled',
         'configuration_edits': edits,
     }

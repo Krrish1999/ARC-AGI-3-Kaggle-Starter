@@ -21,14 +21,38 @@ v2.5.3 / SGLang 0.5.19 launcher, serving Qwen 3.8 AutoRound as `flashnext` on
 identifies the same upstream target and draft models used by the baseline. It installs from
 the attached wheelhouse into an isolated venv, leaving the framework interpreter
 unchanged. The retained reference notebook is unchanged.
-The launcher's Cell 7 wheel prewarm and Cell 13 model-prefetch start are retained
-under `ENABLE_BASELINE_PREFETCH=1`; `0` selects the serial-read control. Prefetch
-is best-effort I/O and does not replace any asset integrity/format check.
+`ENABLE_LOCAL_MODEL_STAGING=1` and `ENABLE_BOUNDED_MODEL_STAGING=1` prepare
+local metadata, then load through four rolling shard slots under
+`/tmp/models/arc3`. Each copy must close/fsync, match its indexed size and pass
+a source-stream/local digest comparison before safetensors opens it. Native
+weight order is preserved. CPU tensor clones detach file mappings; a consumed
+file is closed/unlinked before its slot is refilled. Target/draft iterators
+share an interprocess lock. The four-file inventory bound is 21.484 GB, with
+4 GiB of headroom. Local model/draft views contain no placeholder weight files
+or input-weight links. The adapter checks the exact approved wheel digest and
+identical installed loader member before its scoped patch.
+
+`ENABLE_FOUR_SHARD_WINDOW=0` selects the working-volume control:
+`ENABLE_THREE_SHARD_WINDOW=1` uses three copies, while `0` keeps two slots and
+one copier. `ENABLE_PARALLEL_SHARD_READS=1` retains the positional-read
+experiment; sequential reads are default. `ENABLE_BOUNDED_MODEL_STAGING=0`
+retains the full-copy control, including `ENABLE_STAGING_CAPACITY_RESERVATION`
+and its 16 GiB headroom/fallback diagnostics. Full copying needs 185.4 GB;
+working reports only 20.94 GB, and earlier unbounded `/tmp` copies failed
+actual writes despite successful allocation. Free-space/extent checks are
+prechecks; completed copy/fsync/digest barriers establish acceptance.
+`ENABLE_LOCAL_MODEL_STAGING=0` retains the direct-input prefetch control.
+After server shutdown, cleanup removes only this run's nonce-owned direct
+transaction under the exact working or ephemeral root.
+
+`ENABLE_BASELINE_PREFETCH=1` retains the reference's wheel prewarm; `0` disables
+that warmup. The old model prefetch thread is used only in the staging-off
+control. Page-cache warmup does not copy files or replace integrity checks.
 
 Installation, model loading and `/v1/models` readiness share a **2,400-second (40-minute)**
 deadline before the gameplay runner starts. Failure stops the owned process
-group and records exploration fallback. `ENABLE_OFFLINE_BACKEND=0` selects that
-control explicitly; `ENABLE_SPECULATIVE_DRAFT=0` serves the same target without
+group and Gen-3 halts unverified gameplay. `ENABLE_OFFLINE_BACKEND=0` disables
+the backend explicitly; `ENABLE_SPECULATIVE_DRAFT=0` serves the same target without
 the draft. Both default to `1`. The model endpoint is separate from
 `gateway:8001`; Kaggle alone controls `KAGGLE_IS_COMPETITION_RERUN`.
 
@@ -48,11 +72,14 @@ to `0` restores the single-proposal path. Exact replay and `expect` checks stay
 mandatory, and infrastructure failures remain visible. Repair attempts and
 outcomes are recorded in each perception directory's `world_model.jsonl`.
 
-Local regression checks cover startup and adapter failures. Actual GPU loading,
-VRAM, throughput and cache reuse await an offline Kaggle rehearsal with these
-mounts. The 2,400-second allowance supersedes the earlier 900-second timeout
-observed on Kaggle. Failed startup remains visible, and the Gen-3 agent halts
-before unverified gameplay when the model is unavailable.
+Kaggle saved version 14 completed on 2026-10-22: all 38 target + 2 draft shards
+(185,336,100,936 bytes) were verified and consumed, and `/v1/models` advertised
+`flashnext` after **2,188.041 seconds (36 minutes 28 seconds)**. The server and
+owned cache stopped/cleaned after the normal NOT_EVALUATED save. This verifies
+startup on RTX PRO 6000; hidden-test RHAE and cache-hit rate remain unmeasured.
+The checked-in notebook is build `e8d4cc5d22a4713b`. `make submit` now checks
+the structured SDK response, so rejected pushes fail instead of printing a
+misleading success footer. Runtime evidence and prior controls are in the ledger.
 Asset provenance and validation limits are recorded in
 `research_lab/offline_inventory.json`.
 

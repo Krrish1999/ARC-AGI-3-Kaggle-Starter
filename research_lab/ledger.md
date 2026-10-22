@@ -1,5 +1,580 @@
 # ARC-AGI-3 PhD Research Laboratory Ledger
 
+## [EDIT] Bounded shard staging — systems ticket, 2026-10-22
+
+The user explicitly answered **Develop bounded shard staging**, replacing the
+all-shards-before-launch constraint with incremental copy/load of the **same
+Qwen weights**. Continue PR #14 from engineering parent `b1afa97`; retain the
+archived agent parent and all Gen-3 policy/security sources. Apply `phd-systems`.
+Version 8's final startup outcome remains unconfirmed; no new diagnostics are
+on main at this preflight. Its measured 20.94 GB working capacity motivates
+this change independently of the unresolved fallback outcome.
+
+**[EDIT] hypothesis.** Default-on `ENABLE_BOUNDED_MODEL_STAGING=1` prepares
+verified local metadata and a manifest of indexed source shards. Integrate
+with the exact pinned Pennyroyal loader (upstream `d00d88efc8d6`) through a
+hash-checked, narrowly scoped adapter. Block each loader read until its shard
+copy closes, fsyncs and matches the source-stream digest. Pipeline one next
+shard with one current shard, then unlink the consumed file. Clone yielded
+CPU tensors so surviving model-loader references cannot retain an evicted
+file's mmap. Serialize target/draft iterators with an interprocess lock to
+enforce the aggregate disk bound; reject unsupported loader modes or source
+drift. Disable whole-checkpoint page-cache prefetch on this path. Toggle 0
+retains the full-copy control. Keep the same checkpoints, quantization,
+speculation, RadixAttention, 2,400-second startup and global deadlines.
+
+**Acceptance.** Exercise actual safetensors across all 38+2 tiny fixture
+shards, exact tensor equality, bounded physical storage, blocking read barrier,
+copy/hash/size failures, cancellation, concurrent target/draft and restart
+ownership. Test the generated model/draft handoff and pinned loader adapter;
+fail closed on altered upstream source. Run pytest, ruff, pyright and
+containment, rebuild and update the reviewable PR. Do not claim GPU readiness
+or RHAE from synthetic fixtures. Record runtime evidence separately if another
+Phase A rehearsal is possible within the existing deployment authorization.
+
+### Bounded candidate verification
+
+**282/282 pytest cases** pass, including 21 new bounded-staging cases with
+real CPU torch/safetensors, all 38 target + 2 draft fixture shards, retained
+tensor equality after eviction, physical-block bounds, cancellation, copy
+barriers/failures and the exact pinned upstream default-loader methods.
+Generated model arguments and the retained draft-view helper point to local
+metadata without source-weight symlinks or placeholder shards. Both target and
+draft use the adapter even when draft multithread configuration is omitted.
+The native loader file hash is checked before any patch; unsupported modes
+and altered source fail closed. Rerun of full pytest after rebuilding the
+initially stale notebook passes; ruff and pyright pass, containment **20/20**
+with `containment_passed=true`. One lint repair retained `safe_open.keys()`
+with an API-specific suppression. No agent module changed.
+
+Cache contents are bounded to two indexed shards (10,741,854,576 bytes at the
+observed maximum shard size) plus metadata and 4 GiB of free headroom. The
+underlying copy helper now refuses to write beyond the inventoried byte count,
+including a growing source. Each yielded tensor is cloned on CPU to detach
+its file mmap; the original quantization and model/draft weights are retained.
+Startup diagnostics now persist elapsed startup time and emit a 30-second
+wait heartbeat under the unchanged 2,400-second deadline. Real CPU tests used
+torch 2.14.1+cpu / safetensors 0.8.0; the Kaggle serving wheels remain pinned
+at torch 2.13.0+cu130 / safetensors 0.9.0rc1. Local success does not establish
+GPU readiness, startup latency or RHAE lift.
+
+The reviewed notebook build is **f68cb1c9e817f9fe**. Deployment receipt:
+`research_lab/traces/bounded_staging_deployment.json`. Version 8 remains
+COMPLETE with final startup diagnostics unavailable; this is a distinct,
+explicitly authorized bounded-loading experiment. No Phase B request is made.
+
+### Version 9 — loader source mismatch, zero weight reads
+
+`make submit` saved version 9 from `0a6316c`, build **f68cb1c9e817f9fe**.
+All deployed cells match, dataset membership matches (Kaggle reordered the
+array), GPU-on/internet-off accepted. Local metadata and the owned working
+cache passed preflight on ext4 with 20,937,408,512 bytes free. Pennyroyal
+installed and CUDA initialized, but the installed loader's full-file hash
+differs from the Git commit source. The adapter correctly refused to patch;
+**SGLang never launched and zero weight shards were read**. The owned metadata
+transaction was removed. Startup failed after **131.064 seconds**; readiness
+latency remains null. COMPLETE save observed **2026-10-22 20:30:38.939
+Asia/Calcutta**, separately from the startup failure. Full console evidence is
+captured in `research_lab/traces/bounded_staging_runtime_evidence.json`.
+
+**[EDIT] artifact-binding repair.** Bind the installed loader to the exact
+approved wheel's SHA256 **d0620216732b82b6efd4f8a78cc9b5f55343a4d3837fdfa3bcbb841b7718a225**,
+already observed in version-7 input diagnostics, and require installed bytes
+to equal that wheel's loader member before patching. Keep the upstream hash
+as a reference rather than assume packaged source equality. Retain AST-scoped
+method/boundary checks, record wheel/installed/patched hashes and extract the
+actual method contract for auditing. A changed archive or installed file must
+still reject before loading. Normal Kaggle wheel download is blocked at
+storage.googleapis.com; perform archive verification inside the authorized
+offline Kaggle bootstrap instead. This is an exact-artifact binding, not an
+unchecked acceptance of the mismatching installed source. Test corrupt wheel
+and installed-file drift before rebuilding and one further startup rehearsal.
+
+**Repair verification.** **284/284 pytest cases** pass, including two new
+archive/installed-member tampering cases. Ruff and pyright pass, containment
+**20/20**. Rebuilt notebook **75c1403830052f18** matches its sources. Archive
+verification happens before writing support modules or patched loader code;
+the exact installed method contract is saved as `diagnostics/loader_contract.json`.
+No checkpoint, agent policy, serving setting or deadline changes. Separate
+receipt: `research_lab/traces/artifact_bounded_staging_deployment.json`.
+
+### Version 10 — artifact binding passes; iterator keyword mismatch
+
+Version 10 / **75c1403830052f18**, source `2757785`, matches the pulled
+notebook and dataset membership. The approved archive digest matches;
+installed loader SHA256 is **d12e619c9a334f1af61d79d1958c59554e0931986da4942b1f570562d0752bb1**,
+distinct from the upstream reference. The metadata transaction, installation,
+CUDA and SGLang process launch succeed. SGLang reaches model initialization,
+then its packaged iterator supplies **prefetch_lookahead**, absent from the
+upstream fixture signature. The adapter raises TypeError before any weight
+copy. Startup fails after **170.084 seconds**, zero loaded/copied shards;
+readiness remains false. COMPLETE save observed **2026-10-22 20:40:15.117
+Asia/Calcutta**. Owned working metadata is cleaned. Full live evidence is in
+`research_lab/traces/artifact_bounded_staging_runtime_evidence.json`.
+
+**[EDIT] iterator-call repair.** AST-validate the single native safetensors
+call, its weight-list argument and the reviewed optional argument names,
+including packaged `prefetch_lookahead`. Replace the entire call with the
+bounded iterator's weight list only: this adapter owns copy/mmap/prefetch
+settings instead of inheriting upstream optional knobs. Unknown arguments
+still reject before patching. Test actual tensor loading for both reference
+and lookahead-call variants and rejection of an unreviewed keyword. The wheel
+digest/installed-member checks and all bounds remain unchanged. The initial
+test-only synthetic call syntax was corrected before final verification.
+
+**Iterator repair verification.** **286/286 pytest cases**, required ruff and
+pyright pass; containment **20/20**. The rebuilt notebook is
+**79f942481dc996e6** and matches source. The two added cases exercise the
+packaged lookahead argument and reject an unknown argument; no permissive
+`**kwargs` fallback is introduced. Receipt:
+`research_lab/traces/iterator_bounded_staging_deployment.json`.
+
+### [EDIT] Bounded concurrent range reads — performance ticket
+
+Version 11 / **79f942481dc996e6**, source `76ff46a`, is still running.
+Its first 2,899,311,784-byte shard is copied/synced/digest-verified in
+**97.714 seconds** and consumed successfully. The observed sequential-source
+rate is about 29.7 MB/s; applying that rate to all 185.4 GB would exceed the
+2,400-second deadline. This projection motivates a concurrency experiment;
+it is not a measured final startup result.
+
+Continue from engineering parent `76ff46a`, preserving agent policy and
+archived parent. **[EDIT]** default-on `ENABLE_PARALLEL_SHARD_READS=1` adds four
+bounded concurrent positional reads inside the single active shard copier.
+Write and hash chunks in original order, retain the same two-file disk bound,
+and cap read buffers to a small fixed window. Toggle 0 keeps the measured
+serial-copy control. Test forced out-of-order completion, partial reads,
+truncation, fsync failure, ordered digest equality and in-flight buffer bounds
+before another deployment. The active version-11 control continues while
+this independent repair is developed; do not overwrite its outcome or claim
+that a projection establishes measured deadline failure.
+
+**Control progress.** Three target shards were consumed, including 5.37 GB
+copies taking **184.348** and **186.609 seconds**. Maximum logical cache
+accounting is **10,741,458,608 bytes**, within the two-slot limit. The serial
+control remains RUNNING; its final startup duration/readiness is unknown.
+Partial build-bound evidence is preserved in
+`research_lab/traces/iterator_bounded_staging_runtime_evidence.json` before
+superseding the latest notebook with the concurrent-read trial.
+
+**Range candidate verification.** **292/292 pytest cases** pass, including
+six new parallel-read cases: reordered completion with 2..4 concurrent reads,
+partial-read retry, truncation/growth/fsync failure, and the serial ablation.
+Ruff, pyright and containment **20/20** pass. Four positional reads fill fixed
+8 MiB buffers; a four-item window hashes/writes original byte order without
+reading a whole shard into RAM. At most 40 MiB of shard buffers are live;
+the two-file disk bound and 4 GiB headroom are unchanged. Notebook
+**c5e21ca4933c5e51** matches source. Receipt:
+`research_lab/traces/range_bounded_staging_deployment.json`. The active control
+and the new rehearsal each retain the 2,400-second startup deadline; neither
+is a Phase B evaluation or a measured RHAE result.
+
+### [EDIT] Three-shard sequential-copy window — systems ticket
+
+Engineering parent `09a84e3`; retain all checkpoint and policy identities.
+Version 12 remains RUNNING at 390 startup seconds with no completed first
+copy, whereas the serial control completed it near 267 startup seconds.
+Within-file positional reads have not shown a throughput benefit on this
+FUSE mount; no final failure duration is claimed. Preserve that candidate
+behind `ENABLE_PARALLEL_SHARD_READS` with default 0.
+
+Default-on `ENABLE_THREE_SHARD_WINDOW=1` instead overlaps three independent
+sequential shard copies. Inventory checks require **3 * 5,370,927,288 +
+64,194,294 metadata + 4,294,967,296 headroom = 20,471,943,454 bytes**, below
+the observed 20,937,408,512-byte free working volume. Reject before launch if
+the next run cannot meet this bound. Replenish a slot only after consumption,
+file close and unlink; keep target/draft serialization and CPU tensor clones.
+Toggle 0 keeps the measured two-slot pipeline. Test 2- and 3-slot pipelines,
+simultaneous independent copies, cancellation and physical high-water bounds;
+run full gates and one final bounded startup rehearsal. No timeout increase
+or smaller/different checkpoint is authorized.
+
+**Three-window verification.** **295/295 pytest cases** pass, including
+both 2/3-slot full 38+2-shard tensor fixtures, both cancellation paths, and a
+barrier proving three distinct source copies overlap. Physical cache block
+bounds and unlink-before-replenish are verified. Ruff, pyright and containment
+**20/20** pass. Notebook **fa9152ca54532566** matches source. Version 12 still
+has no completed shard after 570 startup seconds; record its final outcome
+as unknown when superseded, rather than calling this an observed timeout.
+Receipt: `research_lab/traces/three_shard_staging_deployment.json`.
+
+**Deployment rejection.** The next `make submit` returned exit 0 and printed
+Pushed, but Kaggle's actual response was **Maximum batch GPU session count
+of 2 reached**. Pull still returns version-12 build c5e21ca4933c5e51; the
+three-slot candidate has **not** been deployed. Both earlier owned trials
+retain their 2,400-second limits. Wait for a slot rather than claiming a new
+run from the make footer.
+
+**[EDIT] submission-result guard.** While waiting, make the project CLI's
+standard push path inspect the structured SDK response and fail on errors,
+missing version confirmation or rejected data sources. Other CLI commands
+keep their existing behavior. Also ensure the two-slot ablation retains a
+single copier; three slots enable three producers. Both default paths still
+use sequential per-file reads. Test rejected/accepted push responses and
+rerun final gates before retrying the exact new source build.
+
+**Guard verification.** **300/300 pytest cases** pass, with five push-response
+cases covering quota rejection, empty response, rejected required dataset,
+missing version and confirmed success. Ruff/pyright and containment **20/20**
+pass. Rebuilt three-file notebook **6c412ec9516aedcb** matches source; two-slot
+ablation keeps one producer, the default three-slot path keeps three. The
+wrapper has no credential-output change. Pending deployment receipt:
+`research_lab/traces/guarded_three_shard_deployment.json`. Retry after a slot
+frees; a rejected API response is not a deployment or startup measurement.
+
+### Version 13 and [EDIT] four-shard ephemeral cache ticket
+
+The guarded retry confirmed **version 13** from `e5f4bc4`, build
+**6c412ec9516aedcb**; pulled source and dataset membership match. Three
+independent sequential copies work: the first group loads in ~186 seconds
+instead of ~470 seconds of serial copying, with a 16,111,599,312-byte cache
+high-water mark. Seven shards are consumed without a read/expectation error.
+The exact indexed-size FIFO schedule, using the measured 29.2 MB/s per file
+and 1.5-second consumption, projects **2,525.3 seconds for target + draft**,
+excluding postprocessing/warmup. This is a projection, not a measured final
+failure; version 13 continues under its unchanged deadline.
+
+**[EDIT]** from `e5f4bc4`: default-on `ENABLE_FOUR_SHARD_WINDOW=1` selects
+`/tmp/models/arc3` and four concurrent sequential source copies. Keep the
+existing three-file working-volume path as toggle-0 control and retain native
+file/tensor order. Four maximum shards need 21,483,709,152 bytes; including
+metadata and 4 GiB headroom needs **25,842,870,742 bytes**, too much for working.
+The `/tmp` overlay previously accepted at least 73,581,282,253 synced bytes
+before the unbounded full-copy failure. This supports a smaller bounded
+experiment, not a claim that reported host free space proves writable capacity.
+All four actual copies still must pass close/fsync/count/digest barriers.
+At 25..29.2 MB/s per file the same FIFO projection is 2,311.8..2,006.5 seconds
+before postprocessing/warmup, within the existing limit with useful headroom
+at the observed serial rate. No checkpoint, quantization or timeout change.
+
+Extend post-stop ownership cleanup to the exact ephemeral root as well as
+working, retaining nonce/marker/path checks. Test full 38+2 tensor loads and
+cancellation for four slots, concurrent four-file production, generated root
+binding and owned-only ephemeral cleanup. Run gates before the next rehearsal.
+
+**Four-window verification.** **306/306 pytest cases** pass; ruff, pyright
+and containment **20/20** pass. One test import-order lint repair passed on
+the next check. Added coverage includes four-slot full tensor replay and
+cancellation, four-copy overlap, both generated root bindings and nonce-bound
+ephemeral cleanup that preserves another owner's cache. Inventory accounting
+is explicitly labeled a conservative bound rather than measured allocated
+blocks; initial shard names are labeled as initial, avoiding stale active-file
+claims. Notebook **e8d4cc5d22a4713b** matches source. Version 13 has consumed
+16 shards; its final readiness remains unknown while the four-file candidate
+is prepared. Receipts:
+`research_lab/traces/guarded_three_shard_runtime_evidence.json` and
+`research_lab/traces/four_shard_staging_deployment.json`.
+
+### Version 14 — COMPLETE; model readiness verified within 40 minutes
+
+The guarded push saved **version 14**, source **509e6bab62e9abc658b83d45938f3d4841bf455b**,
+build **e8d4cc5d22a4713b**. Initial and completed pulls match every cell source
+and all three datasets; GPU on/internet off accepted. The runtime GPU probe
+identifies NVIDIA RTX PRO 6000. Containment/framework preflight pass.
+
+**Measured startup: 2,188.040737384 seconds (36 minutes 28.041 seconds)**
+to the owned loopback `/v1/models` endpoint advertising `flashnext`. The event
+is at **2026-10-22 22:24:04.719 Asia/Calcutta**. This leaves **211.959 seconds**
+under the unchanged 2,400-second limit. The enclosing startup stage is
+2,188.044 seconds; use the readiness event for model-startup latency.
+
+All **38 target + 2 draft** indexed shards, **185,336,100,936 bytes**, were
+copied, synced, digest-checked and consumed; all 40 source-stream/local hashes
+match. Native file/tensor order is retained. The root is `/tmp/models/arc3`
+on the local overlay. Maximum conservative in-flight inventory accounting is
+**21,482,183,592 bytes**, below the **21,483,709,152-byte** configured bound,
+with 4 GiB headroom. This counter is not a physical-block measurement; local
+fixtures separately test physical block bounds and mmap-independent tensors.
+Actual rolling copies succeeded beyond the earlier full-copy storage failure.
+
+`make status` first reports **COMPLETE at 2026-10-22 22:24:25.840
+Asia/Calcutta**. NOT_EVALUATED follows readiness with zero hidden gameplay
+rows; the owned server receives normal termination and its exact nonce-owned
+ephemeral transaction is removed. A final stopped server is expected for a
+completed save and does not undo the readiness milestone. No Phase B request,
+hidden RHAE lift, cache-hit rate or level-completion improvement is claimed.
+
+Final source gates remain **306/306 pytest**, ruff/pyright pass, containment
+**20/20**, and the built notebook matches sources and both completed pulls.
+Agent policy/security source bytes match the prior Gen-3 parent. README and
+offline inventory now describe the measured bounded path; source code did
+not change after this deployment. Evidence:
+`research_lab/traces/four_shard_staging_runtime_evidence.json`, bound by the
+deployment receipt's source/artifact hashes. Earlier partial controls retain
+unknown final outcomes rather than borrowing this run's readiness result.
+
+## [EDIT] Working-volume staging and cleanup-error isolation — 2026-10-21
+
+Requested skill: `phd-systems`; continue PR #14 / `feat/local-model-staging`.
+Engineering parent `31ffd70`, merged with the user's main commit `8908646`
+containing `output_Version_7/`. Retain the archived parent and unchanged agent
+policy. The user supplied this directory to finish the authorized startup
+verification; the original I/O deployment remains unvalidated.
+
+**Version 7 diagnosis.** All 39 events match the timestamped notebook log and
+build **a56668207f023cce** / launcher hash. Staging failed after **860.627
+seconds** with ENOSPC at `_stage_file` fsync, despite the 202.58 GB extent
+allocation. Cleanup then raised EROFS from `shutil.rmtree`, replacing the main
+exception and aborting the candidate loop. Only `/tmp/models/arc3` was tried;
+no checkpoint was published and SGLang never launched. Startup ended after
+**935.044 seconds** (time to failure), with `ready=false`, `ever_ready=false`.
+`NOT_EVALUATED` at 956.981 seconds and containment/framework 20/20 remain valid.
+The actual writable limit and successful copied-byte count were not recorded.
+Allocation counters do not prove Kaggle will accept subsequent writes.
+
+**[EDIT] deterministic repair.** Keep `ENABLE_STAGING_CAPACITY_RESERVATION=1`
+and `ENABLE_LOCAL_MODEL_STAGING=1` controls. Prefer the previously untried
+`/kaggle/working/.arc3-models` candidate, then the prior `/tmp` and temp
+candidates. Capture deletion failures separately from ENOSPC, retain owned
+orphan paths for guarded post-stop cleanup, and continue candidate selection.
+Record read-only mount flags and successful copied-file/byte progress while
+still withholding MODEL_DIR binding until both complete checkpoints validate.
+The owned output cleanup, startup limit 2,400 seconds, global budgets and
+strict Gen-3 policy remain unchanged. No claim of sufficient writable working
+storage is made before the next full-copy rehearsal.
+
+**Acceptance.** Inject ENOSPC at copy plus EROFS at cleanup and require actual
+copy success on an independent fallback, preserving both errors and unrelated
+files. Verify orphan cleanup ownership and continuation, read-only rejection
+and progress before publication. Run full regression, ruff/pyright, containment,
+rebuild and one bounded Phase A rehearsal. If full copying still fails, record
+that storage failure rather than enlarging the timeout or claiming readiness.
+
+### Working-volume candidate verification
+
+**261/261 pytest cases** pass, including five new cleanup/progress/read-only
+regressions, with required ruff, pyright and containment **20/20**. The notebook
+matches its sources and the Gen-3 entry-module hashes remain unchanged. Build
+**122eab780b108df8** keeps the shared 2,400-second startup limit. The working
+path accepted the final version-7 diagnostic writes after the `/tmp` error;
+this supports trying it first but does not establish model-sized capacity.
+Receipt: `research_lab/traces/working_staging_deployment.json`.
+
+### Version 8 rehearsal — COMPLETE save, working volume too small
+
+`make submit` saved **version 8**, build **122eab780b108df8**, from `a9b0578`.
+Initial and final Kaggle pulls match every cell source and all three datasets;
+RTX PRO 6000, GPU-on/internet-off, containment/framework preflight pass.
+`make status` first reports COMPLETE at **2026-10-21 19:55:57.526
+Asia/Calcutta**. The notebook-start-to-observed-completion interval is
+**1334.022 seconds**, including save/platform overhead;
+it is not model readiness latency.
+
+The working candidate is a distinct writable **ext4** mount, device 1794,
+but reports only **20,937,515,008 bytes (20.94 GB)** free. It correctly rejects
+**185,400,295,230 bytes** of checkpoint plus **17,179,869,184 bytes** of
+headroom before copying. Fallback `/tmp/models/arc3` is the root overlay,
+device 64; it preallocates 202,580,451,328 bytes and the last observed progress
+is **20 synced files / 73,581,282,253 bytes**, still within the target copy.
+No checkpoint-complete, server-launch, readiness or final failure event was
+captured. The stream ends there and the completed-log API again returns `[]`.
+Version-8 diagnostics are not yet present on main; keep its final copy/startup
+outcome **unconfirmed**, separate from the established version-7 failure.
+
+Evidence: `research_lab/traces/working_staging_runtime_evidence.json` and the
+hash-bound deployment receipt. The repaired loop/progress tests pass locally;
+the available console establishes correct rejection of the undersized working
+volume, not a ready model. PR #14 remains draft. No Phase B evaluation was
+requested or submitted.
+
+**Constraint decision resolved.** The user subsequently answered **Develop
+bounded shard staging**. The bounded-loading ticket above now governs that
+implementation. Preserve version 8's unknown final outcome and all checkpoint
+identities; no timeout increase is authorized.
+
+## [EDIT] Capacity-backed local checkpoint boot — 2026-10-21
+
+Requested skill: `phd-systems`; continue `feat/local-model-staging` / PR #14.
+Engineering parent is `9084757` (the version-6 diagnostic closeout), merged with
+main `fb1fbb9` (PR #13). Archived parents and the Gen-3 agent/security sources
+remain unchanged. The user explicitly authorizes another build, Phase A save,
+startup measurement and PR update. Version 6's ENOSPC supersedes the earlier
+assumption that a filesystem free-space report establishes checkpoint capacity.
+
+**Type C hypothesis / [EDIT].** Prefer `/tmp/models/arc3`, with configured
+alternatives `/kaggle/working/.arc3-models` and `/kaggle/temp/arc3-models`.
+Default-on `ENABLE_STAGING_CAPACITY_RESERVATION=1` uses `posix_fallocate`, fsync
+and allocated-block verification on every destination checkpoint file plus
+16 GiB of serving headroom **before reading any weight shard**. Record mount
+type, device and free inodes. Reject memory/network filesystems; on capacity
+failure clean only the owned transaction and try the next local candidate.
+Copy into reserved files with `r+b`, preserving allocations. Release the owned
+headroom file only after both copies complete, for the subsequent installation.
+After the owned server process group stops, remove working-directory model
+copies only when their transaction and marker match this supervisor's owner
+token, keeping large checkpoints out of saved notebook outputs. Other paths,
+symlinks and another run's files are never eligible for this cleanup.
+Argument binding still follows complete close/fsync and metadata verification.
+No enabled-path fallback to FUSE input or timeout increase is allowed.
+
+**Ablation / acceptance.** Toggle 0 retains the prior free-space-only algorithm
+at the preferred root. Test actual small-file allocations and copies, exhausted
+or unsupported allocation despite high reported free space, fsync ENOSPC,
+fallback/owned cleanup, late copy failure, a blocking final allocation,
+sparse-allocation rejection, mount/inode rejection and generated handoff.
+Run pytest, ruff, pyright, containment and exact notebook checks, then deploy
+and record the observed capacity/copy/startup outcome. Allocation checks improve
+capacity evidence; no candidate volume is assumed large enough before the
+Kaggle run, and successful local fixtures are not GPU readiness or RHAE proof.
+
+### Capacity candidate verification and deployment preparation
+
+Final verification: **256/256 pytest cases**, including 19 additional capacity,
+fallback and cleanup cases; required ruff and pyright pass; containment
+**20/20**, `containment_passed=true`. One import-order lint repair passed on the
+next check. The notebook exactly matches its sources; both agent entry-module
+hashes match version 6. Build **a56668207f023cce** preserves the 2,400-second
+startup and global deadlines. Receipt:
+`research_lab/traces/capacity_staging_deployment.json`.
+
+`make submit` successfully pushed saved **version 7** from `5699882`.
+The pulled notebook matches every source cell and all three datasets, with GPU
+on, internet off and `NvidiaRtxPro6000`. Kaggle containment/framework preflight
+passes. At 2026-10-21 18:19:52 Asia/Calcutta, the local `/tmp/models/arc3` overlay
+reports **202,580,451,328 bytes allocated**, **62 files reserved**, and **0.413
+seconds** reservation time. Copying began into retained extents; completion and
+model readiness are still pending. This establishes allocation evidence on
+that candidate, not successful checkpoint contents or model loading.
+
+The user will upload the new diagnostic folder again if the Kaggle log API
+remains empty. Monitor Phase A to a terminal status; do not claim model
+readiness from COMPLETE alone or reuse version-6 failure timings for this build.
+
+### Version 7 Phase A closeout — COMPLETE save, staging failure confirmed
+
+`make status` first reports **COMPLETE at 2026-10-21 18:41:08.815
+Asia/Calcutta** (preceding RUNNING poll 18:40:22.791). A final source/metadata
+pull still matches **a56668207f023cce**, all three datasets, GPU enabled,
+internet disabled and NvidiaRtxPro6000. The interval from notebook start to
+observed completion is **1373.083 seconds**;
+this includes save/platform overhead and is not a measured model-startup time.
+
+The initial live log ended during copying and the completed log API returned
+`[]`. The user's main commit `8908646` supplies the complete diagnostics in
+`output_Version_7/diagnostics`. All 39 events agree with the timestamped console
+and deployed build/launcher. The staging attempt failed after **860.627 seconds**:
+ENOSPC at copy fsync, followed by EROFS during deletion. Cleanup aborted the
+fallback loop after only one candidate. The startup attempt failed after
+**935.044 seconds**, ending at **2026-10-21 18:34:12.504 Asia/Calcutta**.
+`ready=false`, `ever_ready=false`; no checkpoint was published and SGLang
+never launched. NOT_EVALUATED follows at 956.981 seconds. Containment and
+framework preflight passed. These are measured failure durations, not model
+readiness latency. No Phase B evaluation or RHAE/cache claim is made; PR #14
+remains draft while the working-volume repair is evaluated.
+
+Evidence: `research_lab/traces/capacity_staging_runtime_evidence.json` contains
+this run's complete events, final staging/launcher/status reports, diagnostic
+file hashes and status polls; the deployment receipt binds them to source
+commit `5699882`. That candidate passed 256 local tests, lint/type and
+containment; the GPU rehearsal falsified its storage/candidate-loop acceptance.
+The separate repair ticket above is not yet measured on Kaggle.
+
+## [EDIT] Blocking local checkpoint staging — systems ticket, 2026-10-21
+
+Requested skill: `phd-systems`; branch `feat/local-model-staging`. Engineering
+parent is `d509fa2` (the verified Gen-3 + 2,400-second deployment from PR #13),
+with main at `87fbb24`. Preserve the archived
+`research_lab/top_programs/v1_retrodict_world_model_harness.py` and all agent
+policy/security sources. No statistically promoted integrated champion exists.
+The user's deployment instruction authorizes this I/O change and Phase A rerun.
+
+**History / failure triage (Type C).** Gen-3 fixes replay, expectation checking
+and memory retention, but cannot acquire skill without a ready local model.
+Version 5 completed its save after a 2,400-second model-startup timeout: 25/38
+shards loaded, no ready endpoint, no gameplay or measured RHAE. Inspection now
+confirms that the retained `precache()` only reads files into page cache; it
+never copies models. Its thread runs concurrently with SGLang, whose target and
+draft paths still resolve to the FUSE dataset mounts. Earlier timing alone did
+not separate FUSE reads from CPU transformations. The deterministic mutation
+is a real local-copy barrier, not another timeout increase or a policy change.
+
+**[EDIT], `ENABLE_LOCAL_MODEL_STAGING=1` (default).** The builder explicitly
+configures `/kaggle/temp/arc3-models`. Copy all checkpoint/config/tokenizer files
+for both target and selected draft with four bounded-memory I/O workers; wait
+for every copy to finish, close and fsync, then verify local index/config/shard
+metadata before assembling server arguments. Target `--model-path`, draft
+links and tokenizer/template reads must all use the completed local trees.
+Insufficient space, bad paths or copy failures must prevent server launch,
+never silently substitute FUSE input. Staging-off is an explicit reference
+control; the previous page-cache thread is active only in that control. Wheel
+prewarm, startup/global deadlines, serving flags and Gen-3 gates are retained.
+
+**Acceptance.** Real copy fixtures with 38 shards and draft/metadata, blocking
+worker completion, copied symlink materialization, failure cleanup, insufficient
+space, unsafe source paths, actual generated --model-path/draft-view binding,
+and staging-off reference. Run full pytest, required ruff/pyright, containment
+and exact notebook/source checks. Deploy using `make submit`, monitor Phase A,
+and record staging/loader/readiness times separately. A ready endpoint is not
+an inference/cache/RHAE measurement. No Phase B submission is requested.
+
+### Local staging deployment — version 6 COMPLETE save, local-copy ENOSPC
+
+Local verification passes **237/237 pytest cases**, including 13 new staging
+cases, required ruff/pyright and containment 20/20. The agent sources are
+unchanged. `python scripts/build_notebook.py` and `make submit` packaged
+**8e291c0a90d1533a** and successfully pushed saved **version 6**. A CLI pull
+matches every generated cell source. Kaggle-side containment/framework
+preflight passes and the local-copy event reports **185,400,295,230 bytes**
+required with **1,145,972,953,088 bytes** free under
+`/kaggle/temp/arc3-models`; the copy-start observation uses four workers.
+
+`make status` first reports **COMPLETE at 2026-10-21 17:38:20 Asia/Calcutta**;
+the preceding poll was RUNNING at 17:37:34. The notebook began at 17:26:59.671,
+so the interval to observed completion is **680.412 seconds**, including all
+preflight/save work. This is **not a measured model-startup time**. The initial
+live console fragment ended at copy start; the uploaded diagnostics below
+resolve that uncertainty. Every final pulled cell still matches build
+**8e291c0a90d1533a**.
+
+**Uploaded diagnostics resolve the outcome: readiness FAIL.** The initial
+completed-log APIs returned `[]` and `kernels output` was blocked at
+`www.kaggleusercontent.com`. The user supplied all 11 version-6 diagnostic
+files. Their build ID and launcher hash match this deployment, and every
+structured event matches the timestamped notebook log. Retain SHA256/size
+receipts for all uploaded files and the complete console events.
+
+Local staging failed after **270.003 seconds** with
+`OSError: [Errno 28] No space left on device`, raised by
+`os.fsync(writer.fileno())` in a copy worker. `models={}`: no checkpoint was
+published. Because the blocking barrier raised before argument assembly,
+**SGLang was never launched**. `llm_status.json` records `ready=false`,
+`ever_ready=false`, `RuntimeError: launcher_exited:1`. The measured
+`llm_startup` attempt lasted **278.679 seconds**, ending at
+**2026-10-21 17:31:59.387 Asia/Calcutta**. This is time to failure, not model
+readiness latency. The notebook subsequently emits `NOT_EVALUATED` at 299.865
+seconds and writes zero gameplay rows. Its later COMPLETE save status does
+not establish a working model.
+
+The target's **38 indexed shards total 181,196,006,784 bytes**; the draft's
+**2 total 4,140,094,152 bytes**. The complete staging requirement including
+ancillary files is **185,400,295,230 bytes (172.67 GiB)**. Only 64.2 MB lies
+outside the indexed shards; required weights dominate the footprint. The
+**1.15 TB reported free** did
+not establish effective writable capacity; the filesystem free-space precheck
+was insufficient. These logs do not identify the actual mount quota, backing
+store limit or inode capacity, so do not assert a specific Kaggle quota or
+assume `/tmp` has more space. Wheel prewarm completed (211 files, 6.70 GB,
+4.16 seconds); dependency installation, containment **20/20**, and framework
+preflight passed. No 2,400-second timeout or CUDA/weight-loading failure was
+reached in this run.
+
+Receipts: `research_lab/traces/local_staging_deployment.json` and the captured
+events/status polls in `research_lab/traces/local_staging_runtime_evidence.json`.
+The 2,400-second deadline and Gen-3 policy remain unchanged. No Phase B
+competition evaluation was submitted; no cache, inference or RHAE acceptance
+is claimed. PR #14 remains a draft pending capacity correction, with this
+failure in its description. This closeout changes evidence only, not the tested
+runtime sources.
+
+**Next systems ticket (not yet deployed).** Measure the mount/device, writable
+capacity, inode availability and any exposed quotas for candidate local storage
+locations, then verify allocation for the full checkpoint footprint plus
+serving-environment headroom before committing to another full copy. Preserve
+the blocking barrier and copy-failure cleanup. Changing only the path or
+removing `fsync` would not establish capacity. If no volume can hold the model,
+full-checkpoint local staging needs a different storage/loading design; another
+timeout increase cannot repair this failure.
+
 ## [EDIT] Gen-3 Kaggle deployment — 2,400-second startup, 2026-10-21
 
 The user confirms PR #12 merged into main `87fbb24` and explicitly authorizes
