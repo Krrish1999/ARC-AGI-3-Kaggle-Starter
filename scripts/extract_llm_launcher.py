@@ -15,7 +15,8 @@ WEIGHT_DATASETS = {
 
 def extract_launcher(*, local_model_root: str = '/kaggle/working/.arc3-models',
                      local_model_fallback_roots: tuple[str, ...] = (),
-                     local_model_headroom_bytes: int = 16 * 1024**3) -> tuple[str, dict]:
+                     local_model_headroom_bytes: int = 16 * 1024**3,
+                     bounded_model_headroom_bytes: int = 4 * 1024**3) -> tuple[str, dict]:
     path = ROOT / 'research_lab/top_programs/baseline_28_score.ipynb'
     raw = path.read_bytes()
     expected = json.loads((ROOT / 'agent/baseline/manifest.json').read_text())['notebook_sha256']
@@ -82,9 +83,31 @@ def extract_launcher(*, local_model_root: str = '/kaggle/working/.arc3-models',
         if serving.count(before) != 1:
             raise ValueError(f'Baseline launcher fragment changed: {before}')
         serving = serving.replace(before, after)
+    bounded_guard = ('os.getenv("ENABLE_LOCAL_MODEL_STAGING", "1") == "1" and '
+                     'os.getenv("ENABLE_BOUNDED_MODEL_STAGING", "1") == "1"')
+    serving = serving.replace('def indexed_shards(root):\n',
+        'def indexed_shards(root):\n'
+        f'    if {bounded_guard}:\n'
+        '        return bounded_indexed_shards(root)\n')
+    serving = serving.replace('links = {name: source / name for name in shards}',
+        f'links = {{}} if {bounded_guard} else {{name: source / name for name in shards}}')
+    # Avoid the original all-checkpoint page-cache pass competing with our
+    # bounded copier. The adapter rejects unexpected prefetch/loader modes.
+    serving = serving.replace('# ---- assemble Pennyroyal / AutoRound launch arguments ----',
+        f'if {bounded_guard}:\n'
+        '    CFG["PREFETCH_CHECKPOINTS"] = False\n'
+        '    if DRAFT_VIEW is not None:\n'
+        '        register_bounded_alias(Path(staging_report["manifest"]), Path(DRAFT_VIEW), Path(DRAFT_MODEL_DIR))\n'
+        '    env.update({key: os.environ[key] for key in\n'
+        '        ("ARC3_BOUNDED_MANIFEST", "ARC3_BOUNDED_MANIFEST_SHA256")})\n'
+        '# ---- assemble Pennyroyal / AutoRound launch arguments ----')
     # Keep install + server in the supervisor's process group. The parent owns
     # the single bounded readiness deadline, termination and reaping.
-    tail = ('\nif precache_model_thread is not None:\n    precache_model_thread.start()\n'
+    tail = (f'\nif {bounded_guard}:\n'
+            '    adapter = install_bounded_loader(Path(VENV), clean_py_dir, BOUNDED_SOURCE, STAGING_SOURCE)\n'
+            '    staging_report["loader_adapter"] = adapter\n'
+            '    _bounded_save(WORKING_DIR / "diagnostics/model_staging.json", staging_report)\n'
+            'if precache_model_thread is not None:\n    precache_model_thread.start()\n'
             'print("SGLang launch:", args, flush=True)\n'
             'with open(LOG, "ab", buffering=0) as logf:\n'
             '    proc = subprocess.Popen(args, env=env, stdout=logf, stderr=subprocess.STDOUT)\n'
@@ -97,9 +120,26 @@ def extract_launcher(*, local_model_root: str = '/kaggle/working/.arc3-models',
         'asset_report_path.parent.mkdir(parents=True, exist_ok=True)\n'
         'asset_report_path.write_text(json.dumps(asset_report, indent=2) + "\\n")\n')
     staging_source = (ROOT / 'scripts/model_staging.py').read_text().replace('from __future__ import annotations\n', '')
+    bounded_source = (ROOT / 'scripts/bounded_model_staging.py').read_text()
+    # Embed reviewed repository sources in the primary launcher, and write
+    # identical support modules into the isolated serving Python directory.
+    imports = ('try:\n'
+               '    from .model_staging import _stage_file, _staging_files, _storage_profile\n'
+               'except ImportError:\n'
+               '    from arc3_model_staging import _stage_file, _staging_files, _storage_profile\n')
+    bounded_embedded = bounded_source.replace('from __future__ import annotations\n', '').replace(imports, '', 1)
+    support_sources = f'\nBOUNDED_SOURCE = {bounded_source!r}\nSTAGING_SOURCE = {staging_source!r}\n'
     staging = (
-        '\n# Blocking checkpoint-copy barrier: publish no launch arguments before completion.\n'
-        'if os.getenv("ENABLE_LOCAL_MODEL_STAGING", "1") == "1":\n'
+        '\n# Bounded per-shard barriers; toggle 0 retains the full-copy control.\n'
+        f'if {bounded_guard}:\n'
+        '    staging_report = prepare_bounded_checkpoints(asset_report,\n'
+        f'        Path({local_model_root!r}), WORKING_DIR / "diagnostics/model_staging.json",\n'
+        f'        headroom_bytes={bounded_model_headroom_bytes!r}, owner_token=os.environ["ARC3_MODEL_OWNER"])\n'
+        '    os.environ["ARC3_BOUNDED_MANIFEST"] = staging_report["manifest"]\n'
+        '    os.environ["ARC3_BOUNDED_MANIFEST_SHA256"] = hashlib.sha256(Path(staging_report["manifest"]).read_bytes()).hexdigest()\n'
+        '    MODEL_DIR = staging_report["models"]["target"]["path"]\n'
+        '    DRAFT_MODEL_DIR = staging_report["models"].get("draft", {}).get("path", DRAFT_MODEL_DIR)\n'
+        'elif os.getenv("ENABLE_LOCAL_MODEL_STAGING", "1") == "1":\n'
         '    staging_report = stage_checkpoints(Path(asset_report["target"]["path"]),\n'
         '        Path(asset_report["draft"]["path"]) if "draft" in asset_report else None,\n'
         f'        Path({local_model_root!r}), WORKING_DIR / "diagnostics/model_staging.json",\n'
@@ -115,7 +155,8 @@ def extract_launcher(*, local_model_root: str = '/kaggle/working/.arc3-models',
         '    MODEL_DIR = staging_report["models"]["target"]["path"]\n'
         '    DRAFT_MODEL_DIR = staging_report["models"].get("draft", {}).get("path", DRAFT_MODEL_DIR)\n'
         'LOCAL_MODEL_DIR = Path(MODEL_DIR)\n')
-    source = header + prefetch + assets_source + inspection + staging_source + staging + serving + tail
+    source = (header + prefetch + assets_source + inspection + staging_source
+              + bounded_embedded + support_sources + staging + serving + tail)
     compile(source, '<extracted-pennyroyal-launcher>', 'exec')
     provenance = {
         'baseline_notebook_sha256': expected,
@@ -128,7 +169,12 @@ def extract_launcher(*, local_model_root: str = '/kaggle/working/.arc3-models',
         'upstream_commit': 'd00d88efc8d6281b12be4f4073126aec95038c55',
         'sglang_wheel': 'sglang-0.5.19+gd00d88efc8d6-cp312-cp312-linux_x86_64.whl',
         'served_model': 'flashnext', 'startup_seconds': 2400,
-        'prefetch': 'Cell 7 wheel prewarm (16 readers); models copied with a blocking 4-worker barrier before installation/launch. Original model page-cache prefetch is an explicit staging-off control only.',
+        'prefetch': 'Cell 7 wheel prewarm; bounded model copier pipelines one next shard behind a synced digest barrier. Whole-model prefetch is disabled on the bounded path.',
+        'bounded_model_staging': {'toggle': 'ENABLE_BOUNDED_MODEL_STAGING', 'default': '1',
+            'cache_slots': 2, 'root': local_model_root, 'headroom_bytes': bounded_model_headroom_bytes,
+            'barrier': 'per shard: close, fsync, byte count and local digest match before safe_open',
+            'eviction': 'CPU tensor clones detach mmap; unlink after consumption; target/draft interprocess lock',
+            'loader_sha256': '1016b2c6c2d7eb50ef25e0a731e20096e4b79239bccb6fea26aa59d3f29bf8fe'},
         'local_model_staging': {'root': local_model_root, 'toggle': 'ENABLE_LOCAL_MODEL_STAGING',
                                 'default': '1', 'workers': 4, 'copy_barrier': 'all files closed/fsynced; target and draft validated before args/Popen',
                                 'capacity_toggle': 'ENABLE_STAGING_CAPACITY_RESERVATION',

@@ -53,10 +53,17 @@ def _stage_file(item: tuple[Path, Path, int], destination: Path) -> dict:
     if reserved and (target.is_symlink() or target.stat().st_size != expected):
         raise OSError(f'invalid reserved checkpoint file: {relative}')
     with source.open('rb') as reader, target.open('r+b' if reserved else 'xb') as writer:
-        while block := reader.read(8 * 1024**2):
+        # Never write beyond the inventory bound, including a source that
+        # grows after stat. Bounded staging relies on this disk invariant.
+        while count < expected:
+            block = reader.read(min(8 * 1024**2, expected-count))
+            if not block:
+                break
             writer.write(block)
             digest.update(block)
             count += len(block)
+        if reader.read(1):
+            raise OSError(f'source grew beyond checkpoint inventory: {relative}')
         writer.flush()
         os.fsync(writer.fileno())
     if count != expected or target.stat().st_size != expected:

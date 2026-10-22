@@ -27,6 +27,7 @@ class LLMDaemon:
         self.ready = False
         self.ever_ready = False
         self.reason = 'not_started'
+        self.startup_elapsed_seconds: float | None = None
         self.log: Any = None
         self._staging_signature: tuple[int, int] | None = None
         self._staging_owner = uuid.uuid4().hex
@@ -53,7 +54,8 @@ class LLMDaemon:
                                   'reason': self.reason,
                                   'endpoint': 'http://127.0.0.1:8001/v1',
                                   'mode': 'llm' if self.ready else 'exploration',
-                                  'startup_seconds': self.startup_seconds}, indent=2) + '\n')
+                                  'startup_seconds': self.startup_seconds,
+                                  'startup_elapsed_seconds': self.startup_elapsed_seconds}, indent=2) + '\n')
 
     def startup_logs(self) -> None:
         """Keep this run's own startup failures visible in its notebook log."""
@@ -97,6 +99,7 @@ class LLMDaemon:
             return False
         began = time.monotonic()
         deadline = began + self.startup_seconds
+        next_heartbeat = began + 30.0
         try:
             # An occupied port is not evidence that our model is running. Never
             # adopt or terminate another service, including gateway:8001.
@@ -120,6 +123,9 @@ class LLMDaemon:
             self.event('llm_started', pid=self.process.pid, launcher_sha256=digest)
             while time.monotonic() < deadline:
                 self.staging_report()
+                if time.monotonic() >= next_heartbeat:
+                    self.event('llm_startup_wait', elapsed_seconds=time.monotonic()-began)
+                    next_heartbeat = time.monotonic() + 30.0
                 if self.process.poll() is not None:
                     raise RuntimeError(f'launcher_exited:{self.process.returncode}')
                 remaining = deadline - time.monotonic()
@@ -129,10 +135,11 @@ class LLMDaemon:
                     if self.models_ready(min(2.0, remaining)):
                         self.ready, self.ever_ready = True, True
                         self.reason = 'models_endpoint_ready'
+                        self.startup_elapsed_seconds = time.monotonic() - began
                         os.environ['ARC3_LLM_READY'] = '1'
                         os.environ['ARC3_LLM_MODEL'] = 'flashnext'
                         self.record()
-                        self.event('llm_ready', elapsed_seconds=time.monotonic() - began)
+                        self.event('llm_ready', elapsed_seconds=self.startup_elapsed_seconds)
                         return True
                 except (OSError, ValueError, TypeError, AttributeError, http.client.HTTPException):
                     pass
@@ -141,6 +148,7 @@ class LLMDaemon:
         except (OSError, ValueError, RuntimeError, TypeError, AttributeError,
                 subprocess.SubprocessError, http.client.HTTPException) as error:
             self.reason = f'{type(error).__name__}: {error}'
+            self.startup_elapsed_seconds = time.monotonic() - began
             self.stop()
             self.record()
             self.staging_report()

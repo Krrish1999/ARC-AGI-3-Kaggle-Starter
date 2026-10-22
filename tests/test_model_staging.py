@@ -36,6 +36,7 @@ def local_storage(monkeypatch):
 @pytest.fixture
 def checkpoints(tmp_path, monkeypatch):
     monkeypatch.setenv('ARC3_MODEL_OWNER', 'fixture-owner')
+    monkeypatch.setenv('ENABLE_BOUNDED_MODEL_STAGING', '0')  # Full-copy control fixtures.
     sources = []
     for name, count in [('target', 38), ('draft', 2)]:
         root = tmp_path / 'input' / name

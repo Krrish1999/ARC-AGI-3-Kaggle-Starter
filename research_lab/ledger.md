@@ -1,5 +1,68 @@
 # ARC-AGI-3 PhD Research Laboratory Ledger
 
+## [EDIT] Bounded shard staging — systems ticket, 2026-10-22
+
+The user explicitly answered **Develop bounded shard staging**, replacing the
+all-shards-before-launch constraint with incremental copy/load of the **same
+Qwen weights**. Continue PR #14 from engineering parent `b1afa97`; retain the
+archived agent parent and all Gen-3 policy/security sources. Apply `phd-systems`.
+Version 8's final startup outcome remains unconfirmed; no new diagnostics are
+on main at this preflight. Its measured 20.94 GB working capacity motivates
+this change independently of the unresolved fallback outcome.
+
+**[EDIT] hypothesis.** Default-on `ENABLE_BOUNDED_MODEL_STAGING=1` prepares
+verified local metadata and a manifest of indexed source shards. Integrate
+with the exact pinned Pennyroyal loader (upstream `d00d88efc8d6`) through a
+hash-checked, narrowly scoped adapter. Block each loader read until its shard
+copy closes, fsyncs and matches the source-stream digest. Pipeline one next
+shard with one current shard, then unlink the consumed file. Clone yielded
+CPU tensors so surviving model-loader references cannot retain an evicted
+file's mmap. Serialize target/draft iterators with an interprocess lock to
+enforce the aggregate disk bound; reject unsupported loader modes or source
+drift. Disable whole-checkpoint page-cache prefetch on this path. Toggle 0
+retains the full-copy control. Keep the same checkpoints, quantization,
+speculation, RadixAttention, 2,400-second startup and global deadlines.
+
+**Acceptance.** Exercise actual safetensors across all 38+2 tiny fixture
+shards, exact tensor equality, bounded physical storage, blocking read barrier,
+copy/hash/size failures, cancellation, concurrent target/draft and restart
+ownership. Test the generated model/draft handoff and pinned loader adapter;
+fail closed on altered upstream source. Run pytest, ruff, pyright and
+containment, rebuild and update the reviewable PR. Do not claim GPU readiness
+or RHAE from synthetic fixtures. Record runtime evidence separately if another
+Phase A rehearsal is possible within the existing deployment authorization.
+
+### Bounded candidate verification
+
+**282/282 pytest cases** pass, including 21 new bounded-staging cases with
+real CPU torch/safetensors, all 38 target + 2 draft fixture shards, retained
+tensor equality after eviction, physical-block bounds, cancellation, copy
+barriers/failures and the exact pinned upstream default-loader methods.
+Generated model arguments and the retained draft-view helper point to local
+metadata without source-weight symlinks or placeholder shards. Both target and
+draft use the adapter even when draft multithread configuration is omitted.
+The native loader file hash is checked before any patch; unsupported modes
+and altered source fail closed. Rerun of full pytest after rebuilding the
+initially stale notebook passes; ruff and pyright pass, containment **20/20**
+with `containment_passed=true`. One lint repair retained `safe_open.keys()`
+with an API-specific suppression. No agent module changed.
+
+Cache contents are bounded to two indexed shards (10,741,854,576 bytes at the
+observed maximum shard size) plus metadata and 4 GiB of free headroom. The
+underlying copy helper now refuses to write beyond the inventoried byte count,
+including a growing source. Each yielded tensor is cloned on CPU to detach
+its file mmap; the original quantization and model/draft weights are retained.
+Startup diagnostics now persist elapsed startup time and emit a 30-second
+wait heartbeat under the unchanged 2,400-second deadline. Real CPU tests used
+torch 2.14.1+cpu / safetensors 0.8.0; the Kaggle serving wheels remain pinned
+at torch 2.13.0+cu130 / safetensors 0.9.0rc1. Local success does not establish
+GPU readiness, startup latency or RHAE lift.
+
+The reviewed notebook build is **f68cb1c9e817f9fe**. Deployment receipt:
+`research_lab/traces/bounded_staging_deployment.json`. Version 8 remains
+COMPLETE with final startup diagnostics unavailable; this is a distinct,
+explicitly authorized bounded-loading experiment. No Phase B request is made.
+
 ## [EDIT] Working-volume staging and cleanup-error isolation — 2026-10-21
 
 Requested skill: `phd-systems`; continue PR #14 / `feat/local-model-staging`.
@@ -74,13 +137,10 @@ the available console establishes correct rejection of the undersized working
 volume, not a ready model. PR #14 remains draft. No Phase B evaluation was
 requested or submitted.
 
-**Constraint decision pending.** The user requires all 38 shards copied before
-launch. The working volume demonstrably cannot hold them, and the previous
-/tmp rehearsal failed actual writes. Asked whether to preserve that requirement
-or permit bounded shard staging with identical Qwen weights if the fallback
-fails. Do not implement or deploy an incremental-loading contract without the
-answer; do not change checkpoints, bypass the full-copy barrier, or extend the
-startup deadline. Reconcile version-8 diagnostics before another GPU rehearsal.
+**Constraint decision resolved.** The user subsequently answered **Develop
+bounded shard staging**. The bounded-loading ticket above now governs that
+implementation. Preserve version 8's unknown final outcome and all checkpoint
+identities; no timeout increase is authorized.
 
 ## [EDIT] Capacity-backed local checkpoint boot — 2026-10-21
 
