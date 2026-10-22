@@ -67,7 +67,7 @@ def files(setup, kind='target'):
     return bounded.managed_weights(setup.report['models'][kind]['path'])
 
 
-@pytest.mark.parametrize('setup', [2, 3], indirect=True)
+@pytest.mark.parametrize('setup', [2, 3, 4], indirect=True)
 def test_all_38_plus_2_shards_match_and_retained_tensors_survive_eviction(setup, monkeypatch):
     import safetensors
     opened = safetensors.safe_open
@@ -150,7 +150,7 @@ def test_next_copy_failure_cleans_cache_and_propagates(setup, monkeypatch):
     assert not list((setup.transaction / 'cache').iterdir())
 
 
-@pytest.mark.parametrize('setup', [2, 3], indirect=True)
+@pytest.mark.parametrize('setup', [2, 3, 4], indirect=True)
 def test_cancellation_joins_prefetch_then_reclaims_all_slots(setup):
     iterator = bounded.weights_iterator(files(setup))
     _, tensor = next(iterator)
@@ -292,11 +292,13 @@ def test_parallel_read_ablation_uses_serial_control(setup, monkeypatch):
 
 
 @pytest.mark.parametrize('packaged_lookahead', [False, True])
-def test_exact_generated_handoff_and_native_loader_consume_local_cache(setup, tmp_path, monkeypatch, packaged_lookahead):
+@pytest.mark.parametrize('four_window', [False, True])
+def test_exact_generated_handoff_and_native_loader_consume_local_cache(setup, tmp_path, monkeypatch, packaged_lookahead, four_window):
     monkeypatch.setenv('ENABLE_BOUNDED_MODEL_STAGING', '1')
     monkeypatch.setenv('ENABLE_LOCAL_MODEL_STAGING', '1')
+    monkeypatch.setenv('ENABLE_FOUR_SHARD_WINDOW', '1' if four_window else '0')
     source, manifest = extract_launcher(local_model_root=str(tmp_path / 'working' / '.arc3-models'),
-                                      bounded_model_headroom_bytes=4096)
+        bounded_model_headroom_bytes=4096, bounded_model_root=str(tmp_path / 'ephemeral'))
     nodes = ast.parse(source).body
     start = next(i for i, node in enumerate(nodes) if isinstance(node, ast.If)
                  and any(isinstance(call, ast.Call) and isinstance(call.func, ast.Name)
@@ -308,7 +310,9 @@ def test_exact_generated_handoff_and_native_loader_consume_local_cache(setup, tm
              'prepare_bounded_checkpoints': bounded.prepare_bounded_checkpoints}
     exec(compile(ast.Module(body=nodes[start:end+1], type_ignores=[]), '<generated-handoff>', 'exec'), scope)
     local = scope['LOCAL_MODEL_DIR']
-    assert local.is_relative_to(tmp_path / 'working' / '.arc3-models')
+    expected_root = tmp_path / 'ephemeral' if four_window else tmp_path / 'working' / '.arc3-models'
+    assert local.is_relative_to(expected_root)
+    assert scope['staging_report']['cache_slots'] == (4 if four_window else 3)
     scope.update(copy=copy, json=json, bounded_indexed_shards=bounded.bounded_indexed_shards,
                  SGLANG='/fixture/sglang', SERVED_MODEL_NAME='flashnext', SERVED_MODEL_PORT=8001)
     def assignment(node, name):
@@ -358,28 +362,28 @@ def test_exact_generated_handoff_and_native_loader_consume_local_cache(setup, tm
     assert len(draft_loaded) == 2
     for name, tensor in draft_loaded.items():
         assert setup.torch.equal(tensor, setup.expected[name])
-    assert manifest['bounded_model_staging']['cache_slots'] == 3
+    assert manifest['bounded_model_staging']['cache_slots'] == 4
 
 
-@pytest.mark.parametrize('setup', [3], indirect=True)
-def test_three_independent_shard_copies_overlap_without_an_extra_disk_slot(setup, monkeypatch):
+@pytest.mark.parametrize('setup', [3, 4], indirect=True)
+def test_independent_shard_copies_overlap_without_an_extra_disk_slot(setup, monkeypatch):
     original = bounded.stage_shard
     entered, release, lock = threading.Event(), threading.Event(), threading.Lock()
     active = []
     def blocking(item, destination, **kwargs):
         with lock:
             active.append(item[1].name)
-            if len(active) == 3:
+            if len(active) == setup.report['cache_slots']:
                 entered.set()
         assert release.wait(5)
         return original(item, destination, **kwargs)
     monkeypatch.setattr(bounded, 'stage_shard', blocking)
     with concurrent.futures.ThreadPoolExecutor() as pool:
-        loaded = pool.submit(lambda: list(bounded.weights_iterator(files(setup)[:3])))
+        loaded = pool.submit(lambda: list(bounded.weights_iterator(files(setup)[:setup.report['cache_slots']])))
         assert entered.wait(5) and not loaded.done()
-        assert len(set(active)) == 3
+        assert len(set(active)) == setup.report['cache_slots']
         release.set()
-        assert len(loaded.result(timeout=5)) == 3
+        assert len(loaded.result(timeout=5)) == setup.report['cache_slots']
     assert not list((setup.transaction / 'cache').iterdir())
 
 

@@ -16,7 +16,8 @@ WEIGHT_DATASETS = {
 def extract_launcher(*, local_model_root: str = '/kaggle/working/.arc3-models',
                      local_model_fallback_roots: tuple[str, ...] = (),
                      local_model_headroom_bytes: int = 16 * 1024**3,
-                     bounded_model_headroom_bytes: int = 4 * 1024**3) -> tuple[str, dict]:
+                     bounded_model_headroom_bytes: int = 4 * 1024**3,
+                     bounded_model_root: str = '/tmp/models/arc3') -> tuple[str, dict]:
     path = ROOT / 'research_lab/top_programs/baseline_28_score.ipynb'
     raw = path.read_bytes()
     expected = json.loads((ROOT / 'agent/baseline/manifest.json').read_text())['notebook_sha256']
@@ -134,9 +135,11 @@ def extract_launcher(*, local_model_root: str = '/kaggle/working/.arc3-models',
         '\n# Bounded per-shard barriers; toggle 0 retains the full-copy control.\n'
         f'if {bounded_guard}:\n'
         '    staging_report = prepare_bounded_checkpoints(asset_report,\n'
-        f'        Path({local_model_root!r}), WORKING_DIR / "diagnostics/model_staging.json",\n'
+        f'        Path({bounded_model_root!r} if os.getenv("ENABLE_FOUR_SHARD_WINDOW", "1") == "1" else {local_model_root!r}),\n'
+        '        WORKING_DIR / "diagnostics/model_staging.json",\n'
         f'        headroom_bytes={bounded_model_headroom_bytes!r}, owner_token=os.environ["ARC3_MODEL_OWNER"],\n'
-        '        cache_slots=3 if os.getenv("ENABLE_THREE_SHARD_WINDOW", "1") == "1" else 2)\n'
+        '        cache_slots=4 if os.getenv("ENABLE_FOUR_SHARD_WINDOW", "1") == "1" else\n'
+        '            (3 if os.getenv("ENABLE_THREE_SHARD_WINDOW", "1") == "1" else 2))\n'
         '    os.environ["ARC3_BOUNDED_MANIFEST"] = staging_report["manifest"]\n'
         '    os.environ["ARC3_BOUNDED_MANIFEST_SHA256"] = hashlib.sha256(Path(staging_report["manifest"]).read_bytes()).hexdigest()\n'
         '    MODEL_DIR = staging_report["models"]["target"]["path"]\n'
@@ -171,10 +174,11 @@ def extract_launcher(*, local_model_root: str = '/kaggle/working/.arc3-models',
         'upstream_commit': 'd00d88efc8d6281b12be4f4073126aec95038c55',
         'sglang_wheel': 'sglang-0.5.19+gd00d88efc8d6-cp312-cp312-linux_x86_64.whl',
         'served_model': 'flashnext', 'startup_seconds': 2400,
-        'prefetch': 'Cell 7 wheel prewarm; bounded model pipeline overlaps three sequential shard copies behind per-shard synced digest barriers. Whole-model prefetch is disabled.',
+        'prefetch': 'Cell 7 wheel prewarm; bounded model pipeline overlaps four sequential shard copies behind per-shard synced digest barriers. Whole-model prefetch is disabled.',
         'bounded_model_staging': {'toggle': 'ENABLE_BOUNDED_MODEL_STAGING', 'default': '1',
-            'cache_slots': 3, 'slot_toggle': 'ENABLE_THREE_SHARD_WINDOW', 'slot_default': '1',
-            'root': local_model_root, 'headroom_bytes': bounded_model_headroom_bytes,
+            'cache_slots': 4, 'slot_toggle': 'ENABLE_FOUR_SHARD_WINDOW', 'slot_default': '1',
+            'control_root': local_model_root, 'control_slot_toggle': 'ENABLE_THREE_SHARD_WINDOW',
+            'root': bounded_model_root, 'headroom_bytes': bounded_model_headroom_bytes,
             'read_toggle': 'ENABLE_PARALLEL_SHARD_READS', 'read_default': '0',
             'read_workers': 4, 'read_chunk_bytes': 8 * 1024**2,
             'barrier': 'per shard: close, fsync, byte count and local digest match before safe_open',

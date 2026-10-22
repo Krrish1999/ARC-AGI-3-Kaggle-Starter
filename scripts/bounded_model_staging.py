@@ -99,8 +99,8 @@ def prepare_bounded_checkpoints(assets: dict, root: Path, report_path: Path, *,
     """Copy metadata only; no absent shard is represented as a ready file."""
     if type(headroom_bytes) is not int or headroom_bytes < 0 or not owner_token:
         raise ValueError('bounded staging needs nonnegative headroom and an owner')
-    if type(cache_slots) is not int or cache_slots not in (2, 3):
-        raise ValueError('bounded staging needs two or three slots')
+    if type(cache_slots) is not int or cache_slots not in (2, 3, 4):
+        raise ValueError('bounded staging needs two, three or four slots')
     root = root.resolve()
     models = {kind: model for kind, model in assets.items() if kind in ('target', 'draft')}
     if ('target' not in models or root.is_relative_to(Path('/kaggle/input'))
@@ -109,7 +109,8 @@ def prepare_bounded_checkpoints(assets: dict, root: Path, report_path: Path, *,
     report_path.parent.mkdir(parents=True, exist_ok=True)
     root.mkdir(parents=True, exist_ok=True)
     report = {'mode': 'bounded_shards', 'status': 'preparing', 'root': str(root),
-              'models': {}, 'headroom_bytes': headroom_bytes, 'cache_slots': cache_slots}
+              'models': {}, 'headroom_bytes': headroom_bytes, 'cache_slots': cache_slots,
+              'cache_accounting': 'sum of in-flight inventory sizes; conservative bound, not allocated blocks'}
     _bounded_save(report_path, report)
     transaction = None
     try:
@@ -357,16 +358,16 @@ def weights_iterator(hf_weights_files: list[str], disable_mmap: bool = False,
 
         try:
             slots = plan['cache_slots']
-            if slots not in (2, 3):
+            if slots not in (2, 3, 4):
                 raise ValueError('invalid bounded cache slots')
-            with ThreadPoolExecutor(max_workers=3 if slots == 3 else 1) as pool:
+            with ThreadPoolExecutor(max_workers=slots if slots >= 3 else 1) as pool:
                 remaining = iter(entries)
                 pending = deque()
                 for _ in range(slots):
                     item = next(remaining, None)
                     if item is not None:
                         pending.append((item, pool.submit(copy, item)))
-                save(status='copying', active_shards=[item[1].name for item, _ in pending])
+                save(status='copying', initial_shards=[item[1].name for item, _ in pending])
                 while pending:
                     item, future = pending.popleft()
                     result = future.result()  # Complete copy/fsync/digest barrier.

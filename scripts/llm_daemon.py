@@ -15,6 +15,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+EPHEMERAL_MODEL_ROOT = Path('/tmp/models/arc3')
+
 
 class LLMDaemon:
     def __init__(self, launcher: Path, working: Path, event: Callable[..., Any],
@@ -169,11 +171,11 @@ class LLMDaemon:
             paths = report.get('orphaned_transactions', [])
             if 'transaction' in report:
                 paths = [report['transaction'], *paths]
-            root = (self.working / '.arc3-models').resolve()
+            roots = {(self.working / '.arc3-models').resolve(), EPHEMERAL_MODEL_ROOT.resolve()}
             for path in paths:
                 try:
                     transaction = Path(path)
-                    if (transaction.is_symlink() or transaction.parent.resolve() != root
+                    if (transaction.is_symlink() or transaction.parent.resolve() not in roots
                             or not transaction.name.startswith('run-')):
                         continue
                     marker = transaction / '.arc3-owner'

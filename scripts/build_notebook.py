@@ -32,6 +32,7 @@ LOCAL_MODEL_ROOT = "/kaggle/working/.arc3-models"
 LOCAL_MODEL_FALLBACK_ROOTS = ("/tmp/models/arc3", "/kaggle/temp/arc3-models")
 LOCAL_MODEL_HEADROOM_BYTES = 16 * 1024**3
 BOUNDED_MODEL_HEADROOM_BYTES = 4 * 1024**3
+BOUNDED_MODEL_ROOT = "/tmp/models/arc3"
 
 # Internal mapping; don't edit unless Kaggle adds new options.
 _ACCELERATORS = {
@@ -79,7 +80,8 @@ def build() -> dict:
         local_model_root=LOCAL_MODEL_ROOT,
         local_model_fallback_roots=LOCAL_MODEL_FALLBACK_ROOTS,
         local_model_headroom_bytes=LOCAL_MODEL_HEADROOM_BYTES,
-        bounded_model_headroom_bytes=BOUNDED_MODEL_HEADROOM_BYTES)
+        bounded_model_headroom_bytes=BOUNDED_MODEL_HEADROOM_BYTES,
+        bounded_model_root=BOUNDED_MODEL_ROOT)
     daemon_source = (ROOT / 'scripts/llm_daemon.py').read_text()
     build_id = hashlib.sha256((json.dumps(source_hashes, sort_keys=True)
                               + runtime_source + launcher_source + daemon_source

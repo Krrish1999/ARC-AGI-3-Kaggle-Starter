@@ -16,6 +16,7 @@ from unittest.mock import Mock
 
 import pytest
 
+from scripts import llm_daemon as daemon_module
 from scripts import model_staging
 from scripts.extract_llm_launcher import extract_launcher
 from scripts.llm_assets import checkpoint_report
@@ -532,3 +533,19 @@ def test_post_stop_cleanup_retries_owned_orphans_after_missing_entry(tmp_path):
         'orphaned_transactions': [str(root / 'run-missing'), str(owned)]}))
     daemon.stop()
     assert not owned.exists()
+
+
+def test_ephemeral_cache_cleanup_requires_this_runs_nonce(tmp_path, monkeypatch):
+    ephemeral = tmp_path / 'ephemeral-models'; ephemeral.mkdir()
+    monkeypatch.setattr(daemon_module, 'EPHEMERAL_MODEL_ROOT', ephemeral)
+    daemon = LLMDaemon(tmp_path / 'launcher', tmp_path / 'working', Mock())
+    owned, other = ephemeral / 'run-owned', ephemeral / 'run-other'
+    for path, owner in [(owned, daemon._staging_owner), (other, 'someone-else')]:
+        path.mkdir()
+        (path / '.arc3-owner').write_text(owner)
+        (path / 'shard').write_bytes(b'synthetic')
+    diagnostics = daemon.working / 'diagnostics'; diagnostics.mkdir(parents=True)
+    (diagnostics / 'model_staging.json').write_text(json.dumps({
+        'transaction': str(owned), 'orphaned_transactions': [str(other)]}))
+    daemon.stop()
+    assert not owned.exists() and (other / 'shard').read_bytes() == b'synthetic'

@@ -14,7 +14,7 @@
   "hidden_score": null,
   "observed_cache_bound_bytes": 16112781864,
   "observed_capacity_required_bytes": 20471943454,
-  "status": "PREPARED_WAITING_GPU_SLOT",
+  "status": "RUNNING_CONTROL_SUPERSEDED",
   "prepared_at_utc": "2026-10-22T15:47:49.966825+00:00",
   "engineering_parent": "c5d65ae",
   "build_id": "6c412ec9516aedcb",
@@ -65,5 +65,13 @@
     "tests/fixtures/pennyroyal_loader_contract.json": "6fffcc91add7f419e375a8655c01b22708002a70d736d5fb4d7f5ffc6f37c8c2",
     "scripts/kaggle_cli.py": "9e2d9ab9bda5e9167a71ea534c7ae0be83152b690b71bb3142acbaf08040f854",
     "tests/test_kaggle_push_result.py": "369093be8632cf239b480e09f1788ae0b020906cf676ff9756d7a8a6e4922293"
-  }
+  },
+  "saved_version": 13,
+  "source_commit": "e5f4bc4b4056ac0847fcd3364b770239fc14eae4",
+  "source_pull_matches": true,
+  "last_status_check_at_utc": "2026-10-22T15:58:00.368851+00:00",
+  "server_launch_reached": true,
+  "last_observed_loaded_shards": 16,
+  "runtime_evidence": "research_lab/traces/guarded_three_shard_runtime_evidence.json",
+  "runtime_evidence_sha256": "3692caeca261b531c5caddc76096db6ad8b7a34b8a9799f0301024075ceb8e55"
 }

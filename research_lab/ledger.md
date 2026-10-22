@@ -222,6 +222,49 @@ wrapper has no credential-output change. Pending deployment receipt:
 `research_lab/traces/guarded_three_shard_deployment.json`. Retry after a slot
 frees; a rejected API response is not a deployment or startup measurement.
 
+### Version 13 and [EDIT] four-shard ephemeral cache ticket
+
+The guarded retry confirmed **version 13** from `e5f4bc4`, build
+**6c412ec9516aedcb**; pulled source and dataset membership match. Three
+independent sequential copies work: the first group loads in ~186 seconds
+instead of ~470 seconds of serial copying, with a 16,111,599,312-byte cache
+high-water mark. Seven shards are consumed without a read/expectation error.
+The exact indexed-size FIFO schedule, using the measured 29.2 MB/s per file
+and 1.5-second consumption, projects **2,525.3 seconds for target + draft**,
+excluding postprocessing/warmup. This is a projection, not a measured final
+failure; version 13 continues under its unchanged deadline.
+
+**[EDIT]** from `e5f4bc4`: default-on `ENABLE_FOUR_SHARD_WINDOW=1` selects
+`/tmp/models/arc3` and four concurrent sequential source copies. Keep the
+existing three-file working-volume path as toggle-0 control and retain native
+file/tensor order. Four maximum shards need 21,483,709,152 bytes; including
+metadata and 4 GiB headroom needs **25,842,870,742 bytes**, too much for working.
+The `/tmp` overlay previously accepted at least 73,581,282,253 synced bytes
+before the unbounded full-copy failure. This supports a smaller bounded
+experiment, not a claim that reported host free space proves writable capacity.
+All four actual copies still must pass close/fsync/count/digest barriers.
+At 25..29.2 MB/s per file the same FIFO projection is 2,311.8..2,006.5 seconds
+before postprocessing/warmup, within the existing limit with useful headroom
+at the observed serial rate. No checkpoint, quantization or timeout change.
+
+Extend post-stop ownership cleanup to the exact ephemeral root as well as
+working, retaining nonce/marker/path checks. Test full 38+2 tensor loads and
+cancellation for four slots, concurrent four-file production, generated root
+binding and owned-only ephemeral cleanup. Run gates before the next rehearsal.
+
+**Four-window verification.** **306/306 pytest cases** pass; ruff, pyright
+and containment **20/20** pass. One test import-order lint repair passed on
+the next check. Added coverage includes four-slot full tensor replay and
+cancellation, four-copy overlap, both generated root bindings and nonce-bound
+ephemeral cleanup that preserves another owner's cache. Inventory accounting
+is explicitly labeled a conservative bound rather than measured allocated
+blocks; initial shard names are labeled as initial, avoiding stale active-file
+claims. Notebook **e8d4cc5d22a4713b** matches source. Version 13 has consumed
+16 shards; its final readiness remains unknown while the four-file candidate
+is prepared. Receipts:
+`research_lab/traces/guarded_three_shard_runtime_evidence.json` and
+`research_lab/traces/four_shard_staging_deployment.json`.
+
 ## [EDIT] Working-volume staging and cleanup-error isolation — 2026-10-21
 
 Requested skill: `phd-systems`; continue PR #14 / `feat/local-model-staging`.
